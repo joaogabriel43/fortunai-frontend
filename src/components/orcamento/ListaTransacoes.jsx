@@ -8,18 +8,31 @@ const ListaTransacoes = ({ refreshKey, onChanged }) => {
     const { user } = useAuth();
     const [transacoes, setTransacoes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null); // novo estado de erro
     const [modalIsOpen, setModalIsOpen] = useState(false);
     const [transacaoSelecionada, setTransacaoSelecionada] = useState(null);
 
     const fetchTransacoes = async () => {
-        if (!user?.id) return;
+        // Se usuário ainda não carregou, encerra loading para não ficar travado
+        if (!user?.id) {
+            setLoading(false);
+            return;
+        }
         setLoading(true);
+        setError(null);
         try {
             const res = await api.get(`/orcamento/transacoes/${user.id}`);
             const list = Array.isArray(res.data) ? res.data : [];
             setTransacoes(list.sort((a, b) => new Date(b.data) - new Date(a.data)));
         } catch (e) {
-            console.error(e);
+            console.error('Falha ao buscar transações', e);
+            if (e?.response?.status === 401) {
+                setError('Não autorizado. Faça login novamente.');
+            } else if (e?.response?.status === 403) {
+                setError('Acesso negado às transações.');
+            } else {
+                setError('Erro ao carregar transações.');
+            }
         } finally {
             setLoading(false);
         }
@@ -28,13 +41,14 @@ const ListaTransacoes = ({ refreshKey, onChanged }) => {
     useEffect(() => { fetchTransacoes(); }, [user, refreshKey]);
 
     const handleDelete = async (transacaoId) => {
+        if (!user?.id) return;
         if (window.confirm('Tem certeza que deseja excluir esta transação?')) {
             try {
                 await api.delete(`/orcamento/transacao/${user.id}/${transacaoId}`);
                 setTransacoes(prev => prev.filter(t => t.id !== transacaoId));
                 if (onChanged) onChanged();
-            } catch (error) {
-                console.error('Falha ao excluir transação', error);
+            } catch (err) {
+                console.error('Falha ao excluir transação', err);
                 alert('Não foi possível excluir a transação.');
             }
         }
@@ -44,12 +58,12 @@ const ListaTransacoes = ({ refreshKey, onChanged }) => {
     const closeModal = () => { setModalIsOpen(false); setTransacaoSelecionada(null); };
 
     const handleUpdated = async () => {
-        // Recarrega a lista e informa ao pai para atualizar o gráfico
         await fetchTransacoes();
         if (onChanged) onChanged();
     };
 
     if (loading) return <p>Carregando transações...</p>;
+    if (error) return <p style={{ color: '#e53e3e' }}>{error}</p>;
 
     return (
         <div style={{ marginTop: '40px', width: '100%' }}>
