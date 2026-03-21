@@ -1,90 +1,103 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import React from 'react'
+import { NavLink } from 'react-router-dom'
+import { Box, Button, Typography } from '@mui/material'
+import { useAuth } from '../contexts/AuthContext'
+
+const NAV_LINKS = [
+  { to: '/dashboard',    label: 'Dashboard' },
+  { to: '/chat',         label: 'Chat' },
+  { to: '/orcamento',    label: 'Orçamento' },
+  { to: '/investimentos', label: 'Investimentos' },
+]
 
 const Sidebar = () => {
-    const { logout } = useAuth();
+  const { logout } = useAuth()
 
-    const handleLogout = () => {
-        logout();
-    };
-
-    const sidebarStyle = {
-        width: '240px',
-        flexShrink: 0,
-        backgroundColor: '#1a202c',
-        padding: '20px',
+  return (
+    <Box
+      component="aside"
+      data-testid="sidebar"
+      sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100vh',
-        boxSizing: 'border-box',
-        borderRight: '1px solid #2d3748'
-    };
+        height: '100%',
+        overflow: 'hidden',
+      }}
+    >
+      {/* TOPO: Logo */}
+      <Box
+        sx={{
+          px: 2.5,
+          py: 3,
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          flexShrink: 0,
+        }}
+      >
+        <Typography
+          variant="h6"
+          fontWeight={700}
+          sx={{ color: '#7C6AF7', letterSpacing: '-0.5px', lineHeight: 1.2 }}
+        >
+          FortunAI
+        </Typography>
+        <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: 11 }}>
+          Assistente Financeiro
+        </Typography>
+      </Box>
 
-    const navLinkStyle = {
-        color: '#a0aec0',
-        textDecoration: 'none',
-        padding: '10px 15px',
-        borderRadius: '5px',
-        marginBottom: '10px',
-        display: 'flex',
-        alignItems: 'center'
-    };
+      {/* MEIO: Navegação */}
+      <Box component="nav" sx={{ flexGrow: 1, px: 1.5, py: 2, overflow: 'hidden' }}>
+        {NAV_LINKS.map(({ to, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            style={({ isActive }) => ({
+              display: 'flex',
+              alignItems: 'center',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              marginBottom: '4px',
+              textDecoration: 'none',
+              color: isActive ? '#ffffff' : '#8B8BA8',
+              backgroundColor: isActive ? 'rgba(124, 106, 247, 0.15)' : 'transparent',
+              fontWeight: isActive ? 600 : 400,
+              fontSize: '0.875rem',
+              transition: 'background-color 0.15s, color 0.15s',
+            })}
+          >
+            {label}
+          </NavLink>
+        ))}
+      </Box>
 
-    const activeLinkStyle = {
-        backgroundColor: '#2d3748',
-        color: 'white',
-        fontWeight: 'bold'
-    };
+      {/* RODAPÉ: Ambiente + Sair */}
+      <Box
+        sx={{
+          px: 1.5,
+          py: 2,
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          flexShrink: 0,
+        }}
+      >
+        <Typography
+          variant="caption"
+          sx={{ color: 'text.disabled', display: 'block', mb: 1, fontSize: 10, textAlign: 'center' }}
+        >
+          Ambiente: {import.meta.env.MODE.toUpperCase()}
+        </Typography>
+        <Button
+          fullWidth
+          variant="contained"
+          color="error"
+          size="small"
+          onClick={logout}
+          sx={{ borderRadius: '6px', textTransform: 'none' }}
+        >
+          Sair
+        </Button>
+      </Box>
+    </Box>
+  )
+}
 
-    const bottomContainerStyle = {
-        marginTop: 'auto',
-        borderTop: '1px solid #2d3748',
-        paddingTop: '15px'
-    };
-
-    const environmentStyle = { padding: '10px 0', color: '#718096', fontSize: '0.8rem', textAlign: 'center' };
-    const logoutButtonStyle = { width: '100%', padding: '10px 15px', borderRadius: '5px', border: 'none', backgroundColor: '#e53e3e', color: 'white', fontWeight: 'bold', cursor: 'pointer', textAlign: 'center' };
-
-    return (
-        <aside style={sidebarStyle}>
-            <nav style={{ display: 'flex', flexDirection: 'column' }}>
-                <NavLink
-                    to="/dashboard"
-                    style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeLinkStyle : {}) })}
-                >
-                    Dashboard
-                </NavLink>
-                <NavLink
-                    to="/chat"
-                    style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeLinkStyle : {}) })}
-                >
-                    Chat
-                </NavLink>
-                <NavLink
-                    to="/orcamento"
-                    style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeLinkStyle : {}) })}
-                >
-                    Orçamento
-                </NavLink>
-                <NavLink
-                    to="/investimentos"
-                    style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeLinkStyle : {}) })}
-                >
-                    Investimentos
-                </NavLink>
-            </nav>
-
-            <div style={bottomContainerStyle}>
-                <div style={environmentStyle}>
-                    Ambiente: {import.meta.env.MODE.toUpperCase()}
-                </div>
-                <button style={logoutButtonStyle} onClick={handleLogout}>
-                    Sair
-                </button>
-            </div>
-        </aside>
-    );
-};
-
-export default Sidebar;
+export default Sidebar

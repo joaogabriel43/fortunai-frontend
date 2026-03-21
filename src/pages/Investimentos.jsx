@@ -8,7 +8,6 @@ import { investimentoService } from '../services/investimentoService';
 import { Box, Button, Modal, Paper, TextField, Typography } from '@mui/material';
 
 const Investimentos = () => {
-    const contentWrapperStyle = { width: '100%', maxWidth: '1200px' };
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -66,7 +65,7 @@ const Investimentos = () => {
     };
 
     return (
-        <div style={contentWrapperStyle}>
+        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
             <h2>Painel de Investimentos</h2>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
                 <button
@@ -105,7 +104,7 @@ const Investimentos = () => {
                     </Box>
                 </Paper>
             </Modal>
-        </div>
+        </Box>
     );
 };
 

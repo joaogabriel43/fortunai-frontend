@@ -6,7 +6,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
-const MENSAGEM_BEM_VINDO = { text: 'Olá! Eu sou o Finassistant. Como posso te ajudar hoje?', sender: 'bot' };
+const MENSAGEM_BEM_VINDO = { text: 'Olá! Eu sou o Fortunai. Como posso te ajudar hoje?', sender: 'bot' };
+// Preserve legacy welcome texts for migration from localStorage
+const LEGACY_WELCOME_TEXTS = [
+    'Olá! Eu sou o Finassistant. Como posso te ajudar hoje?',
+    'Olá! Eu sou o FinAssistant. Como posso te ajudar hoje?'
+];
 
 const Chat = () => {
     const { user } = useAuth();
@@ -53,6 +58,10 @@ const Chat = () => {
                             return null;
                         })
                         .filter((m) => m && !m.typing && m.text && m.sender);
+                    // migration: update old welcome text(s) to new branding if present as the first bot message
+                    if (normalized.length && normalized[0]?.sender === 'bot' && LEGACY_WELCOME_TEXTS.includes(normalized[0]?.text)) {
+                        normalized[0] = { ...normalized[0], text: MENSAGEM_BEM_VINDO.text };
+                    }
                     return normalized.length ? normalized : welcome;
                 }
             }
@@ -135,13 +144,16 @@ const Chat = () => {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                height: 'calc(100vh - 120px)',
-                maxWidth: '800px',
-                margin: 'auto',
+                height: '100vh',
+                maxWidth: 900,
+                mx: 'auto',
+                px: { xs: 1.5, md: 3 },
+                py: 2,
+                width: '100%',
             }}
         >
             <Typography variant="h5" gutterBottom>
-                Assistente Financeiro
+                Fortunai
             </Typography>
 
             <Paper
@@ -176,7 +188,7 @@ const Chat = () => {
                 <div ref={messagesEndRef} />
             </Paper>
 
-            <Box component="form" onSubmit={handleSend} sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box component="form" onSubmit={handleSend} sx={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
                 <TextField
                     fullWidth
                     variant="outlined"

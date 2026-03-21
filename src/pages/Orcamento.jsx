@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Box } from '@mui/material';
 import AdicionarTransacaoForm from '../components/orcamento/AdicionarTransacaoForm';
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart';
 import ListaTransacoes from '../components/orcamento/ListaTransacoes';
@@ -14,16 +15,14 @@ const Orcamento = () => {
         setRefreshKey((k) => k + 1);
     };
 
-    const contentWrapperStyle = { width: '100%', maxWidth: '1200px' };
-
     return (
-        <div style={contentWrapperStyle}>
+        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
             <h2>Painel de Orçamento</h2>
             <hr />
             <AdicionarTransacaoForm onTransacaoAdicionada={handleTransacaoAdicionada} />
             <ListaTransacoes refreshKey={refreshKey} onChanged={handleTransacaoAlterada} />
             <GastosPorCategoriaChart key={refreshKey} />
-        </div>
+        </Box>
     );
 };
 
