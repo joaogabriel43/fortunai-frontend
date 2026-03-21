@@ -26,14 +26,14 @@ class ChartErrorBoundary extends React.Component {
   }
 }
 
-export default function PortfolioDonutChart({ data }) {
+export default function PortfolioDonutChart({ data, height = 220 }) {
   if (!data || data.length === 0) return null
 
   return (
     <Box>
       {/* Recharts envolvido em error boundary: em jsdom pode falhar sem afetar a legenda */}
       <ChartErrorBoundary>
-        <ResponsiveContainer width="100%" height={220}>
+        <ResponsiveContainer width="100%" height={height}>
           <PieChart>
             <Pie
               data={data}

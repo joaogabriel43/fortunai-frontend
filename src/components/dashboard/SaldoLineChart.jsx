@@ -32,12 +32,12 @@ const formatDateLong = (val) =>
 const formatBRL = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)
 
-export default function SaldoLineChart({ data }) {
+export default function SaldoLineChart({ data, height = 240 }) {
   if (!data || data.length === 0) return null
 
   return (
     <Box data-testid="evolucao-saldo-chart">
-      <ResponsiveContainer width="100%" height={240}>
+      <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 60 }}>
           <CartesianGrid
             strokeDasharray="3 3"

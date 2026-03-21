@@ -7,6 +7,7 @@ const initialState = {
   error: null,
   saldoAtual: 0,
   totalInvestido: 0,
+  totalReceitas: 0,
   maiorGasto: null,
   transacoes: [],
   portfolioComposition: [],
@@ -35,8 +36,10 @@ export function useDashboardData() {
       const saldoAtual = summary?.contas?.[0]?.saldoAtual ?? 0
       const totalInvestido = portfolioComposition.reduce((acc, item) => acc + (item.value ?? 0), 0)
 
-      // Maior gasto: transação DEBIT com maior valor
+      // Maior gasto e total de receitas
       const debits = transacoes.filter((t) => t.tipo === 'DEBIT')
+      const credits = transacoes.filter((t) => t.tipo === 'CREDIT')
+      const totalReceitas = credits.reduce((sum, t) => sum + (t.valor?.quantia ?? 0), 0)
       const maiorGasto = debits.length > 0
         ? debits.reduce((max, t) => {
             const val = t.valor?.quantia ?? 0
@@ -60,6 +63,7 @@ export function useDashboardData() {
         error: null,
         saldoAtual,
         totalInvestido,
+        totalReceitas,
         maiorGasto: maiorGasto
           ? { categoria: maiorGasto.categoria, valor: maiorGasto.valor?.quantia ?? 0 }
           : null,

@@ -3,6 +3,7 @@ import { Alert, Box, Grid, Paper, Typography } from '@mui/material'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import PieChartIcon from '@mui/icons-material/PieChart'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
@@ -16,12 +17,20 @@ import EmptyState from '../components/dashboard/EmptyState'
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton'
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart'
 
+const paperStyle = {
+  background: '#111118',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: '12px',
+  boxShadow: 'none',
+}
+
 const Dashboard = () => {
   const {
     loading,
     error,
     saldoAtual,
     totalInvestido,
+    totalReceitas,
     maiorGasto,
     transacoes,
     portfolioComposition,
@@ -45,7 +54,7 @@ const Dashboard = () => {
           mensagem="Comece registrando uma transação no chat"
           icone={ReceiptLongIcon}
         />
-        <Paper sx={{ p: 2, mt: 3, overflow: 'hidden', background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', boxShadow: 'none' }}>
+        <Paper sx={{ p: 2, mt: 3, overflow: 'hidden', ...paperStyle }}>
           <GastosPorCategoriaChart />
         </Paper>
       </Box>
@@ -55,9 +64,9 @@ const Dashboard = () => {
   return (
     <Box sx={{ p: { xs: 1.5, md: 3 } }}>
 
-      {/* ROW 1 — KPI Cards */}
+      {/* LINHA 1 — 4 KPI Cards */}
       <Grid container spacing={2} alignItems="stretch" sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6} md={3}>
           <KpiCard
             titulo="Saldo Atual"
             valor={saldoAtual}
@@ -65,7 +74,7 @@ const Dashboard = () => {
             cor="#7C6AF7"
           />
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6} md={3}>
           <KpiCard
             titulo="Total Investido"
             valor={totalInvestido}
@@ -73,7 +82,15 @@ const Dashboard = () => {
             cor="#00D4AA"
           />
         </Grid>
-        <Grid item xs={12} sm={4}>
+        <Grid item xs={12} sm={6} md={3}>
+          <KpiCard
+            titulo="Total Receitas"
+            valor={totalReceitas}
+            icone={AttachMoneyIcon}
+            cor="#4CAF50"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
           <KpiCard
             titulo="Maior Gasto"
             valor={maiorGasto?.valor ?? 0}
@@ -84,15 +101,15 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      {/* ROW 2 — Evolução do Saldo + Últimas Transações */}
+      {/* LINHA 2 — Evolução do Saldo (larga) + Composição do Portfólio (compacto) */}
       <Grid container spacing={2} sx={{ mb: 3, width: '100%', mx: 0 }}>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: { xs: 1.5, md: 2.5 }, height: '100%', overflow: 'hidden', background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', boxShadow: 'none' }}>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: { xs: 1.5, md: 2.5 }, height: '100%', overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={1.5}>
               Evolução do Saldo
             </Typography>
             {evolucaoSaldo.length > 0
-              ? <SaldoLineChart data={evolucaoSaldo} />
+              ? <SaldoLineChart data={evolucaoSaldo} height={280} />
               : <EmptyState
                   compact
                   mensagem="Nenhuma movimentação registrada ainda"
@@ -101,8 +118,27 @@ const Dashboard = () => {
             }
           </Paper>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2.5, height: '100%', overflow: 'hidden', background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', boxShadow: 'none' }}>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 2.5, height: '100%', overflow: 'hidden', ...paperStyle }}>
+            <Typography variant="h6" fontWeight={600} mb={2}>
+              Composição do Portfólio
+            </Typography>
+            {portfolioComposition.length > 0
+              ? <PortfolioDonutChart data={portfolioComposition} height={240} />
+              : <EmptyState
+                  compact
+                  mensagem="Adicione ativos para ver sua composição"
+                  icone={PieChartIcon}
+                />
+            }
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* LINHA 3 — Últimas Transações (largura total) */}
+      <Grid container spacing={2} sx={{ mb: 3, width: '100%', mx: 0 }}>
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2.5, overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={2}>
               Últimas Transações
             </Typography>
@@ -118,25 +154,10 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      {/* ROW 3 — Composição do Portfólio + Despesas por Categoria */}
-      <Grid container spacing={2} sx={{ mb: 3, width: '100%', mx: 0 }}>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2.5, height: '100%', overflow: 'hidden', background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', boxShadow: 'none' }}>
-            <Typography variant="h6" fontWeight={600} mb={2}>
-              Composição do Portfólio
-            </Typography>
-            {portfolioComposition.length > 0
-              ? <PortfolioDonutChart data={portfolioComposition} />
-              : <EmptyState
-                  compact
-                  mensagem="Adicione ativos para ver sua composição"
-                  icone={PieChartIcon}
-                />
-            }
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper sx={{ p: 2.5, height: '100%', overflow: 'hidden', background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', boxShadow: 'none' }}>
+      {/* LINHA 4 — Despesas por Categoria (largura total) */}
+      <Grid container spacing={2} sx={{ width: '100%', mx: 0 }}>
+        <Grid item xs={12}>
+          <Paper sx={{ p: 2.5, overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={1.5}>
               Despesas por Categoria
             </Typography>
