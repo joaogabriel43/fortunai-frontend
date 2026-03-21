@@ -1,7 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import { createTheme } from '@mui/material/styles';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
 import Registro from './pages/Registro';
@@ -19,17 +17,10 @@ const NotFoundRedirect = () => {
 };
 
 function App() {
-    const theme = createTheme({
-        palette: {
-            mode: 'dark',
-        },
-    });
     return (
         <Router>
             <AuthProvider>
-                <ThemeProvider theme={theme}>
-                    <CssBaseline />
-                    <Routes>
+                <Routes>
                         {/* Rotas Públicas */}
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/registrar" element={<Registro />} />
@@ -47,8 +38,7 @@ function App() {
 
                         {/* Rota Catch-all para caminhos não encontrados */}
                         <Route path="*" element={<NotFoundRedirect />} />
-                    </Routes>
-                </ThemeProvider>
+                </Routes>
             </AuthProvider>
         </Router>
     );
