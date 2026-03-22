@@ -1,6 +1,5 @@
 import React from 'react'
 import { Alert, Box, Divider, Grid, Paper, Typography } from '@mui/material'
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import PieChartIcon from '@mui/icons-material/PieChart'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
@@ -12,6 +11,7 @@ import SaldoLineChart from '../components/dashboard/SaldoLineChart'
 import EmptyState from '../components/dashboard/EmptyState'
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton'
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart'
+import DividendosCard from '../components/dashboard/DividendosCard'
 
 const formatBRL = (value) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0)
@@ -221,23 +221,7 @@ const Dashboard = () => {
 
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, overflow: 'hidden', ...paperStyle }}>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                textAlign: 'center',
-                minHeight: 200,
-                gap: 2,
-              }}
-            >
-              <CalendarMonthIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.5 }} />
-              <Typography variant="h6">Dividendos e Proventos</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Funcionalidade em desenvolvimento — Sprint 2
-              </Typography>
-            </Box>
+            <DividendosCard />
           </Paper>
         </Grid>
       </Grid>
