@@ -9,6 +9,42 @@ const COLORS = ['#7C6AF7', '#00D4AA', '#FF4D6A', '#FFB547', '#4FC3F7']
 const formatBRL = (value) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
 
+// Label central SVG renderizado dentro do PieChart
+const CentralLabel = ({ viewBox, totalInvestido }) => {
+  const { cx, cy } = viewBox
+  const formatted = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    notation: 'compact',
+  }).format(totalInvestido ?? 0)
+
+  return (
+    <g>
+      <text
+        x={cx}
+        y={cy - 8}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill="#8B8BA8"
+        fontSize={11}
+      >
+        Total
+      </text>
+      <text
+        x={cx}
+        y={cy + 12}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill="#FFFFFF"
+        fontSize={14}
+        fontWeight="700"
+      >
+        {formatted}
+      </text>
+    </g>
+  )
+}
+
 // Error boundary para capturar erros do recharts em ambientes sem canvas/SVG completo (ex: jsdom)
 class ChartErrorBoundary extends React.Component {
   constructor(props) {
@@ -26,8 +62,10 @@ class ChartErrorBoundary extends React.Component {
   }
 }
 
-export default function PortfolioDonutChart({ data, height = 220 }) {
+export default function PortfolioDonutChart({ data, height = 220, totalInvestido }) {
   if (!data || data.length === 0) return null
+
+  const total = totalInvestido ?? data.reduce((acc, item) => acc + (item.value ?? 0), 0)
 
   return (
     <Box>
@@ -39,10 +77,12 @@ export default function PortfolioDonutChart({ data, height = 220 }) {
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={55}
-              outerRadius={85}
+              innerRadius={60}
+              outerRadius={90}
               paddingAngle={3}
               dataKey="value"
+              labelLine={false}
+              label={<CentralLabel totalInvestido={total} />}
             >
               {data.map((_, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

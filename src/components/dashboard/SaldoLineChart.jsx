@@ -1,9 +1,9 @@
 import React from 'react'
 import { Box } from '@mui/material'
 import {
+  AreaChart,
+  Area,
   CartesianGrid,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -38,7 +38,13 @@ export default function SaldoLineChart({ data, height = 240 }) {
   return (
     <Box data-testid="evolucao-saldo-chart">
       <ResponsiveContainer width="100%" height={height}>
-        <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 60 }}>
+        <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 60 }}>
+          <defs>
+            <linearGradient id="saldoGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#7C6AF7" stopOpacity={0.3} />
+              <stop offset="95%" stopColor="#7C6AF7" stopOpacity={0.0} />
+            </linearGradient>
+          </defs>
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="rgba(255,255,255,0.04)"
@@ -68,15 +74,16 @@ export default function SaldoLineChart({ data, height = 240 }) {
             labelFormatter={formatDateLong}
             formatter={(val) => [formatBRL(val), 'Saldo']}
           />
-          <Line
+          <Area
             type="monotone"
             dataKey="saldo"
             stroke="#7C6AF7"
             strokeWidth={2}
+            fill="url(#saldoGradient)"
             dot={{ fill: '#7C6AF7', r: 4 }}
             activeDot={{ r: 6, fill: '#7C6AF7', stroke: '#0A0A0F', strokeWidth: 2 }}
           />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </Box>
   )

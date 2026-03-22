@@ -1,7 +1,17 @@
 import React from 'react'
 import {
-  Box, Chip, Divider, List, ListItem, ListItemText, Typography,
+  Avatar,
+  Box,
+  Chip,
+  Divider,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  Typography,
 } from '@mui/material'
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 
 const formatBRL = (value) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0)
@@ -27,6 +37,24 @@ export default function TransactionList({ transacoes }) {
               </Typography>
             }
           >
+            {/* Avatar com ícone de direção por tipo */}
+            <ListItemAvatar sx={{ minWidth: 40 }}>
+              <Avatar
+                sx={{
+                  width: 32,
+                  height: 32,
+                  bgcolor: t.tipo === 'CREDIT'
+                    ? 'rgba(76,175,80,0.15)'
+                    : 'rgba(255,77,106,0.15)',
+                }}
+              >
+                {t.tipo === 'CREDIT'
+                  ? <ArrowUpwardIcon sx={{ fontSize: 16, color: '#4CAF50' }} />
+                  : <ArrowDownwardIcon sx={{ fontSize: 16, color: '#FF4D6A' }} />
+                }
+              </Avatar>
+            </ListItemAvatar>
+
             <ListItemText
               primary={
                 // Quando a descrição é um ticker do portfólio, omite o texto primário
@@ -42,7 +70,15 @@ export default function TransactionList({ transacoes }) {
                   <Chip
                     label={t.categoria}
                     size="small"
-                    sx={{ fontSize: 10, height: 18 }}
+                    sx={{
+                      fontSize: 10,
+                      height: 18,
+                      bgcolor: t.tipo === 'CREDIT'
+                        ? 'rgba(76,175,80,0.15)'
+                        : 'rgba(255,77,106,0.15)',
+                      color: t.tipo === 'CREDIT' ? '#4CAF50' : '#FF4D6A',
+                      border: 'none',
+                    }}
                   />
                   <Typography variant="caption" color="text.secondary">
                     {formatDate(t.data)}
