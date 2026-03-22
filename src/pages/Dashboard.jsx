@@ -1,15 +1,11 @@
 import React from 'react'
-import { Alert, Box, Grid, Paper, Typography } from '@mui/material'
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
-import TrendingUpIcon from '@mui/icons-material/TrendingUp'
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
+import { Alert, Box, Divider, Grid, Paper, Typography } from '@mui/material'
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import PieChartIcon from '@mui/icons-material/PieChart'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
 
 import { useDashboardData } from '../hooks/useDashboardData'
-import KpiCard from '../components/dashboard/KpiCard'
 import TransactionList from '../components/dashboard/TransactionList'
 import PortfolioDonutChart from '../components/dashboard/PortfolioDonutChart'
 import SaldoLineChart from '../components/dashboard/SaldoLineChart'
@@ -17,11 +13,40 @@ import EmptyState from '../components/dashboard/EmptyState'
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton'
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart'
 
+const formatBRL = (value) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0)
+
 const paperStyle = {
-  background: '#111118',
   border: '1px solid rgba(255,255,255,0.08)',
   borderRadius: '16px',
   boxShadow: 'none',
+}
+
+// Mini-stat exibido dentro da Hero section
+// Mantém data-testid="kpi-card" para compatibilidade com os testes existentes
+function MiniStat({ label, value }) {
+  return (
+    <Box
+      data-testid="kpi-card"
+      sx={{ textAlign: 'center', px: { xs: 1.5, md: 2 } }}
+    >
+      <Typography
+        variant="caption"
+        sx={{
+          color: 'text.secondary',
+          fontSize: 11,
+          textTransform: 'uppercase',
+          letterSpacing: 0.5,
+          display: 'block',
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography variant="h6" fontWeight={700} sx={{ mt: 0.5, fontSize: { xs: '0.95rem', md: '1.1rem' } }}>
+        {formatBRL(value)}
+      </Typography>
+    </Box>
+  )
 }
 
 const Dashboard = () => {
@@ -61,55 +86,89 @@ const Dashboard = () => {
     )
   }
 
+  const patrimonioTotal = saldoAtual + totalInvestido
+
   return (
     <Box sx={{ p: { xs: 1.5, md: 3 } }}>
 
-      {/* LINHA 1 — Hero Row: 4 KPI Cards */}
-      <Grid container spacing={3} alignItems="stretch" sx={{ mb: 3 }}>
-        <Grid item xs={6} md={3}>
-          <KpiCard
-            titulo="Saldo Atual"
-            valor={saldoAtual}
-            icone={AccountBalanceWalletIcon}
-            cor="#7C6AF7"
-          />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <KpiCard
-            titulo="Total Investido"
-            valor={totalInvestido}
-            icone={TrendingUpIcon}
-            cor="#00D4AA"
-          />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <KpiCard
-            titulo="Total Receitas"
-            valor={totalReceitas}
-            icone={AttachMoneyIcon}
-            cor="#4CAF50"
-          />
-        </Grid>
-        <Grid item xs={6} md={3}>
-          <KpiCard
-            titulo="Maior Gasto"
-            valor={maiorGasto?.valor ?? 0}
-            icone={ShoppingCartIcon}
-            cor="#FF4D6A"
-            subtitulo={maiorGasto?.categoria ?? 'Nenhum gasto registrado'}
-          />
-        </Grid>
-      </Grid>
+      {/* HERO SECTION — Card full-width com patrimônio total e 4 mini-stats */}
+      <Paper
+        sx={{
+          p: { xs: 2.5, md: 4 },
+          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+          border: '1px solid rgba(124,106,247,0.3)',
+          borderRadius: '16px',
+          boxShadow: 'none',
+        }}
+      >
+        {/* Rótulo superior */}
+        <Typography
+          variant="caption"
+          sx={{
+            color: 'text.secondary',
+            fontSize: 11,
+            textTransform: 'uppercase',
+            letterSpacing: 0.8,
+          }}
+        >
+          Patrimônio Total
+        </Typography>
 
-      {/* LINHA 2 — Charts Row: Evolução do Saldo (md=8) + Composição do Portfólio (md=4) */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+        {/* Valor do patrimônio */}
+        <Typography
+          variant="h3"
+          fontWeight={700}
+          sx={{ mt: 0.5, mb: 3, fontSize: { xs: '2rem', md: '2.5rem' } }}
+        >
+          {formatBRL(patrimonioTotal)}
+        </Typography>
+
+        {/* 4 mini-stats separados por Dividers verticais */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: { xs: 1.5, md: 0 },
+          }}
+        >
+          <MiniStat label="Saldo Atual" value={saldoAtual} />
+
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
+          />
+
+          <MiniStat label="Total Investido" value={totalInvestido} />
+
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
+          />
+
+          <MiniStat label="Total Receitas" value={totalReceitas} />
+
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
+          />
+
+          <MiniStat label="Maior Gasto" value={maiorGasto?.valor ?? 0} />
+        </Box>
+      </Paper>
+
+      {/* SEÇÃO TÁTICA — Evolução do Saldo (md=8) + Composição do Portfólio (md=4) */}
+      <Grid container spacing={3} sx={{ mt: 3 }}>
         <Grid item xs={12} md={8}>
           <Paper sx={{ p: { xs: 1.5, md: 3 }, height: '100%', overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={1.5}>
               Evolução do Saldo
             </Typography>
             {evolucaoSaldo.length > 0
-              ? <SaldoLineChart data={evolucaoSaldo} height={300} />
+              ? <SaldoLineChart data={evolucaoSaldo} height={280} />
               : <EmptyState
                   compact
                   mensagem="Nenhuma movimentação registrada ainda"
@@ -118,17 +177,20 @@ const Dashboard = () => {
             }
           </Paper>
         </Grid>
+
         <Grid item xs={12} md={4}>
           <Paper sx={{ p: 3, height: '100%', overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={2}>
               Composição do Portfólio
             </Typography>
             {portfolioComposition.length > 0
-              ? <PortfolioDonutChart
+              ? (
+                <PortfolioDonutChart
                   data={portfolioComposition}
-                  height={300}
+                  height={220}
                   totalInvestido={totalInvestido}
                 />
+              )
               : <EmptyState
                   compact
                   mensagem="Adicione ativos para ver sua composição"
@@ -139,9 +201,9 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      {/* LINHA 3 — Bottom Row: Últimas Transações (md=7) + Despesas por Categoria (md=5) */}
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={7}>
+      {/* SEÇÃO OPERACIONAL — Últimas Transações (md=6) + Dividendos placeholder (md=6) */}
+      <Grid container spacing={3} sx={{ mt: 0 }}>
+        <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={2}>
               Últimas Transações
@@ -156,12 +218,26 @@ const Dashboard = () => {
             }
           </Paper>
         </Grid>
-        <Grid item xs={12} md={5}>
+
+        <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3, overflow: 'hidden', ...paperStyle }}>
-            <Typography variant="h6" fontWeight={600} mb={1.5}>
-              Despesas por Categoria
-            </Typography>
-            <GastosPorCategoriaChart showTitle={false} />
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center',
+                minHeight: 200,
+                gap: 2,
+              }}
+            >
+              <CalendarMonthIcon sx={{ fontSize: 48, color: 'primary.main', opacity: 0.5 }} />
+              <Typography variant="h6">Dividendos e Proventos</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Funcionalidade em desenvolvimento — Sprint 2
+              </Typography>
+            </Box>
           </Paper>
         </Grid>
       </Grid>

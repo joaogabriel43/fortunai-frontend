@@ -1,54 +1,43 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles'
 
 const theme = createTheme({
   palette: {
     mode: 'dark',
+    primary: { main: '#7C6AF7' },
+    secondary: { main: '#00D4AA' },
+    error: { main: '#FF4D6A' },
     background: {
-      default: '#0A0A0F',
-      paper: '#111118',
-    },
-    primary: {
-      main: '#7C6AF7',
-      dark: '#5B4FD4',
-      contrastText: '#F0F0F8',
-    },
-    secondary: {
-      main: '#00D4AA',
-      contrastText: '#0A0A0F',
-    },
-    error: {
-      main: '#FF4D6A',
+      default: '#0a0a0f',
+      paper: 'rgba(255,255,255,0.04)',
     },
     text: {
-      primary: '#F0F0F8',
+      primary: '#FFFFFF',
       secondary: '#8B8BA8',
     },
     divider: 'rgba(255,255,255,0.06)',
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    fontWeightLight: 300,
-    fontWeightRegular: 400,
-    fontWeightMedium: 500,
-    fontWeightBold: 700,
+    fontFamily: '"Inter", "Roboto", sans-serif',
+    h3: { fontWeight: 700 },
+    h4: { fontWeight: 700 },
+    h5: { fontWeight: 700 },
+    h6: { fontWeight: 600 },
   },
-  shape: {
-    borderRadius: 12,
-  },
+  shape: { borderRadius: 16 },
   components: {
-    MuiCard: {
+    MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: '#111118',
+          backgroundImage: 'none',
           border: '1px solid rgba(255,255,255,0.08)',
           boxShadow: 'none',
         },
       },
     },
-    MuiPaper: {
+    MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: '#111118',
+          backgroundImage: 'none',
           border: '1px solid rgba(255,255,255,0.08)',
           boxShadow: 'none',
         },
@@ -133,6 +122,6 @@ const theme = createTheme({
       },
     },
   },
-});
+})
 
-export default theme;
+export default theme
