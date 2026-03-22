@@ -1,11 +1,28 @@
 import React, { useState } from 'react';
 import AlocacaoAtivosChart from '../components/investimentos/AlocacaoAtivosChart';
+import BenchmarkChart from '../components/investimentos/BenchmarkChart';
 import PortfolioTable from '../components/dashboard/PortfolioTable';
 import EstrategiaForm from '../components/investimentos/EstrategiaForm';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { investimentoService } from '../services/investimentoService';
-import { Box, Button, Modal, Paper, TextField, Typography } from '@mui/material';
+import {
+    Box,
+    Button,
+    Chip,
+    Grid,
+    Modal,
+    Paper,
+    TextField,
+    Typography,
+} from '@mui/material';
+
+const cardStyle = {
+    p: 3,
+    border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: '16px',
+    boxShadow: 'none',
+};
 
 const Investimentos = () => {
     const { user } = useAuth();
@@ -66,25 +83,89 @@ const Investimentos = () => {
 
     return (
         <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
-            <h2>Painel de Investimentos</h2>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '10px' }}>
-                <button
-                    onClick={handleRefazerQuestionario}
-                    style={{ background: '#3182ce', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer' }}
-                >Refazer Questionário de Perfil</button>
-                {user?.perfilInvestidor && (
-                    <span style={{ fontSize: '0.85rem', color: '#4a5568' }}>Perfil atual: {user.perfilInvestidor}</span>
-                )}
-            </div>
-            <hr />
-            <AlocacaoAtivosChart refreshKey={refreshKey} />
-            <PortfolioTable onSellRequest={handleOpenSellModal} refreshKey={refreshKey} />
-            <EstrategiaForm />
+
+            {/* LINHA 1 — Header */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                    <Typography variant="h5" fontWeight={700}>
+                        Painel de Investimentos
+                    </Typography>
+                    {user?.perfilInvestidor && (
+                        <Chip
+                            label={`Perfil: ${user.perfilInvestidor}`}
+                            size="small"
+                            sx={{
+                                ml: 1,
+                                bgcolor: 'rgba(124,106,247,0.15)',
+                                color: '#7C6AF7',
+                                border: '1px solid rgba(124,106,247,0.3)',
+                                fontWeight: 600,
+                            }}
+                        />
+                    )}
+                </Box>
+                <Button variant="outlined" onClick={handleRefazerQuestionario}>
+                    Refazer Questionário
+                </Button>
+            </Box>
+
+            {/* LINHA 2 — Chart (md=5) + Portfolio Table (md=7) */}
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12, md: 5 }}>
+                    <Paper sx={cardStyle}>
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                            Alocação por Tipo de Ativo
+                        </Typography>
+                        <AlocacaoAtivosChart refreshKey={refreshKey} />
+                    </Paper>
+                </Grid>
+
+                <Grid size={{ xs: 12, md: 7 }}>
+                    <Paper sx={cardStyle}>
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                            Meu Portfólio
+                        </Typography>
+                        <PortfolioTable onSellRequest={handleOpenSellModal} refreshKey={refreshKey} />
+                    </Paper>
+                </Grid>
+            </Grid>
+
+            {/* LINHA 3 — Benchmark Chart (xs=12) */}
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12 }}>
+                    <Paper sx={cardStyle}>
+                        <BenchmarkChart />
+                    </Paper>
+                </Grid>
+            </Grid>
+
+            {/* LINHA 4 — Strategy card (xs=12) */}
+            <Grid container spacing={3}>
+                <Grid size={{ xs: 12 }}>
+                    <Paper sx={cardStyle}>
+                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
+                            Minha Estratégia de Alocação
+                        </Typography>
+                        <EstrategiaForm />
+                    </Paper>
+                </Grid>
+            </Grid>
 
             {/* Modal de Venda */}
             <Modal open={modalOpen} onClose={handleCloseSellModal} aria-labelledby="sell-modal-title">
-                <Paper sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4 }}>
-                    <Typography id="sell-modal-title" variant="h6" component="h2">
+                <Paper
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 400,
+                        p: 4,
+                        borderRadius: '16px',
+                        border: '1px solid rgba(255,255,255,0.12)',
+                    }}
+                >
+                    <Typography id="sell-modal-title" variant="h6" component="h2" sx={{ mb: 2 }}>
                         Vender {selectedAsset?.ticker}
                     </Typography>
                     <TextField
@@ -93,12 +174,19 @@ const Investimentos = () => {
                         fullWidth
                         value={sellQuantity}
                         onChange={(e) => setSellQuantity(parseFloat(e.target.value) || 0)}
-                        sx={{ mt: 2 }}
+                        sx={{ mt: 1 }}
                         inputProps={{ min: 0, step: 'any' }}
                     />
-                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button onClick={handleCloseSellModal} sx={{ mr: 1 }} disabled={selling}>Cancelar</Button>
-                        <Button onClick={handleSellConfirm} variant="contained" color="error" disabled={selling}>
+                    <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                        <Button onClick={handleCloseSellModal} disabled={selling}>
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleSellConfirm}
+                            variant="contained"
+                            color="error"
+                            disabled={selling}
+                        >
                             {selling ? 'Vendendo...' : 'Confirmar Venda'}
                         </Button>
                     </Box>
