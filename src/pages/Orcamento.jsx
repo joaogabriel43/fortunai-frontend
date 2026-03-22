@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Grid, Card, CardContent, Typography } from '@mui/material';
 import AdicionarTransacaoForm from '../components/orcamento/AdicionarTransacaoForm';
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart';
 import ListaTransacoes from '../components/orcamento/ListaTransacoes';
@@ -17,11 +17,30 @@ const Orcamento = () => {
 
     return (
         <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
-            <h2>Painel de Orçamento</h2>
-            <hr />
-            <AdicionarTransacaoForm onTransacaoAdicionada={handleTransacaoAdicionada} />
+            <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
+                Painel de Orçamento
+            </Typography>
+
+            {/* Top section: form (left) + chart (right) */}
+            <Grid container spacing={3} sx={{ mb: 3 }}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Card sx={{ height: '100%' }}>
+                        <CardContent>
+                            <AdicionarTransacaoForm onTransacaoAdicionada={handleTransacaoAdicionada} />
+                        </CardContent>
+                    </Card>
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                    <Card sx={{ height: '100%' }}>
+                        <CardContent>
+                            <GastosPorCategoriaChart key={refreshKey} />
+                        </CardContent>
+                    </Card>
+                </Grid>
+            </Grid>
+
+            {/* Bottom: full-width transactions table */}
             <ListaTransacoes refreshKey={refreshKey} onChanged={handleTransacaoAlterada} />
-            <GastosPorCategoriaChart key={refreshKey} />
         </Box>
     );
 };

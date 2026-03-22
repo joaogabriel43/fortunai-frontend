@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Box, Typography, TextField, Button, Alert } from '@mui/material';
+import { Box, Paper, Typography, TextField, Button, Alert, Link } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 
 const Login = () => {
@@ -29,19 +29,34 @@ const Login = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: '#0a0a0f',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Paper
         sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          p: 4,
+          width: '100%',
+          maxWidth: 420,
+          borderRadius: '16px',
+          border: '1px solid rgba(255,255,255,0.08)',
+          backdropFilter: 'blur(12px)',
+          background: 'rgba(255,255,255,0.04)',
         }}
       >
-        <Typography component="h1" variant="h5">
-          Fortunai Login
+        <Typography variant="h5" fontWeight={700} sx={{ color: '#7C6AF7', mb: 0.5, textAlign: 'center' }}>
+          FortunAI
         </Typography>
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 3 }}>
+          Entre na sua conta para continuar
+        </Typography>
+
+        <Box component="form" onSubmit={handleSubmit}>
           <TextField
             margin="normal"
             required
@@ -75,30 +90,23 @@ const Login = () => {
 
           <Button
             type="submit"
-            fullWidth
             variant="contained"
+            fullWidth
             disabled={loading}
-            sx={{ mt: 3, mb: 2 }}
+            sx={{ mt: 2, py: 1.5 }}
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </Button>
 
-          <Typography variant="body2" align="center" sx={{ mt: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mt: 2 }}>
             Não tem uma conta?{' '}
-            <a
-              href="/registrar"
-              style={{
-                color: 'rgb(0, 196, 159)',
-                textDecoration: 'none',
-                fontWeight: 600,
-              }}
-            >
+            <Link href="/registrar" underline="hover" sx={{ color: '#7C6AF7', fontWeight: 600 }}>
               Cadastre-se
-            </a>
+            </Link>
           </Typography>
         </Box>
-      </Box>
-    </Container>
+      </Paper>
+    </Box>
   );
 };
 
