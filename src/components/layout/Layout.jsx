@@ -88,6 +88,7 @@ const Layout = () => {
         component="main"
         sx={{
           flexGrow: 1,
+          width: 0,
           height: { xs: 'calc(100vh - 56px)', md: '100vh' },
           mt: { xs: '56px', md: 0 },
           overflowY: 'auto',

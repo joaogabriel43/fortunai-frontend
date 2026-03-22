@@ -89,7 +89,7 @@ const Dashboard = () => {
   const patrimonioTotal = saldoAtual + totalInvestido
 
   return (
-    <Box sx={{ p: { xs: 1.5, md: 3 } }}>
+    <Box sx={{ p: { xs: 1.5, md: 3 }, width: '100%', boxSizing: 'border-box' }}>
 
       {/* HERO SECTION — Card full-width com patrimônio total e 4 mini-stats */}
       <Paper
@@ -161,9 +161,9 @@ const Dashboard = () => {
       </Paper>
 
       {/* SEÇÃO TÁTICA — Evolução do Saldo (md=8) + Composição do Portfólio (md=4) */}
-      <Grid container spacing={3} sx={{ mt: 3, width: '100%', ml: 0 }}>
-        <Grid item xs={12} md={8}>
-          <Paper sx={{ p: { xs: 1.5, md: 3 }, height: '100%', overflow: 'hidden', ...paperStyle }}>
+      <Grid container spacing={3} sx={{ mt: 3 }}>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Paper sx={{ p: { xs: 1.5, md: 3 }, minHeight: 300, height: '100%', overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={1.5}>
               Evolução do Saldo
             </Typography>
@@ -178,8 +178,8 @@ const Dashboard = () => {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Paper sx={{ p: 3, height: '100%', overflow: 'hidden', ...paperStyle }}>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper sx={{ p: 3, minHeight: 300, height: '100%', overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={2}>
               Composição do Portfólio
             </Typography>
@@ -202,8 +202,8 @@ const Dashboard = () => {
       </Grid>
 
       {/* SEÇÃO OPERACIONAL — Últimas Transações (md=6) + Dividendos placeholder (md=6) */}
-      <Grid container spacing={3} sx={{ mt: 3, width: '100%', ml: 0 }}>
-        <Grid item xs={12} md={6}>
+      <Grid container spacing={3} sx={{ mt: 3 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, overflow: 'hidden', ...paperStyle }}>
             <Typography variant="h6" fontWeight={600} mb={2}>
               Últimas Transações
@@ -219,7 +219,7 @@ const Dashboard = () => {
           </Paper>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 3, overflow: 'hidden', ...paperStyle }}>
             <Box
               sx={{
