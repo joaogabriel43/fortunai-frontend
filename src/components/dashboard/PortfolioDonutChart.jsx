@@ -9,41 +9,8 @@ const COLORS = ['#7C6AF7', '#00D4AA', '#FF4D6A', '#FFB547', '#4FC3F7']
 const formatBRL = (value) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)
 
-// Label central SVG renderizado dentro do PieChart
-const CentralLabel = ({ viewBox, totalInvestido }) => {
-  const { cx, cy } = viewBox
-  const formatted = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-    notation: 'compact',
-  }).format(totalInvestido ?? 0)
-
-  return (
-    <g>
-      <text
-        x={cx}
-        y={cy - 8}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill="#8B8BA8"
-        fontSize={11}
-      >
-        Total
-      </text>
-      <text
-        x={cx}
-        y={cy + 12}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill="#FFFFFF"
-        fontSize={14}
-        fontWeight="700"
-      >
-        {formatted}
-      </text>
-    </g>
-  )
-}
+const formatCompact = (value) =>
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', notation: 'compact' }).format(value ?? 0)
 
 // Error boundary para capturar erros do recharts em ambientes sem canvas/SVG completo (ex: jsdom)
 class ChartErrorBoundary extends React.Component {
@@ -69,36 +36,53 @@ export default function PortfolioDonutChart({ data, height = 220, totalInvestido
 
   return (
     <Box>
-      {/* Recharts envolvido em error boundary: em jsdom pode falhar sem afetar a legenda */}
-      <ChartErrorBoundary>
-        <ResponsiveContainer width="100%" height={height}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={90}
-              paddingAngle={3}
-              dataKey="value"
-              labelLine={false}
-              label={<CentralLabel totalInvestido={total} />}
-            >
-              {data.map((_, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip
-              contentStyle={{
-                background: '#1A1A24',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: 8,
-              }}
-              formatter={(value) => [formatBRL(value), '']}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-      </ChartErrorBoundary>
+      {/* Chart + label central via overlay CSS — evita dependência da API Label do Recharts */}
+      <Box sx={{ position: 'relative' }}>
+        <ChartErrorBoundary>
+          <ResponsiveContainer width="100%" height={height}>
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={90}
+                paddingAngle={3}
+                dataKey="value"
+                labelLine={false}
+              >
+                {data.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                contentStyle={{
+                  background: '#1A1A24',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: 8,
+                }}
+                formatter={(value) => [formatBRL(value), '']}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartErrorBoundary>
+        {/* Label central posicionado via CSS — não depende do recharts */}
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          textAlign: 'center',
+          pointerEvents: 'none',
+        }}>
+          <Typography variant="caption" sx={{ color: '#8B8BA8', fontSize: 11, display: 'block', lineHeight: 1.2 }}>
+            Total
+          </Typography>
+          <Typography variant="body2" fontWeight={700} sx={{ fontSize: 13, lineHeight: 1.2 }}>
+            {formatCompact(total)}
+          </Typography>
+        </Box>
+      </Box>
 
       {/* Legenda MUI — renderiza independente de erros no recharts */}
       <Box

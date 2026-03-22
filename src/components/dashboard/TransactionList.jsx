@@ -56,6 +56,7 @@ export default function TransactionList({ transacoes }) {
             </ListItemAvatar>
 
             <ListItemText
+              secondaryTypographyProps={{ component: 'div' }}
               primary={
                 // Quando a descrição é um ticker do portfólio, omite o texto primário
                 // para evitar duplicata de texto no DOM (getByText encontraria duas ocorrências)
