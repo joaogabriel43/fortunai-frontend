@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Box, Grid, Card, CardContent, Typography } from '@mui/material';
+import { Box, Grid, Card, CardContent, Typography, Button } from '@mui/material';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 import AdicionarTransacaoForm from '../components/orcamento/AdicionarTransacaoForm';
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart';
 import ListaTransacoes from '../components/orcamento/ListaTransacoes';
 import ComparativoCard from '../components/orcamento/ComparativoCard';
 import AnomaliaAlert from '../components/orcamento/AnomaliaAlert';
+import ImportacaoExtratoModal from '../components/orcamento/ImportacaoExtratoModal';
 
 const Orcamento = () => {
     const [refreshKey, setRefreshKey] = useState(0);
+    const [extratoModalOpen, setExtratoModalOpen] = useState(false);
 
     const handleTransacaoAdicionada = () => {
         setRefreshKey((k) => k + 1);
@@ -17,11 +20,30 @@ const Orcamento = () => {
         setRefreshKey((k) => k + 1);
     };
 
+    const handleExtratoImported = () => {
+        setRefreshKey((k) => k + 1);
+    };
+
     return (
         <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
-            <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
-                Painel de Orçamento
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h5" sx={{ fontWeight: 700 }}>
+                    Painel de Orçamento
+                </Typography>
+                <Button
+                    variant="outlined"
+                    startIcon={<UploadFileIcon />}
+                    onClick={() => setExtratoModalOpen(true)}
+                >
+                    Importar Extrato
+                </Button>
+            </Box>
+
+            <ImportacaoExtratoModal
+                open={extratoModalOpen}
+                onClose={() => setExtratoModalOpen(false)}
+                onImported={handleExtratoImported}
+            />
 
             {/* Anomalias detectadas */}
             <AnomaliaAlert />
