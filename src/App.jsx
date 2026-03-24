@@ -10,6 +10,7 @@ import Investimentos from './pages/Investimentos';
 import Questionario from './pages/Questionario';
 import FireCalculator from './pages/FireCalculator';
 import FluxoCaixa from './pages/FluxoCaixa';
+import Metas from './pages/Metas';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Componente para redirecionamento de rotas não encontradas
@@ -38,6 +39,7 @@ function App() {
                             <Route path="/questionario-perfil" element={<Questionario />} />
                             <Route path="/fire-calculator" element={<FireCalculator />} />
                             <Route path="/fluxo-caixa" element={<FluxoCaixa />} />
+                            <Route path="/metas" element={<Metas />} />
                         </Route>
 
                         {/* Rota Catch-all para caminhos não encontrados */}
