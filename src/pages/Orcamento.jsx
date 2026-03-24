@@ -4,6 +4,7 @@ import AdicionarTransacaoForm from '../components/orcamento/AdicionarTransacaoFo
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart';
 import ListaTransacoes from '../components/orcamento/ListaTransacoes';
 import ComparativoCard from '../components/orcamento/ComparativoCard';
+import AnomaliaAlert from '../components/orcamento/AnomaliaAlert';
 
 const Orcamento = () => {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -21,6 +22,9 @@ const Orcamento = () => {
             <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
                 Painel de Orçamento
             </Typography>
+
+            {/* Anomalias detectadas */}
+            <AnomaliaAlert />
 
             {/* Top section: form (left) + chart (right) */}
             <Grid container spacing={3} sx={{ mb: 3 }}>
