@@ -303,9 +303,11 @@ const FluxoCaixa = () => {
                                                     {formatCurrency(t.valorMedio)}
                                                 </TableCell>
                                                 <TableCell align="right" sx={{ color: 'text.secondary' }}>
-                                                    {t.recorrente
-                                                        ? `${t.frequenciaMensal.toFixed(1)}×/mês`
-                                                        : 'Pontual'}
+                                                    {t.mesesDistintos >= 3
+                                                        ? 'Mensal'
+                                                        : t.mesesDistintos >= 2
+                                                            ? 'Bimestral'
+                                                            : 'Pontual'}
                                                 </TableCell>
                                             </TableRow>
                                         ))}

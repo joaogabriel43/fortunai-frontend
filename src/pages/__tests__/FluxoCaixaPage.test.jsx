@@ -43,8 +43,8 @@ const mockProjecao30 = {
   receitasEsperadas: 3000.0,
   despesasEsperadas: 1200.0,
   transacoesRecorrentes: [
-    { categoria: 'Salário', tipo: 'CREDIT', valorMedio: 3000.0, frequenciaMensal: 1.0, recorrente: true },
-    { categoria: 'Aluguel', tipo: 'DEBIT', valorMedio: 1200.0, frequenciaMensal: 1.0, recorrente: true },
+    { categoria: 'Salário', tipo: 'CREDIT', valorMedio: 3000.0, frequenciaMensal: 1.0, recorrente: true, mesesDistintos: 3 },
+    { categoria: 'Aluguel', tipo: 'DEBIT', valorMedio: 1200.0, frequenciaMensal: 1.0, recorrente: true, mesesDistintos: 3 },
   ],
   pontosGrafico: [
     { data: '2026-03-23', saldoProjetado: 5000.0 },
