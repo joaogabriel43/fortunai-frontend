@@ -12,6 +12,7 @@ import EmptyState from '../components/dashboard/EmptyState'
 import DashboardSkeleton from '../components/dashboard/DashboardSkeleton'
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart'
 import DividendosCard from '../components/dashboard/DividendosCard'
+import ScoreSaudeCard from '../components/dashboard/ScoreSaudeCard'
 
 const formatBRL = (value) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0)
@@ -91,74 +92,88 @@ const Dashboard = () => {
   return (
     <Box sx={{ p: { xs: 1.5, md: 3 }, width: '100%', boxSizing: 'border-box' }}>
 
-      {/* HERO SECTION — Card full-width com patrimônio total e 4 mini-stats */}
-      <Paper
-        sx={{
-          p: { xs: 2.5, md: 4 },
-          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
-          border: '1px solid rgba(124,106,247,0.3)',
-          borderRadius: '16px',
-          boxShadow: 'none',
-        }}
-      >
-        {/* Rótulo superior */}
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-            fontSize: 11,
-            textTransform: 'uppercase',
-            letterSpacing: 0.8,
-          }}
-        >
-          Patrimônio Total
-        </Typography>
+      {/* HERO SECTION — Patrimônio (md=8) + Score Saúde (md=4) */}
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 8 }}>
+          <Paper
+            sx={{
+              p: { xs: 2.5, md: 4 },
+              background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)',
+              border: '1px solid rgba(124,106,247,0.3)',
+              borderRadius: '16px',
+              boxShadow: 'none',
+              height: '100%',
+            }}
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                color: 'text.secondary',
+                fontSize: 11,
+                textTransform: 'uppercase',
+                letterSpacing: 0.8,
+              }}
+            >
+              Patrimônio Total
+            </Typography>
 
-        {/* Valor do patrimônio */}
-        <Typography
-          variant="h3"
-          fontWeight={700}
-          sx={{ mt: 0.5, mb: 3, fontSize: { xs: '2rem', md: '2.5rem' } }}
-        >
-          {formatBRL(patrimonioTotal)}
-        </Typography>
+            <Typography
+              variant="h3"
+              fontWeight={700}
+              sx={{ mt: 0.5, mb: 3, fontSize: { xs: '2rem', md: '2.5rem' } }}
+            >
+              {formatBRL(patrimonioTotal)}
+            </Typography>
 
-        {/* 4 mini-stats separados por Dividers verticais */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: { xs: 1.5, md: 0 },
-          }}
-        >
-          <MiniStat label="Saldo Atual" value={saldoAtual} />
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: { xs: 1.5, md: 0 },
+              }}
+            >
+              <MiniStat label="Saldo Atual" value={saldoAtual} />
 
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
-          />
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
+              />
 
-          <MiniStat label="Total Investido" value={totalInvestido} />
+              <MiniStat label="Total Investido" value={totalInvestido} />
 
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
-          />
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
+              />
 
-          <MiniStat label="Total Receitas" value={totalReceitas} />
+              <MiniStat label="Total Receitas" value={totalReceitas} />
 
-          <Divider
-            orientation="vertical"
-            flexItem
-            sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
-          />
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ height: 40, mx: { xs: 0, md: 1 }, display: { xs: 'none', md: 'block' } }}
+              />
 
-          <MiniStat label="Maior Gasto" value={maiorGasto?.valor ?? 0} />
-        </Box>
-      </Paper>
+              <MiniStat label="Maior Gasto" value={maiorGasto?.valor ?? 0} />
+            </Box>
+          </Paper>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 4 }}>
+          <Paper
+            sx={{
+              p: { xs: 2.5, md: 3 },
+              ...paperStyle,
+              height: '100%',
+            }}
+          >
+            <ScoreSaudeCard />
+          </Paper>
+        </Grid>
+      </Grid>
 
       {/* SEÇÃO TÁTICA — Evolução do Saldo (md=8) + Composição do Portfólio (md=4) */}
       <Grid container spacing={3} sx={{ mt: 3 }}>
