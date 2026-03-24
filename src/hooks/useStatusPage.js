@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import axios from 'axios'
-
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333/api'
+import api from '../services/api'
 
 export function useStatusPage() {
   const [servicos, setServicos] = useState([])
@@ -10,7 +8,7 @@ export function useStatusPage() {
 
   const fetchStatus = useCallback(() => {
     setLoading(true)
-    axios.get(`${BASE_URL}/status`)
+    api.get('/status')
       .then(res => {
         setServicos(res.data)
         setError(null)
