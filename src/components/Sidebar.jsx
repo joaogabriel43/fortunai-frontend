@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { to: '/orcamento',       label: 'Orçamento' },
   { to: '/investimentos',   label: 'Investimentos' },
   { to: '/fire-calculator', label: 'FIRE Calculator' },
+  { to: '/fluxo-caixa',    label: 'Fluxo de Caixa' },
 ]
 
 const Sidebar = () => {
