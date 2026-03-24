@@ -3,9 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { Box, TextField, Button, Paper, List, ListItem, Typography, IconButton } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { formatCurrencyInText } from '../utils/formatters';
+import UploadComprovanteModal from './comprovantes/UploadComprovanteModal';
 
 const MENSAGEM_BEM_VINDO = { text: 'Olá! Eu sou o Fortunai. Como posso te ajudar hoje?', sender: 'bot' };
 // Preserve legacy welcome texts for migration from localStorage
@@ -77,6 +79,9 @@ const Chat = () => {
     const skipNextPersistRef = useRef(false);
     const [messages, setMessages] = useState(() => loadMessages(userKey));
     const [input, setInput] = useState('');
+    const [uploadFile, setUploadFile] = useState(null);
+    const [uploadModalOpen, setUploadModalOpen] = useState(false);
+    const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     // Reidrata quando trocar de usuário
@@ -131,6 +136,18 @@ const Chat = () => {
             const errorMessage = { text: 'Desculpe, não consegui me conectar ao assistente.', sender: 'bot' };
             setMessages((prev) => [...prev.filter((m) => !m.typing), errorMessage]);
         }
+    };
+
+    const handleFileSelect = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) { alert('Arquivo deve ter no maximo 5MB.'); return; }
+        const allowed = ['application/pdf', 'image/png', 'image/jpeg'];
+        if (!allowed.includes(file.type)) { alert('Apenas PDF, PNG ou JPG.'); return; }
+        setUploadFile(file);
+        setUploadModalOpen(true);
+        e.target.value = '';
     };
 
     const limparChat = () => {
@@ -201,6 +218,22 @@ const Chat = () => {
                 <Button type="submit" variant="contained" sx={{ ml: 1, p: '15px' }} endIcon={<SendIcon />}>
                     Enviar
                 </Button>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
+                    accept=".pdf,.png,.jpg,.jpeg"
+                    onChange={handleFileSelect}
+                />
+                <IconButton
+                    color="primary"
+                    onClick={() => fileInputRef.current?.click()}
+                    sx={{ ml: 1 }}
+                    aria-label="upload comprovante"
+                    title="Enviar comprovante"
+                >
+                    <AttachFileIcon />
+                </IconButton>
                 <IconButton
                     color="secondary"
                     onClick={limparChat}
@@ -211,6 +244,12 @@ const Chat = () => {
                     <DeleteIcon />
                 </IconButton>
             </Box>
+
+            <UploadComprovanteModal
+                open={uploadModalOpen}
+                onClose={() => setUploadModalOpen(false)}
+                file={uploadFile}
+            />
         </Box>
     );
 };
