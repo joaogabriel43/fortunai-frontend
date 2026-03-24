@@ -3,6 +3,7 @@ import { Box, Grid, Card, CardContent, Typography } from '@mui/material';
 import AdicionarTransacaoForm from '../components/orcamento/AdicionarTransacaoForm';
 import GastosPorCategoriaChart from '../components/dashboard/GastosPorCategoriaChart';
 import ListaTransacoes from '../components/orcamento/ListaTransacoes';
+import ComparativoCard from '../components/orcamento/ComparativoCard';
 
 const Orcamento = () => {
     const [refreshKey, setRefreshKey] = useState(0);
@@ -38,6 +39,13 @@ const Orcamento = () => {
                     </Card>
                 </Grid>
             </Grid>
+
+            {/* Comparativo Mensal */}
+            <Card sx={{ mb: 3 }}>
+                <CardContent>
+                    <ComparativoCard />
+                </CardContent>
+            </Card>
 
             {/* Bottom: full-width transactions table */}
             <ListaTransacoes refreshKey={refreshKey} onChanged={handleTransacaoAlterada} />
