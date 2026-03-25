@@ -6,16 +6,21 @@ import EstrategiaForm from '../components/investimentos/EstrategiaForm';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { investimentoService } from '../services/investimentoService';
+import { useExportacao } from '../hooks/useExportacao';
 import {
     Box,
     Button,
     Chip,
+    CircularProgress,
     Grid,
     Modal,
     Paper,
+    Snackbar,
+    Alert,
     TextField,
     Typography,
 } from '@mui/material';
+import TableChartIcon from '@mui/icons-material/TableChart';
 
 const cardStyle = {
     p: 3,
@@ -27,6 +32,7 @@ const cardStyle = {
 const Investimentos = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
+    const { loading: exportLoading, error: exportError, downloadArquivo, clearError } = useExportacao();
 
     // Estado para venda de ativo (Modal)
     const [modalOpen, setModalOpen] = useState(false);
@@ -104,9 +110,20 @@ const Investimentos = () => {
                         />
                     )}
                 </Box>
-                <Button variant="outlined" onClick={handleRefazerQuestionario}>
-                    Refazer Questionário
-                </Button>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                        variant="outlined"
+                        startIcon={exportLoading ? <CircularProgress size={16} /> : <TableChartIcon />}
+                        disabled={exportLoading}
+                        onClick={() => downloadArquivo('/api/exportacao/portfolio/csv', 'portfolio.csv')}
+                        data-testid="btn-portfolio-csv"
+                    >
+                        Exportar Portfólio CSV
+                    </Button>
+                    <Button variant="outlined" onClick={handleRefazerQuestionario}>
+                        Refazer Questionário
+                    </Button>
+                </Box>
             </Box>
 
             {/* LINHA 2 — Chart (md=5) + Portfolio Table (md=7) */}
@@ -150,6 +167,15 @@ const Investimentos = () => {
                     </Paper>
                 </Grid>
             </Grid>
+
+            <Snackbar
+                open={!!exportError}
+                autoHideDuration={5000}
+                onClose={clearError}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert severity="error" onClose={clearError}>{exportError}</Alert>
+            </Snackbar>
 
             {/* Modal de Venda */}
             <Modal open={modalOpen} onClose={handleCloseSellModal} aria-labelledby="sell-modal-title">
