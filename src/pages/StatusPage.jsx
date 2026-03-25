@@ -1,12 +1,16 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Box, Button, Card, CardContent, Chip, CircularProgress, Grid, Typography, IconButton } from '@mui/material'
+import { Box, Button, Card, CardContent, Chip, CircularProgress, Grid, Typography, IconButton, Skeleton } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import WarningIcon from '@mui/icons-material/Warning'
 import ErrorIcon from '@mui/icons-material/Error'
+import PeopleIcon from '@mui/icons-material/People'
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble'
+import ReceiptIcon from '@mui/icons-material/Receipt'
 import { useStatusPage } from '../hooks/useStatusPage'
+import { useMetricas } from '../hooks/useMetricas'
 
 const statusConfig = {
   OPERACIONAL: { color: 'success', icon: <CheckCircleIcon />, label: 'Operacional' },
@@ -14,9 +18,28 @@ const statusConfig = {
   FORA: { color: 'error', icon: <ErrorIcon />, label: 'Fora do Ar' },
 }
 
+const MetricCard = ({ icon, label, value, loading: metLoading }) => (
+  <Card sx={{ borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', height: '100%' }}>
+    <CardContent sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ color: '#7C6AF7', flexShrink: 0 }}>{icon}</Box>
+      <Box>
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>{label}</Typography>
+        {metLoading ? (
+          <Skeleton variant="text" width={60} sx={{ bgcolor: 'rgba(255,255,255,0.1)' }} />
+        ) : (
+          <Typography variant="h6" fontWeight={700} sx={{ color: '#fff' }}>
+            {value !== null && value !== undefined ? value.toLocaleString('pt-BR') : '--'}
+          </Typography>
+        )}
+      </Box>
+    </CardContent>
+  </Card>
+)
+
 const StatusPage = () => {
   const navigate = useNavigate()
   const { servicos, loading, error, refetch } = useStatusPage()
+  const { transacoesCriadas, usuariosAtivos, chatMensagens, loading: metLoading } = useMetricas()
 
   const allOperational = servicos.length > 0 && servicos.every(s => s.status === 'OPERACIONAL')
 
@@ -65,6 +88,40 @@ const StatusPage = () => {
           </Typography>
         )}
 
+        {/* Metricas customizadas do FortunAI */}
+        <Typography variant="h6" fontWeight={600} sx={{ color: '#fff', mb: 2, mt: 2 }}>
+          Metricas da Aplicacao
+        </Typography>
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <MetricCard
+              icon={<ReceiptIcon />}
+              label="Transacoes Criadas"
+              value={transacoesCriadas}
+              loading={metLoading}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <MetricCard
+              icon={<PeopleIcon />}
+              label="Usuarios Cadastrados"
+              value={usuariosAtivos}
+              loading={metLoading}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 4 }}>
+            <MetricCard
+              icon={<ChatBubbleIcon />}
+              label="Mensagens Processadas"
+              value={chatMensagens}
+              loading={metLoading}
+            />
+          </Grid>
+        </Grid>
+
+        <Typography variant="h6" fontWeight={600} sx={{ color: '#fff', mb: 2 }}>
+          Status dos Servicos
+        </Typography>
         <Grid container spacing={2}>
           {servicos.map((servico, i) => {
             const config = statusConfig[servico.status] || statusConfig.FORA
