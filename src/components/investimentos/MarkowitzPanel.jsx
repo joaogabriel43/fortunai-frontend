@@ -28,17 +28,21 @@ const MarkowitzPanel = () => {
     const { loading, error, resultado, otimizar } = useMarkowitz();
 
     // Transforma os dados para o BarChart comparativo
+    // Filtra resultados inválidos: se todos os pesos ótimos são 0, não renderiza gráfico
     const chartData = React.useMemo(() => {
         if (!resultado || !resultado.alocacaoOtima) return [];
+        const otima = resultado.alocacaoOtima;
+        const somaPesosOtimos = Object.values(otima).reduce((s, v) => s + v, 0);
+        if (somaPesosOtimos < 0.01) return []; // pesos zerados = resultado inválido
         const tickers = new Set([
             ...Object.keys(resultado.alocacaoAtual || {}),
-            ...Object.keys(resultado.alocacaoOtima || {}),
+            ...Object.keys(otima),
         ]);
         return Array.from(tickers)
             .map((ticker) => ({
                 ticker: ticker.replace('.SA', ''),
                 atual: resultado.alocacaoAtual?.[ticker] || 0,
-                otima: resultado.alocacaoOtima?.[ticker] || 0,
+                otima: otima[ticker] || 0,
             }))
             .sort((a, b) => b.otima - a.otima);
     }, [resultado]);
