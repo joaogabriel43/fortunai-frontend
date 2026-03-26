@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom'
 import { AppBar, Box, Drawer, IconButton, Toolbar } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
 import Sidebar from '../Sidebar'
+import NotificacoesBadge from '../notificacoes/NotificacoesBadge'
 
 const DRAWER_WIDTH = 220
 
@@ -49,6 +50,11 @@ const Layout = () => {
           >
             <MenuIcon />
           </IconButton>
+          <Box sx={{ flexGrow: 1 }} />
+          <NotificacoesBadge />
+        </Toolbar>
+        <Toolbar sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'flex-end', minHeight: 48 }}>
+          <NotificacoesBadge />
         </Toolbar>
       </AppBar>
 

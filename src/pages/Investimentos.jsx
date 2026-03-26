@@ -22,6 +22,8 @@ import {
     Typography,
 } from '@mui/material';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import ConfigurarAlertasModal from '../components/notificacoes/ConfigurarAlertasModal';
 
 const cardStyle = {
     p: 3,
@@ -34,6 +36,8 @@ const Investimentos = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const { loading: exportLoading, error: exportError, downloadArquivo, clearError } = useExportacao();
+
+    const [alertasModalOpen, setAlertasModalOpen] = useState(false);
 
     // Estado para venda de ativo (Modal)
     const [modalOpen, setModalOpen] = useState(false);
@@ -121,11 +125,23 @@ const Investimentos = () => {
                     >
                         Exportar Portfólio CSV
                     </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={<NotificationsActiveIcon />}
+                        onClick={() => setAlertasModalOpen(true)}
+                    >
+                        Configurar Alertas
+                    </Button>
                     <Button variant="outlined" onClick={handleRefazerQuestionario}>
                         Refazer Questionário
                     </Button>
                 </Box>
             </Box>
+
+            <ConfigurarAlertasModal
+                open={alertasModalOpen}
+                onClose={() => setAlertasModalOpen(false)}
+            />
 
             {/* LINHA 2 — Chart (md=5) + Portfolio Table (md=7) */}
             <Grid container spacing={3} sx={{ mb: 3 }}>
