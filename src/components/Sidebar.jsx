@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { to: '/chat',            label: 'Chat' },
   { to: '/orcamento',       label: 'Orçamento' },
   { to: '/investimentos',   label: 'Investimentos' },
+  { to: '/calculadoras',    label: 'Calculadoras' },
   { to: '/fire-calculator', label: 'FIRE Calculator' },
   { to: '/fluxo-caixa',    label: 'Fluxo de Caixa' },
   { to: '/metas',          label: 'Metas' },
