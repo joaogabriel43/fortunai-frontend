@@ -2,6 +2,7 @@ import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
   testDir: './e2e',
+  testIgnore: ['**/smoke.spec.ts'], // smoke só roda em prod via CI
   fullyParallel: false,       // Testes financeiros com estado — sequencial
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
