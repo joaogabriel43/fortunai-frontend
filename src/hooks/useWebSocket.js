@@ -3,7 +3,7 @@ import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { getToken } from '../services/authService'
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3333/api'
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333/api'
 const WS_URL = BASE_URL.replace('/api', '') + '/ws'
 const HEARTBEAT_INTERVAL_MS = 20_000
 const MAX_RECONNECT_DELAY_MS = 30_000
