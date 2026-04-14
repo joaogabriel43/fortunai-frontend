@@ -8,9 +8,9 @@
 - MUI v7: sempre usar size={{xs, md}} — NUNCA prop "item"
 
 ## URLs de Produção
-- Frontend: https://finassistant-frontend.vercel.app
-- Backend: https://finassistant-production.up.railway.app
-- Health: https://finassistant-production.up.railway.app/api/status
+- Frontend: https://fortunai-frontend.vercel.app
+- Backend: https://fortunai-production.up.railway.app
+- Health: https://fortunai-production.up.railway.app/api/status
 
 ## Estado Atual
 - 96 testes backend + 71 frontend = 167 total GREEN
