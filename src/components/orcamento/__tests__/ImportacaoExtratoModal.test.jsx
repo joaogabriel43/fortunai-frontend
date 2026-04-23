@@ -117,6 +117,79 @@ describe('ImportacaoExtratoModal', () => {
     })
   })
 
+  it('deve chamar onImported ao fechar após importação bem-sucedida (botão Fechar)', async () => {
+    const onImported = vi.fn()
+    const onClose = vi.fn()
+
+    api.post
+      .mockResolvedValueOnce({
+        data: {
+          transacoes: [
+            { data: '2026-03-01', descricao: 'Compra', valor: 50, tipo: 'DEBIT', isDuplicata: false },
+          ],
+          totalTransacoes: 1, totalDuplicatas: 0, totalValidas: 1,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: { mensagem: '1 transações importadas com sucesso!', totalImportadas: 1 },
+      })
+
+    render(<ImportacaoExtratoModal open={true} onClose={onClose} onImported={onImported} />)
+
+    // Seleciona arquivo e analisa
+    const input = document.querySelector('input[type="file"]')
+    fireEvent.change(input, { target: { files: [createMockFile()] } })
+    fireEvent.click(screen.getByText('Analisar Extrato'))
+
+    // Aguarda step de preview e confirma importação
+    await waitFor(() => screen.getByText(/Importar 1 transações/))
+    fireEvent.click(screen.getByText(/Importar 1 transações/))
+
+    // Aguarda tela de sucesso
+    await waitFor(() => screen.getByText(/1 transações importadas com sucesso!/))
+
+    // Clica em Fechar (não "Ver no Orçamento")
+    fireEvent.click(screen.getByText('Fechar'))
+
+    // onImported deve ser chamado mesmo clicando em Fechar
+    expect(onImported).toHaveBeenCalledTimes(1)
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('deve chamar onImported ao clicar em Ver no Orçamento após importação', async () => {
+    const onImported = vi.fn()
+
+    api.post
+      .mockResolvedValueOnce({
+        data: {
+          transacoes: [
+            { data: '2026-03-01', descricao: 'Compra', valor: 50, tipo: 'DEBIT', isDuplicata: false },
+          ],
+          totalTransacoes: 1, totalDuplicatas: 0, totalValidas: 1,
+        },
+      })
+      .mockResolvedValueOnce({
+        data: { mensagem: '1 transações importadas com sucesso!', totalImportadas: 1 },
+      })
+
+    render(<ImportacaoExtratoModal open={true} onClose={vi.fn()} onImported={onImported} />)
+
+    const input = document.querySelector('input[type="file"]')
+    fireEvent.change(input, { target: { files: [createMockFile()] } })
+    fireEvent.click(screen.getByText('Analisar Extrato'))
+
+    await waitFor(() => screen.getByText(/Importar 1 transações/))
+    fireEvent.click(screen.getByText(/Importar 1 transações/))
+
+    await waitFor(() => screen.getByText(/1 transações importadas com sucesso!/))
+
+    // Clica em "Ver no Orçamento"
+    fireEvent.click(screen.getByText('Ver no Orçamento'))
+
+    // onImported deve ser chamado exatamente uma vez (não duplicado)
+    expect(onImported).toHaveBeenCalledTimes(1)
+  })
+
   it('deve exibir erro para arquivo inválido', async () => {
     api.post.mockRejectedValueOnce({
       response: { data: { error: 'Formato não suportado. Envie arquivo CSV ou OFX.' } },

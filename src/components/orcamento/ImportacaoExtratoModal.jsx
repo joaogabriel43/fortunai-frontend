@@ -20,11 +20,16 @@ const ImportacaoExtratoModal = ({ open, onClose, onImported }) => {
   const [dragOver, setDragOver] = useState(false)
 
   const handleClose = () => {
+    // Captura antes de resetar: se havia resultado, a importação foi bem-sucedida
+    const importouComSucesso = !!resultado
     setFile(null)
     setIgnorarDuplicatas(true)
     setDragOver(false)
     resetar()
     onClose()
+    // Sempre dispara refresh da lista quando há importação concluída,
+    // independente de qual botão (Fechar ou Ver no Orçamento) o usuário clicou
+    if (importouComSucesso) onImported?.()
   }
 
   const handleFileSelect = (selectedFile) => {
@@ -56,8 +61,7 @@ const ImportacaoExtratoModal = ({ open, onClose, onImported }) => {
   }
 
   const handleVerOrcamento = () => {
-    handleClose()
-    if (onImported) onImported()
+    handleClose() // handleClose já chama onImported se resultado existe
   }
 
   const transacoesParaImportar = preview
