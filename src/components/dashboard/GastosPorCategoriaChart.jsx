@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { useMesOrcamento } from '../../contexts/MesOrcamentoContext';
 import { useTheme } from '@mui/material/styles';
 import { corDaCategoria } from '../../utils/categoriaCores';
 import { logErroSeguro } from '../../utils/apiErrorUtils';
@@ -14,6 +15,42 @@ import 'react-loading-skeleton/dist/skeleton.css';
 const capitalize = (str) =>
     str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : ''
 
+const MESES = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+];
+
+const formatarAnaliseHistorica = (responseData) => {
+    if (Array.isArray(responseData)) {
+        return responseData.map(item => ({ name: capitalize(item.categoria), value: Number(item.total) }));
+    }
+    if (responseData && typeof responseData === 'object') {
+        return Object.entries(responseData)
+            .map(([categoria, total]) => ({ name: capitalize(categoria), value: Number(total) }));
+    }
+    return [];
+};
+
+const agregarDespesasDoMes = (transacoes, mes, ano) => {
+    if (!Array.isArray(transacoes)) return [];
+
+    const prefixoMes = `${ano}-${String(mes).padStart(2, '0')}`;
+    const totaisPorCategoria = transacoes.reduce((totais, transacao) => {
+        const ehDebito = transacao.tipo?.toUpperCase() === 'DEBIT';
+        const pertenceAoMes = transacao.data?.startsWith(prefixoMes);
+        const valor = Number(transacao.valor);
+        if (!ehDebito || !pertenceAoMes || !transacao.categoria || !Number.isFinite(valor)) return totais;
+
+        totais.set(transacao.categoria, (totais.get(transacao.categoria) ?? 0) + valor);
+        return totais;
+    }, new Map());
+
+    return Array.from(totaisPorCategoria, ([categoria, total]) => ({
+        name: capitalize(categoria),
+        value: total,
+    }));
+};
+
 const GastosPorCategoriaChart = ({ showTitle = true }) => {
     const theme = useTheme();
     const COLORS = theme.palette.series;
@@ -23,44 +60,49 @@ const GastosPorCategoriaChart = ({ showTitle = true }) => {
     // Categorias gerenciadas (ADR-038): cor da fatia por nome; sem match → paleta padrão
     const [categoriasGerenciadas, setCategoriasGerenciadas] = useState([]);
     const { user } = useAuth();
+    const usuarioId = user?.id;
+    const mesOrcamento = useMesOrcamento();
+    const mes = mesOrcamento?.mes;
+    const ano = mesOrcamento?.ano;
+    const modoMensal = Number.isInteger(mes) && Number.isInteger(ano);
 
     useEffect(() => {
-        if (!user || !user.id) return;
+        if (!usuarioId) return;
         api.get('/orcamento/categorias-gerenciadas')
             .then((res) => setCategoriasGerenciadas(res.data ?? []))
             .catch(() => setCategoriasGerenciadas([]));
-    }, [user]);
+    }, [usuarioId]);
 
     useEffect(() => {
-        if (!user || !user.id) return;
+        if (!usuarioId) return;
+        let active = true;
 
         const fetchData = async () => {
             try {
                 setLoading(true);
-                // Usar análise histórica para abranger todas as transações registradas
-                const response = await api.get(`/orcamento/analise-historica/${user.id}`);
-                let formatted = [];
-                if (Array.isArray(response.data)) {
-                    // Caso ainda venha no formato antigo (lista de objetos com categoria/total)
-                    formatted = response.data.map(item => ({ name: capitalize(item.categoria), value: Number(item.total) }));
-                } else if (response.data && typeof response.data === 'object') {
-                    // Novo formato: mapa categoria -> total
-                    formatted = Object.entries(response.data).map(([categoria, total]) => ({ name: capitalize(categoria), value: Number(total) }));
-                }
+                const response = modoMensal
+                    ? await api.get(`/orcamento/transacoes/${usuarioId}`)
+                    : await api.get(`/orcamento/analise-historica/${usuarioId}`);
+                const formatted = modoMensal
+                    ? agregarDespesasDoMes(response.data, mes, ano)
+                    : formatarAnaliseHistorica(response.data);
+                if (!active) return;
                 setData(formatted);
                 setError(null);
             } catch (err) {
+                if (!active) return;
                 setError('Não foi possível carregar os dados do gráfico.');
                 logErroSeguro('Falha ao carregar gastos por categoria', err);
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
         };
 
         fetchData();
-    }, [user]);
+        return () => { active = false; };
+    }, [usuarioId, modoMensal, mes, ano]);
 
-    if (!user || !user.id) {
+    if (!usuarioId) {
         return (
             <SkeletonTheme baseColor={theme.palette.surfaces.surfaceSoft} highlightColor={theme.palette.surfaces.raised}>
                 <div style={{ width: '100%', height: 320, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -83,11 +125,19 @@ const GastosPorCategoriaChart = ({ showTitle = true }) => {
     }
 
     if (error) return <p style={{ color: theme.palette.error.main }}>{error}</p>;
-    if (data.length === 0) return <p>Não há dados de despesas históricas para exibir.</p>;
+    if (data.length === 0) {
+        return modoMensal
+            ? <p>{`Não há despesas em ${MESES[mes - 1].toLowerCase()} de ${ano} para exibir.`}</p>
+            : <p>Não há dados de despesas históricas para exibir.</p>;
+    }
+
+    const titulo = modoMensal
+        ? `Despesas por Categoria — ${MESES[mes - 1]} ${ano}`
+        : 'Despesas por Categoria (Histórico Completo)';
 
     return (
         <div style={{ width: '100%' }}>
-            {showTitle && <h3 style={{ textAlign: 'center', margin: '0 0 8px 0' }}>Despesas por Categoria (Histórico Completo)</h3>}
+            {showTitle && <h3 style={{ textAlign: 'center', margin: '0 0 8px 0' }}>{titulo}</h3>}
             <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                     <Pie
