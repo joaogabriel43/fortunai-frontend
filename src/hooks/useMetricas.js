@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
+import { BACKEND_ORIGIN } from '../config/apiUrl'
 
 // Base URL do backend sem o prefixo /api (actuator está na raiz)
-const backendBaseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:3333/api')
-  .replace(/\/api\/?$/, '')
+const backendBaseUrl = BACKEND_ORIGIN
 
 /**
  * Busca o valor de uma métrica específica do actuator.

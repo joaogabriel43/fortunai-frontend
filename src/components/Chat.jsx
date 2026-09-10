@@ -7,6 +7,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import DownloadIcon from '@mui/icons-material/Download';
 import api from '../services/api';
+import { API_BASE_URL, BACKEND_ORIGIN } from '../config/apiUrl';
 import { useAuth } from '../contexts/AuthContext';
 import { formatCurrencyInText } from '../utils/formatters';
 import { logErroSeguro } from '../utils/apiErrorUtils';
@@ -163,11 +164,10 @@ const Chat = () => {
     const handleDownloadAutenticado = async (url, label) => {
         try {
             const token = localStorage.getItem('authToken');
-            const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3333/api';
-            const fullUrl = url.startsWith('http') ? url : `${baseUrl.replace(/\/api$/, '')}${url}`;
+            const fullUrl = url.startsWith('http') ? url : `${BACKEND_ORIGIN}${url}`;
 
             // SEC: nunca enviar JWT para domínio externo — validar same-origin
-            const backendOrigin = new URL(baseUrl).origin;
+            const backendOrigin = new URL(API_BASE_URL).origin;
             const targetOrigin = new URL(fullUrl).origin;
             if (targetOrigin !== backendOrigin) {
                 console.warn('[Chat] Download bloqueado: URL aponta para domínio externo.');

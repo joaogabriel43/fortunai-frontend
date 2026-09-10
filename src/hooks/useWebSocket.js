@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { getToken } from '../services/authService'
+import { BACKEND_ORIGIN } from '../config/apiUrl'
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333/api'
-const WS_URL = BASE_URL.replace('/api', '') + '/ws'
+const WS_URL = `${BACKEND_ORIGIN}/ws`
 const MAX_RECONNECT_DELAY_MS = 30_000
 
 /**

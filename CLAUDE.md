@@ -8,14 +8,14 @@
 - MUI v7: sempre usar size={{xs, md}} — NUNCA prop "item"
 
 ## URLs de Produção
-- Frontend: https://fortunai-frontend.vercel.app
-- Backend: https://finassistant-api.onrender.com
-- Health: https://finassistant-api.onrender.com/actuator/health
+- Frontend: https://pondero.com.br
+- Backend: https://api.pondero.com.br
+- Health: https://api.pondero.com.br/actuator/health
 
 ## Estado Atual
 - 958 testes backend + 441 frontend GREEN (medidos em clone limpo: `mvnw clean install -Pintegration-tests` e `npm ci && npx vitest run` — 2026-07-19)
 - CI/CD: GitHub Actions (push na main = deploy automático)
-- Deploy: Vercel (frontend) + Render (backend) + Neon (PostgreSQL)
+- Deploy: Vercel (frontend); backend e PostgreSQL no servidor próprio, publicados via Cloudflare Tunnel
 
 ## Features Implementadas
 - Auth (JWT), Dashboard (Hero + Score Saúde + Gráficos)

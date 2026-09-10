@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { getToken } from '../services/authService'
+import { API_BASE_URL, BACKEND_ORIGIN } from '../config/apiUrl'
 
 /**
  * Hook para download autenticado de arquivos (PDF e CSV) dos endpoints de exportação.
@@ -25,11 +26,10 @@ export function useExportacao() {
 
     try {
       const token = getToken()
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3333/api'
-      // Remove /api do final do baseUrl se o endpoint já começa com /api
+      // Endpoints absolutos sob /api partem do origin; os demais, da base da API.
       const url = endpoint.startsWith('/api')
-        ? `${baseUrl.replace(/\/api$/, '')}${endpoint}`
-        : `${baseUrl}${endpoint}`
+        ? `${BACKEND_ORIGIN}${endpoint}`
+        : `${API_BASE_URL}${endpoint}`
 
       const response = await fetch(url, {
         method: 'GET',

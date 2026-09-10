@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { deveTentarRefresh, renovarSessao } from './tokenRefresh';
+import { API_BASE_URL } from '../config/apiUrl';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3333/api',
+    baseURL: API_BASE_URL,
     withCredentials: false,
 });
 

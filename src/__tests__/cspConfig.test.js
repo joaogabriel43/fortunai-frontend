@@ -14,6 +14,8 @@ const cspValue = () => {
     .value
 }
 
+const vercelConfig = () => JSON.parse(readProjectFile('vercel.json'))
+
 const cspDirective = (name) => cspValue()
   .split(';')
   .map((directive) => directive.trim())
@@ -26,9 +28,15 @@ describe('Content Security Policy de produção', () => {
   })
 
   it('permite HTTPS e WebSocket seguro para o backend real', () => {
+    expect(cspDirective('connect-src')).toContain('https://api.pondero.com.br')
+    expect(cspDirective('connect-src')).toContain('wss://api.pondero.com.br')
     expect(cspDirective('connect-src')).toContain('https://finassistant-api.onrender.com')
     expect(cspDirective('connect-src')).toContain('wss://finassistant-api.onrender.com')
     expect(cspDirective('connect-src')).not.toMatch(/<URL>|placeholder/i)
+  })
+
+  it('gera o bundle com a URL completa da API, incluindo o prefixo /api', () => {
+    expect(vercelConfig().env.VITE_API_URL).toBe('https://api.pondero.com.br/api')
   })
 
   it('carrega o bootstrap de tema como script externo sem liberar scripts inline', () => {

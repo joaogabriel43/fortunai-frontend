@@ -13,8 +13,8 @@
 
 | | URL |
 |---|---|
-| **App** | https://fortunai-frontend.vercel.app |
-| **API** | https://finassistant-api.onrender.com |
+| **App** | https://pondero.com.br |
+| **API** | https://api.pondero.com.br |
 
 Interface React do **FortunAI**, assistente financeiro pessoal inteligente. Dashboard premium com tema dark fintech, chat com IA, gestao de orcamento, portfolio de investimentos, FIRE Calculator e mais.
 
@@ -98,7 +98,7 @@ npm run build
 Crie `.env` na raiz para producao:
 
 ```env
-VITE_API_URL=https://finassistant-api.onrender.com/api
+VITE_API_URL=https://api.pondero.com.br/api
 ```
 
 ---

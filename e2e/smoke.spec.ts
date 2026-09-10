@@ -10,14 +10,14 @@ import { test, expect, request as playwrightRequest } from '@playwright/test'
  * no backend apontado por PLAYWRIGHT_API_URL — em produção, uma conta
  * descartável com consentimento LGPD fabricado a cada execução.
  *
- * Uso local:   PLAYWRIGHT_BASE_URL=https://fortunai-frontend.vercel.app \
- *              PLAYWRIGHT_API_URL=https://finassistant-api.onrender.com \
+ * Uso local:   PLAYWRIGHT_BASE_URL=https://pondero.com.br \
+ *              PLAYWRIGHT_API_URL=https://api.pondero.com.br \
  *              npm run test:smoke
  *
  * No CI: executado pelo job "smoke" pós-deploy (ci.yml do repo finassistant).
  */
 
-const API_URL = process.env.PLAYWRIGHT_API_URL || 'https://finassistant-api.onrender.com'
+const API_URL = process.env.PLAYWRIGHT_API_URL || 'https://api.pondero.com.br'
 
 test.describe('Smoke Tests — Produção', () => {
 

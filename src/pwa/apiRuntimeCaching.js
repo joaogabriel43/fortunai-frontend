@@ -23,8 +23,8 @@
  * nunca "tudo é cacheado" (vazamento). O erro cai para o lado seguro.
  */
 
-/** Origin da API em produção (Render). Deve espelhar `VITE_API_URL`. */
-export const API_ORIGIN_PRODUCAO = 'https://finassistant-api.onrender.com'
+/** Origin da API em produção (servidor Pondero). Deve espelhar `VITE_API_URL`. */
+export const API_ORIGIN_PRODUCAO = 'https://api.pondero.com.br'
 
 /**
  * Cache das rotas públicas. Nome novo de propósito: a instância antiga
