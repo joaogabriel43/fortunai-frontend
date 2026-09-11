@@ -63,7 +63,9 @@ NUNCA inverta esse contrato
 
 ### Vitest no Windows: timeout de forks com suíte completa
 `npx vitest run` rodando a suíte inteira pode falhar em ~11 arquivos com "[vitest-pool]: Failed to start forks worker" / "Timeout waiting for worker to respond", por pressão de recursos ao subir muitos workers em paralelo. Os testes em si não têm relação com o erro — reexecutar os arquivos afetados com `--maxWorkers=1` resolve. Considerar fixar `test.maxWorkers` (ou `poolOptions.forks.maxForks`) no `vitest.config` se o problema persistir.
+**Comando confiável nesta máquina**: executar diretamente `node .\node_modules\vitest\vitest.mjs run --maxWorkers=1`. Evitar `npm run test:run -- --maxWorkers=1`, pois o wrapper npm local pode não repassar a flag ao processo do Vitest.
 **Atenção ao contar testes**: uma execução com forks falhando reporta um total PARCIAL (ex.: 273) sem falhar visivelmente. Sempre conferir o número de arquivos (`Test Files X passed (X)`) — se o total de arquivos for menor que o esperado, a contagem de testes está incompleta.
 
 ## 📝 Changelog do AGENTS.md
+- 2026-09-11: documentado o comando direto e confiável do Vitest com um worker no Windows, sem o wrapper npm.
 - 2026-07-19: adicionadas seções "Erros Conhecidos" e "Configurações do Ambiente" (heading aninhado em DialogTitle; timeout de forks do Vitest); corrigida a contagem de testes em "Estado Atual" para os números reais medidos em clone limpo (958 backend / 441 frontend).
