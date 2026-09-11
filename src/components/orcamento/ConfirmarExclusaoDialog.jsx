@@ -4,17 +4,26 @@ import {
   DialogActions, Button
 } from '@mui/material'
 
-const ConfirmarExclusaoDialog = ({ open, onConfirm, onCancel }) => {
+// `titulo`/`mensagem` são opcionais: os defaults preservam o texto original
+// usado pela ListaTransacoes; o painel do cartão reaproveita o mesmo diálogo
+// para excluir parcelamento e cartão com texto próprio.
+const ConfirmarExclusaoDialog = ({
+  open,
+  onConfirm,
+  onCancel,
+  titulo = 'Confirmar exclusão',
+  mensagem = 'Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.',
+}) => {
   return (
     <Dialog
       open={!!open}
       onClose={onCancel}
       data-testid="confirmar-exclusao-dialog"
     >
-      <DialogTitle>Confirmar exclusão</DialogTitle>
+      <DialogTitle>{titulo}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
+          {mensagem}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
