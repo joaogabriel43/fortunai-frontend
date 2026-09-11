@@ -92,7 +92,7 @@ describe('CartoesCard (ADR-035)', () => {
   });
 
   it('sem as próximas datas calculadas, cai no dia do mês cadastrado', async () => {
-    const { proximoFechamento, proximoVencimento, ...semDatas } = cartoes[0];
+    const semDatas = { ...cartoes[0], proximoFechamento: undefined, proximoVencimento: undefined };
     mockApi({ lista: [semDatas] });
     renderCard();
 
