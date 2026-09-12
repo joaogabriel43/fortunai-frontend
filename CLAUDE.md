@@ -80,6 +80,13 @@ NUNCA inverta esse contrato
 **Padrão adotado**: overlay modal só é modal se o scrim **capturar** clique. A saída (foco, teclado) é responsabilidade do diálogo — `role="dialog"`, `aria-modal`, focus trap, `Escape` — nunca de um scrim furado. Exceção legítima: elementos puramente decorativos sobre o alvo (o anel de destaque) mantêm `pointerEvents: 'none'`, senão engolem o clique no próprio alvo.
 **Bônus**: geometria calculada por instância vai em `style`, não em `sx` — evita gerar classe nova do emotion a cada reposicionamento, e em jsdom o `getComputedStyle` passa a devolver `fixed` de forma determinística. Corrigido em [TutorialOnboarding.jsx](src/components/onboarding/TutorialOnboarding.jsx) (`9e2aa4e`).
 
+### [2026-09-10] Erro: `spacing: 4` do tema como armadilha silenciosa de layout
+**O que aconteceu**: na aba Configurações, a foto de perfil encostava no nome. `<Stack direction="row" spacing={2}>` entre o avatar de 72px e o bloco de texto rendia **8px**, não os 16px que o autor esperava — e o botão de câmera (24px, `bottom: 0; right: 0`, sem offset nem anel de recorte) invadia esse vão. O mesmo halving comprimia a página inteira (`pt: 3` = 12px, `p: { xs: 2, md: 3 }` = 8/12px).
+**Por que**: `src/theme.js` define `spacing: 4` (base de 4px), não os 8px padrão do MUI. Componente escrito antes dessa definição — ou por quem assume o default do MUI — fica com **todos** os espaçamentos silenciosamente pela metade. Não gera erro nem warning; o sintoma é só um layout apertado que parece descuido de CSS.
+**Como prevenir**: em layout estrutural (cards, blocos de identidade, gaps entre regiões da página), declarar espaço em **px explícito** (`gap: '24px'`), nunca em múltiplos de `spacing`. Reservar a escala de `spacing` para ajuste fino dentro de um componente já calibrado. Ao tocar um arquivo antigo, conferir se ele nasceu antes do redesign Pondero.
+**Exemplo**: `<Stack direction="row" spacing={2}>` (8px neste tema) → `<Box sx={{ display: 'flex', gap: { xs: '18px', sm: '24px' } }}>`. Corrigido em [Configuracoes.jsx](src/pages/Configuracoes.jsx) (`e9467c8`), com comentário no topo do arquivo explicando a armadilha.
+**Relação com o padrão de tokens (acima)**: complementa o "Limite conhecido" da disciplina de tokens — um componente token-only herda **cor** de graça através de um redesign, mas **não herda calibração de espaçamento**: a escala de `spacing` também é token, e mudar a base dela reescala tudo sem que ninguém perceba.
+
 ## Configurações do Ambiente
 
 ### Vitest no Windows: timeout de forks com suíte completa
@@ -97,3 +104,4 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 - 2026-07-19: adicionadas seções "Erros Conhecidos" e "Configurações do Ambiente" (heading aninhado em DialogTitle; timeout de forks do Vitest); corrigida a contagem de testes em "Estado Atual" para os números reais medidos em clone limpo (958 backend / 441 frontend).
 - 2026-08-31: registrado o erro de `z-index` em `position: static` mascarado por `pointerEvents: 'none'` (tutorial de onboarding) e os pré-requisitos/rate limiter do E2E local de auth e tutorial.
 - 2026-09-01: adicionada a seção "Padrões do Projeto" com a métrica de viabilidade de merge de branch órfã (contam os commits que tocaram os arquivos-alvo, não o total do `main`) e a disciplina de tokens como prazo de validade de trabalho paralelo — lições do merge do seletor de mês do Orçamento sobre o redesign Pondero.
+- 2026-09-10: registrado em "Erros Conhecidos" o `spacing: 4` do tema como armadilha silenciosa de layout (foto de perfil colada no nome em Configurações) — espaçamento estrutural em px explícito, não em múltiplos de `spacing`.
