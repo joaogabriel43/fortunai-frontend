@@ -29,7 +29,7 @@ import PublicHeader from '../components/public/PublicHeader';
 
 const FEATURES = [
     { icon: SmartToyOutlinedIcon, titulo: 'Organização assistida', texto: 'Registre gastos em linguagem natural e mantenha seu orçamento atualizado sem interromper sua rotina.' },
-    { icon: AccountBalanceWalletOutlinedIcon, titulo: 'Orçamento inteligente', texto: 'Limites por categoria com projeção de estouro, calendário de gastos, cartões virtuais e assinaturas detectadas automaticamente.' },
+    { icon: AccountBalanceWalletOutlinedIcon, titulo: 'Orçamento inteligente', texto: 'Limites por categoria com projeção de estouro, calendário de gastos, cartões virtuais e detecção automática de assinaturas como Netflix, Uber One e iFood — mostrando exatamente onde o dinheiro está vazando todo mês.' },
     { icon: ShowChartIcon, titulo: 'Carteira e análises', texto: 'Acompanhe carteira, setores, correlação, simulações de alocação e metodologias de preço-teto em uma visão organizada.' },
     { icon: ReceiptLongOutlinedIcon, titulo: 'IR da bolsa sem susto', texto: 'Apuração mensal com isenção de R$ 20 mil, compensação de prejuízos, DARF pronto e relatório anual para a declaração.' },
     { icon: QrCodeScannerIcon, titulo: 'Scanner de notas fiscais', texto: 'Aponte para o QR Code da NF-e e os itens entram categorizados no seu orçamento.' },
@@ -39,7 +39,7 @@ const FEATURES = [
 const STATS = [
     { numero: '35+', rotulo: 'ferramentas de orçamento, investimento e IR' },
     { numero: 'Acesso antecipado', rotulo: 'Pondero está em desenvolvimento' },
-    { numero: '100%', rotulo: 'em conformidade com a LGPD, por design' },
+    { numero: '100%', rotulo: 'em conformidade com a Lei Geral de Proteção de Dados (LGPD), por design' },
     { numero: 'R$ 0', rotulo: 'para começar — sem cartão de crédito' },
 ];
 
@@ -127,7 +127,7 @@ const LandingPage = () => {
                                     Clareza para organizar suas finanças e planejar o futuro
                                 </Typography>
                                 <Typography variant="h6" sx={{ color: 'text.secondary', fontWeight: 400, mb: 3 }}>
-                                    Acompanhe orçamento, investimentos e IR em uma visão integrada —
+                                    Acompanhe orçamento, investimentos e Imposto de Renda (IR) em uma visão integrada —
                                     com análises, insights e simulações para entender melhor suas escolhas.
                                 </Typography>
                                 <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
