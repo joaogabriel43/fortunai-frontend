@@ -93,6 +93,9 @@ NUNCA inverta esse contrato
 **Como aplicar**: a regra 1 do Design System (cores sempre via `theme.palette.*` / `tokens.colors.*`, nunca hardcoded) não é só estética — é o que dá **prazo de validade longo** a trabalho não mergeado. Vale ainda mais para branch de feature que vai ficar parada.
 **Limite conhecido**: tokens preservam a *coerência*, não garantem *contraste* em modos que não existiam quando o componente nasceu. O chip "Mês atual" ficou legível porém de contraste baixo no light mode (que o `ColorModeContext` só introduziu depois do fork) — registrado como observação, não corrigido no merge.
 
+### Padrão: propagação do mês de referência para consumidores do painel de Orçamento
+Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesOrcamento()` com guarda (`Number.isInteger(mesOrcamento?.mes)`) e degrada para o mês corrente via `hojeLocal()` quando não há provider acima. Recorte client-side por prefixo `YYYY-MM` quando o endpoint não aceita `mes`/`ano`; refetch com `params: { mes, ano }` quando aceita. Nenhum consumidor mantém seletor de mês próprio — dois seletores na mesma tela divergem e o usuário não sabe qual vale.
+
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)
@@ -120,6 +123,11 @@ NUNCA inverta esse contrato
 **O que aconteceu**: um componente novo do Orçamento passou a ler `const { user } = useAuth()` para buscar as categorias já usadas (`/orcamento/categorias/{userId}`). Os testes renderizam o componente sob `ThemeProvider` + contextos de domínio, mas **sem** o `AuthProvider` — fora do provider o contexto devolve o valor default (`null`) e a desestruturação quebra o render inteiro, com erro que não menciona autenticação.
 **Como prevenir**: todo teste de componente que lê o usuário — direto ou através de um filho — precisa de `vi.mock('../../../contexts/AuthContext', () => ({ useAuth: () => ({ user: { id: 'user-123' } }) }))`. Envolver com o `AuthProvider` real é pior: puxa a chamada de sessão e acopla o teste ao fluxo de auth.
 **Detalhe que custa tempo**: o id mockado precisa casar com as URLs roteadas no mock do `api` (`/orcamento/categorias/user-123`) — senão o mock cai no `reject` de "url inesperada" e o sintoma aparece como falha de rede, não como contexto ausente.
+
+### [2026-09-12] Payload curl com acento retorna 400 no Git Bash do Windows
+**O que aconteceu**: 4 de 7 seeds de transação falharam com HTTP 400; todas as falhas tinham categoria acentuada (`Alimentação`, `Salário`, `Saúde`), todas as ASCII passaram.
+**Por que**: encoding do payload no Git Bash sobre Windows, não defeito da aplicação.
+**Como prevenir**: usar ASCII em payload de seed via curl nesse ambiente, ou enviar o corpo por arquivo com `--data-binary @arquivo` gravado em UTF-8.
 
 ## Configurações do Ambiente
 
@@ -153,4 +161,5 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 - 2026-09-10: registrado em "Erros Conhecidos" o `spacing: 4` do tema como armadilha silenciosa de layout (foto de perfil colada no nome em Configurações) — espaçamento estrutural em px explícito, não em múltiplos de `spacing`.
 - 2026-09-12: registrados em "Próximos passos pendentes" os dois itens de backlog abertos pela propagação do mês de referência para `ListaTransacoes` e `CalendarioGastosCard` — paginação/filtro de backend em `/orcamento/transacoes/{id}` (o recorte mensal é client-side por decisão consciente) e a dívida de "skeleton total" no `GastosPorCategoriaChart` já mergeado.
 - 2026-09-12: registrados em "Próximos passos pendentes" os achados fora de escopo do teste manual da propagação do mês — seletor próprio de mês/ano da seção "Exportar Relatórios" e `useComparativoMensal` fixo no mês corrente, ambos divergindo do `MesOrcamentoContext`.
+- 2026-09-12: registrados em "Padrões do Projeto" a propagação do mês de referência para os consumidores do painel de Orçamento (contexto com guarda + fallback `hojeLocal()`, nenhum seletor de mês próprio) e em "Erros Conhecidos" o 400 de payload curl com acento no Git Bash do Windows.
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
