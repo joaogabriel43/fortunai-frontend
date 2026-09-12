@@ -26,10 +26,20 @@ describe('LandingPage — página pública de apresentação (ADR-039)', () => {
         expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
             /clareza para organizar suas finanças/i
         )
-        expect(screen.getByText(/orçamento, investimentos e IR em uma visão integrada/i)).toBeInTheDocument()
+        expect(screen.getByText(/orçamento, investimentos e Imposto de Renda \(IR\) em uma visão integrada/i)).toBeInTheDocument()
         expect(screen.getByText('Organização assistida')).toBeInTheDocument()
         expect(screen.getByText('Centralize sua rotina')).toBeInTheDocument()
         expect(screen.queryByText(/recomendação de investimento/i)).not.toBeInTheDocument()
+    })
+
+    it('expande siglas na primeira menção e mantém a copy de conformidade da main', () => {
+        renderLanding()
+
+        expect(screen.getByText('Dados protegidos')).toBeInTheDocument()
+        expect(screen.getByText('Dados tratados em conformidade com a LGPD.')).toBeInTheDocument()
+        expect(screen.queryByText(/100%/)).not.toBeInTheDocument()
+        expect(screen.getAllByText(/Lei Geral de Proteção de Dados \(LGPD\)/)).toHaveLength(1)
+        expect(screen.getByText(/assinaturas como Netflix, Uber One e iFood/)).toBeInTheDocument()
     })
 
     it('apresenta o estágio real do produto sem usar contagem técnica como prova social', () => {
