@@ -62,6 +62,22 @@ NUNCA inverta esse contrato
   durante a busca. `ListaTransacoes` e `CalendarioGastosCard` já seguem o padrão
   correto (dados anteriores permanecem na tela, `aria-busy` + opacidade reduzida);
   falta alinhar o gráfico. Registrado fora do escopo da rodada que fez os outros dois.
+- **Seletor próprio de mês/ano na seção "Exportar Relatórios" do Orçamento** — o
+  `pages/Orcamento.jsx` mantém `mesExportacao`/`anoExportacao` em `useState` local,
+  independentes do `MesOrcamentoContext`. No teste manual da propagação do mês, com
+  o contexto em Julho/2026 os selects de exportação continuavam em Setembro/2026:
+  dois seletores na mesma tela divergindo, e o PDF/CSV sai do mês que o usuário não
+  está vendo. Os endpoints `/api/exportacao/*` já aceitam `mes`/`ano` — é só
+  consumir o contexto (ou inicializar a partir dele), sem mudança de contrato.
+  Registrado fora do escopo da rodada que corrigiu `ListaTransacoes` e
+  `CalendarioGastosCard`.
+- **`ComparativoCard` / `useComparativoMensal` fixo no mês corrente** — o hook
+  calcula `mesAtual`/`mesAnterior` a partir de `new Date()` com dependência `[]`, então
+  o card mostra sempre "mês corrente vs. anterior" (ex.: `2026-08 vs 2026-09`
+  enquanto o contexto está em Julho). Mesmo problema de fonte de mês divergente;
+  `/comparativo-mensal` já recebe `mesAtual`/`mesAnterior` por query param, então o
+  fix também dispensa mudança de contrato. De quebra, o hook usa `new Date()` em vez
+  de `hojeLocal()` (fuso America/Sao_Paulo). Registrado fora do escopo da mesma rodada.
 
 ## Padrões do Projeto
 
@@ -136,4 +152,5 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 - 2026-09-01: adicionada a seção "Padrões do Projeto" com a métrica de viabilidade de merge de branch órfã (contam os commits que tocaram os arquivos-alvo, não o total do `main`) e a disciplina de tokens como prazo de validade de trabalho paralelo — lições do merge do seletor de mês do Orçamento sobre o redesign Pondero.
 - 2026-09-10: registrado em "Erros Conhecidos" o `spacing: 4` do tema como armadilha silenciosa de layout (foto de perfil colada no nome em Configurações) — espaçamento estrutural em px explícito, não em múltiplos de `spacing`.
 - 2026-09-12: registrados em "Próximos passos pendentes" os dois itens de backlog abertos pela propagação do mês de referência para `ListaTransacoes` e `CalendarioGastosCard` — paginação/filtro de backend em `/orcamento/transacoes/{id}` (o recorte mensal é client-side por decisão consciente) e a dívida de "skeleton total" no `GastosPorCategoriaChart` já mergeado.
+- 2026-09-12: registrados em "Próximos passos pendentes" os achados fora de escopo do teste manual da propagação do mês — seletor próprio de mês/ano da seção "Exportar Relatórios" e `useComparativoMensal` fixo no mês corrente, ambos divergindo do `MesOrcamentoContext`.
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
