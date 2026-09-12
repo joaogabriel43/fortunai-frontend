@@ -80,11 +80,17 @@ NUNCA inverta esse contrato
 **Padrão adotado**: overlay modal só é modal se o scrim **capturar** clique. A saída (foco, teclado) é responsabilidade do diálogo — `role="dialog"`, `aria-modal`, focus trap, `Escape` — nunca de um scrim furado. Exceção legítima: elementos puramente decorativos sobre o alvo (o anel de destaque) mantêm `pointerEvents: 'none'`, senão engolem o clique no próprio alvo.
 **Bônus**: geometria calculada por instância vai em `style`, não em `sx` — evita gerar classe nova do emotion a cada reposicionamento, e em jsdom o `getComputedStyle` passa a devolver `fixed` de forma determinística. Corrigido em [TutorialOnboarding.jsx](src/components/onboarding/TutorialOnboarding.jsx) (`9e2aa4e`).
 
+### [2026-09-11] Erro: `useAuth()` devolve `null` em teste de componente que lê o usuário
+**O que aconteceu**: um componente novo do Orçamento passou a ler `const { user } = useAuth()` para buscar as categorias já usadas (`/orcamento/categorias/{userId}`). Os testes renderizam o componente sob `ThemeProvider` + contextos de domínio, mas **sem** o `AuthProvider` — fora do provider o contexto devolve o valor default (`null`) e a desestruturação quebra o render inteiro, com erro que não menciona autenticação.
+**Como prevenir**: todo teste de componente que lê o usuário — direto ou através de um filho — precisa de `vi.mock('../../../contexts/AuthContext', () => ({ useAuth: () => ({ user: { id: 'user-123' } }) }))`. Envolver com o `AuthProvider` real é pior: puxa a chamada de sessão e acopla o teste ao fluxo de auth.
+**Detalhe que custa tempo**: o id mockado precisa casar com as URLs roteadas no mock do `api` (`/orcamento/categorias/user-123`) — senão o mock cai no `reject` de "url inesperada" e o sintoma aparece como falha de rede, não como contexto ausente.
+
 ## Configurações do Ambiente
 
 ### Vitest no Windows: timeout de forks com suíte completa
 `npx vitest run` rodando a suíte inteira pode falhar em ~11 arquivos com "[vitest-pool]: Failed to start forks worker" / "Timeout waiting for worker to respond", por pressão de recursos ao subir muitos workers em paralelo. Os testes em si não têm relação com o erro — reexecutar os arquivos afetados com `--maxWorkers=1` resolve. Considerar fixar `test.maxWorkers` (ou `poolOptions.forks.maxForks`) no `vitest.config` se o problema persistir.
 **Atenção ao contar testes**: uma execução com forks falhando reporta um total PARCIAL (ex.: 273) sem falhar visivelmente. Sempre conferir o número de arquivos (`Test Files X passed (X)`) — se o total de arquivos for menor que o esperado, a contagem de testes está incompleta.
+**Complemento — rodar pelo Bash não funciona neste ambiente**: `npx vitest run` disparado pela ferramenta Bash (Git Bash) estoura o tempo limite sem devolver saída, mesmo quando a suíte de fato roda. Pelo PowerShell a mesma suíte completa termina normalmente. Rodar sempre pelo PowerShell e no MESMO comando do `Set-Location` da worktree (`Set-Location <worktree>; npx vitest run`) — o cwd do PowerShell é redefinido a cada chamada.
 
 ### E2E de auth/tutorial vs. rate limiter local do backend
 O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por hora por IP** (`REGISTRAR_MAX`) e `POST /api/auth/login` a 10/min, com buckets Bucket4j **em memória** (Caffeine). Uma rodada de `e2e/tutorial.spec.ts` consome 4 registros (1 do `globalSetup` + 3 cenários), então **duas rodadas seguidas na mesma hora falham por design**, não por regressão.
@@ -93,7 +99,19 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 **Pré-requisitos de uma rodada E2E local**: Docker + `finassistant-db` na porta **5439**, backend dev na 3333, Vite na 5173 (o `webServer` do Playwright reusa um Vite já de pé fora do CI). Sempre fixar `PLAYWRIGHT_API_URL=http://localhost:3333` e `PLAYWRIGHT_BASE_URL=http://localhost:5173` explicitamente — há default silencioso apontando para produção em `smoke.spec.ts`, o mesmo formato de falha do incidente do smoke test.
 **Falso alarme conhecido**: `/actuator/health` responde **503** em dev por causa do health indicator de mail (não há SMTP local). Não indica backend quebrado — validar com `POST /api/auth/registrar` (201) ou `login` (200/401).
 
+### Commit com mensagem multi-linha no PowerShell 5.1: sempre `git commit -F <arquivo>`
+**O que acontece**: uma here-string de aspas duplas (`@"..."@`) passada para `git commit -m` no PowerShell 5.1 é quebrada em vários argumentos — o commit sai com a mensagem deformada e sem as linhas seguintes, inclusive o `Co-Authored-By`.
+**Como prevenir**: escrever a mensagem num arquivo (no diretório de scratchpad, nunca no repo) e commitar com `git commit -F <arquivo>`. Mesma regra para `gh pr create --body-file`.
+**Se já commitou errado**: `git reset --soft HEAD~1; git reset` e recommitar com `-F` — nada do working tree se perde.
+**Quirk irmão, mesmo shell**: `npx eslint $(git diff --name-only <base>)` vira UM argumento só e falha com "No files matching the pattern". A forma correta é splatting: `$f = git diff --name-only <base>; npx eslint @f`.
+
+## Regras de Negócio
+
+### Uso do limite por categoria só existe para o mês corrente
+`GET /orcamento/limites/progresso` devolve o progresso dos limites **do mês corrente** — não aceita parâmetro de mês/ano. Por isso o painel do cartão só mostra o consumo do limite quando o mês selecionado é o mês atual: em qualquer outro mês o número seria do mês errado, e exibi-lo é pior que omiti-lo. O bloco sumir ao navegar para outro mês é comportamento esperado, não bug.
+
 ## 📝 Changelog do CLAUDE.md
 - 2026-07-19: adicionadas seções "Erros Conhecidos" e "Configurações do Ambiente" (heading aninhado em DialogTitle; timeout de forks do Vitest); corrigida a contagem de testes em "Estado Atual" para os números reais medidos em clone limpo (958 backend / 441 frontend).
 - 2026-08-31: registrado o erro de `z-index` em `position: static` mascarado por `pointerEvents: 'none'` (tutorial de onboarding) e os pré-requisitos/rate limiter do E2E local de auth e tutorial.
 - 2026-09-01: adicionada a seção "Padrões do Projeto" com a métrica de viabilidade de merge de branch órfã (contam os commits que tocaram os arquivos-alvo, não o total do `main`) e a disciplina de tokens como prazo de validade de trabalho paralelo — lições do merge do seletor de mês do Orçamento sobre o redesign Pondero.
+- 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
