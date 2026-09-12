@@ -49,6 +49,19 @@ NUNCA inverta esse contrato
 - Tela de perfil do usuário
 - Notificações in-app
 - Onboarding para novos usuários
+- **Paginação ou filtro de backend em `/orcamento/transacoes/{id}`** — o endpoint
+  devolve a base inteira do usuário e não aceita `mes`/`ano`; o recorte mensal do
+  `ListaTransacoes` e do `GastosPorCategoriaChart` é client-side. Funciona bem
+  enquanto o payload é pequeno, e evita um round-trip a cada troca de mês. Quando
+  o volume de transações crescer o suficiente para o payload incomodar, o caminho
+  é paginação (ou `mes`/`ano` como query param) no backend. Decisão consciente de
+  não otimizar antes disso.
+- **Dívida de "skeleton total" no `GastosPorCategoriaChart`** — o componente já
+  mergeado chama `setLoading(true)` em todo refetch, então trocar de mês apaga o
+  gráfico e mostra o skeleton inteiro em vez de manter o dado anterior esmaecido
+  durante a busca. `ListaTransacoes` e `CalendarioGastosCard` já seguem o padrão
+  correto (dados anteriores permanecem na tela, `aria-busy` + opacidade reduzida);
+  falta alinhar o gráfico. Registrado fora do escopo da rodada que fez os outros dois.
 
 ## Padrões do Projeto
 
@@ -122,4 +135,5 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 - 2026-08-31: registrado o erro de `z-index` em `position: static` mascarado por `pointerEvents: 'none'` (tutorial de onboarding) e os pré-requisitos/rate limiter do E2E local de auth e tutorial.
 - 2026-09-01: adicionada a seção "Padrões do Projeto" com a métrica de viabilidade de merge de branch órfã (contam os commits que tocaram os arquivos-alvo, não o total do `main`) e a disciplina de tokens como prazo de validade de trabalho paralelo — lições do merge do seletor de mês do Orçamento sobre o redesign Pondero.
 - 2026-09-10: registrado em "Erros Conhecidos" o `spacing: 4` do tema como armadilha silenciosa de layout (foto de perfil colada no nome em Configurações) — espaçamento estrutural em px explícito, não em múltiplos de `spacing`.
+- 2026-09-12: registrados em "Próximos passos pendentes" os dois itens de backlog abertos pela propagação do mês de referência para `ListaTransacoes` e `CalendarioGastosCard` — paginação/filtro de backend em `/orcamento/transacoes/{id}` (o recorte mensal é client-side por decisão consciente) e a dívida de "skeleton total" no `GastosPorCategoriaChart` já mergeado.
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
