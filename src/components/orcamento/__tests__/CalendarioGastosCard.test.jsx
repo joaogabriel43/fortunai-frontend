@@ -4,6 +4,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from '../../../theme';
 import CalendarioGastosCard from '../CalendarioGastosCard';
 import EntradasSaidasChart from '../EntradasSaidasChart';
+import { MesOrcamentoProvider, useMesOrcamento } from '../../../contexts/MesOrcamentoContext';
+import { hojeLocal } from '../../../utils/dateUtils';
 
 vi.mock('../../../services/api', () => ({
   default: { get: vi.fn() },
@@ -22,6 +24,26 @@ vi.mock('recharts', async (importOriginal) => {
 import api from '../../../services/api';
 
 const renderComTema = (el) => render(<ThemeProvider theme={theme}>{el}</ThemeProvider>);
+
+const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+// Quem navega o mês na tela real é o SeletorMesOrcamento, que fica acima das
+// sub-abas; aqui um botão mínimo cumpre o mesmo papel sobre o contexto.
+const Navegador = () => {
+  const { navegar } = useMesOrcamento();
+  return <button onClick={() => navegar(-1)}>ir para mês passado</button>;
+};
+
+const renderComNavegacao = (el) =>
+  render(
+    <ThemeProvider theme={theme}>
+      <MesOrcamentoProvider>
+        <Navegador />
+        {el}
+      </MesOrcamentoProvider>
+    </ThemeProvider>,
+  );
 
 const calendarioJunho = {
   mes: 6, ano: 2026,
@@ -47,13 +69,64 @@ describe('CalendarioGastosCard (ADR-036)', () => {
     expect(screen.getByText(/total do mês/i)).toBeInTheDocument();
   });
 
-  it('navegação de mês refaz a busca com os novos parâmetros', async () => {
+  it('busca o mês corrente quando não há MesOrcamentoProvider acima', async () => {
     renderComTema(<CalendarioGastosCard />);
     await screen.findByTestId('heatmap-calendario');
 
-    fireEvent.click(screen.getByLabelText(/mês anterior/i));
+    const [anoHoje, mesHoje] = hojeLocal().split('-').map(Number);
+    expect(api.get).toHaveBeenCalledWith('/orcamento/calendario', {
+      params: { mes: mesHoje, ano: anoHoje },
+    });
+    expect(screen.getByText(`${MESES[mesHoje - 1]} ${anoHoje}`)).toBeInTheDocument();
+  });
 
-    await waitFor(() => expect(api.get).toHaveBeenCalledTimes(2));
+  it('navegar no contexto refaz a busca com o mês selecionado', async () => {
+    renderComNavegacao(<CalendarioGastosCard />);
+    await screen.findByTestId('heatmap-calendario');
+
+    fireEvent.click(screen.getByText('ir para mês passado'));
+
+    // Mesmo relógio do contexto (America/Sao_Paulo), não o fuso de quem roda o teste.
+    const [anoHoje, mesHoje] = hojeLocal().split('-').map(Number);
+    const mesPassado = mesHoje === 1 ? 12 : mesHoje - 1;
+    const anoPassado = mesHoje === 1 ? anoHoje - 1 : anoHoje;
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith('/orcamento/calendario', {
+        params: { mes: mesPassado, ano: anoPassado },
+      });
+    });
+    expect(screen.getByText(`${MESES[mesPassado - 1]} ${anoPassado}`)).toBeInTheDocument();
+  });
+
+  it('não expõe navegação própria de mês — quem navega é o SeletorMesOrcamento', async () => {
+    renderComNavegacao(<CalendarioGastosCard />);
+    await screen.findByTestId('heatmap-calendario');
+
+    expect(screen.queryByLabelText(/mês anterior/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/próximo mês/i)).not.toBeInTheDocument();
+  });
+
+  it('mantém a grade anterior na tela durante o refetch de outro mês', async () => {
+    renderComNavegacao(<CalendarioGastosCard />);
+    const grade = await screen.findByTestId('heatmap-calendario');
+
+    let resolverSegundaBusca;
+    api.get.mockImplementationOnce(
+      () => new Promise((resolve) => { resolverSegundaBusca = resolve; }),
+    );
+
+    fireEvent.click(screen.getByText('ir para mês passado'));
+
+    // Em voo: a grade continua montada (esmaecida), sem spinner no lugar dela.
+    expect(grade).toBeInTheDocument();
+    expect(screen.getByTestId('heatmap-calendario')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+
+    resolverSegundaBusca({ data: calendarioJunho });
+    await waitFor(() =>
+      expect(screen.getByTestId('heatmap-calendario')).toHaveAttribute('aria-busy', 'false'),
+    );
   });
 
   it('erro de rede mostra alerta', async () => {

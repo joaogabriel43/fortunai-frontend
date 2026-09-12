@@ -5,21 +5,24 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  IconButton,
   Tooltip,
   Typography,
   useTheme,
 } from '@mui/material';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { formatBRL } from '@/components/ui';
 import api from '../../services/api';
+import { useMesOrcamento } from '../../contexts/MesOrcamentoContext';
 import { extrairMensagemErroApi } from '../../utils/apiErrorUtils';
+import { hojeLocal } from '../../utils/dateUtils';
 
 /**
  * Calendário de gastos (ADR-036): heatmap do mês — intensidade da célula
  * proporcional ao gasto do dia (normalizada pelo maiorGastoDia do backend).
+ *
+ * O mês exibido vem do MesOrcamentoContext (SeletorMesOrcamento, acima das
+ * sub-abas). O card não tem mais navegação própria: dois seletores de mês na
+ * mesma tela divergiam entre si e o usuário não sabia qual valia.
  */
 
 const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -27,9 +30,13 @@ const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
 
 const CalendarioGastosCard = () => {
   const theme = useTheme();
-  const hoje = new Date();
-  const [mes, setMes] = useState(hoje.getMonth() + 1);
-  const [ano, setAno] = useState(hoje.getFullYear());
+  const mesOrcamento = useMesOrcamento();
+  // Fora da página de Orçamento não há provider: cai no mês corrente ancorado
+  // em America/Sao_Paulo, mesmo relógio que o contexto usa.
+  const [anoHoje, mesHoje] = hojeLocal().split('-').map(Number);
+  const mes = Number.isInteger(mesOrcamento?.mes) ? mesOrcamento.mes : mesHoje;
+  const ano = Number.isInteger(mesOrcamento?.ano) ? mesOrcamento.ano : anoHoje;
+
   const [dados, setDados] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState('');
@@ -38,20 +45,16 @@ const CalendarioGastosCard = () => {
     setCarregando(true);
     api.get('/orcamento/calendario', { params: { mes, ano } })
       .then(({ data }) => { setDados(data); setErro(''); })
-      .catch((e) => setErro(extrairMensagemErroApi(e, 'Não foi possível carregar o calendário.')))
+      .catch((e) => {
+        // Limpa a grade: manter o heatmap do mês anterior sob o rótulo do mês
+        // novo seria mostrar dado errado, não dado velho.
+        setDados(null);
+        setErro(extrairMensagemErroApi(e, 'Não foi possível carregar o calendário.'));
+      })
       .finally(() => setCarregando(false));
   }, [mes, ano]);
 
   useEffect(() => { carregar(); }, [carregar]);
-
-  const navegar = (delta) => {
-    let novoMes = mes + delta;
-    let novoAno = ano;
-    if (novoMes < 1) { novoMes = 12; novoAno -= 1; }
-    if (novoMes > 12) { novoMes = 1; novoAno += 1; }
-    setMes(novoMes);
-    setAno(novoAno);
-  };
 
   const corDoDia = (dia) => {
     const maior = Number(dados?.maiorGastoDia ?? 0);
@@ -69,27 +72,25 @@ const CalendarioGastosCard = () => {
             <CalendarMonthIcon fontSize="small" sx={{ color: theme.palette.text.secondary }} />
             <Typography variant="h6" sx={{ fontWeight: 600 }}>Calendário de gastos</Typography>
           </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <IconButton size="small" aria-label="mês anterior" onClick={() => navegar(-1)}>
-              <ChevronLeftIcon fontSize="small" />
-            </IconButton>
-            <Typography variant="body2" sx={{ minWidth: 130, textAlign: 'center' }}>
-              {MESES[mes - 1]} {ano}
-            </Typography>
-            <IconButton size="small" aria-label="próximo mês" onClick={() => navegar(1)}>
-              <ChevronRightIcon fontSize="small" />
-            </IconButton>
-          </Box>
+          <Typography variant="body2" color="text.secondary">
+            {MESES[mes - 1]} {ano}
+          </Typography>
         </Box>
 
         {erro && <Alert severity="error" sx={{ mb: 2 }}>{erro}</Alert>}
 
-        {carregando ? (
+        {carregando && !dados ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
             <CircularProgress size={26} />
           </Box>
         ) : dados && (
-          <Box data-testid="heatmap-calendario">
+          // Durante a troca de mês a grade anterior permanece visível (apenas
+          // esmaecida) em vez de dar lugar ao spinner.
+          <Box
+            data-testid="heatmap-calendario"
+            aria-busy={carregando}
+            sx={{ opacity: carregando ? 0.6 : 1, transition: 'opacity 150ms ease' }}
+          >
             <Box sx={{
               display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 0.5,
             }}>
