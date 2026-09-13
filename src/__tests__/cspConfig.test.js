@@ -16,6 +16,10 @@ const cspValue = () => {
 
 const vercelConfig = () => JSON.parse(readProjectFile('vercel.json'))
 
+const vercelHeader = (name) => vercelConfig().headers
+  .flatMap(({ headers }) => headers)
+  .find(({ key }) => key.toLowerCase() === name.toLowerCase())
+
 const cspDirective = (name) => cspValue()
   .split(';')
   .map((directive) => directive.trim())
@@ -47,5 +51,13 @@ describe('Content Security Policy de produção', () => {
     expect(inlineScripts).toHaveLength(0)
     expect(indexHtml).toContain('<script src="/theme-init.js"></script>')
     expect(existsSync(projectFile('public/theme-init.js'))).toBe(true)
+  })
+
+  // M-5/M-6 (auditoria 2026-09-12): frame-ancestors 'none' é a defesa moderna contra clickjacking,
+  // mas navegadores antigos e alguns proxies/in-app browsers ignoram CSP nível 2. X-Frame-Options
+  // DENY é o fallback legado com a mesma semântica — os dois precisam coexistir.
+  it('mantém frame-ancestors none e envia X-Frame-Options DENY como fallback anti-clickjacking', () => {
+    expect(cspDirective('frame-ancestors')).toBe("frame-ancestors 'none'")
+    expect(vercelHeader('X-Frame-Options')?.value).toBe('DENY')
   })
 })
