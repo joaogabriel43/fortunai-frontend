@@ -6,6 +6,24 @@ import { login as authLogin, logout as authLogout, getToken as getStoredToken } 
 // Export nomeado exigido
 export const AuthContext = createContext(null);
 
+// L-5 (auditoria 2026-09-12): lê o `exp` do payload do JWT (base64url) só para decidir se a sessão
+// local ainda faz sentido — NÃO verifica assinatura (isso é papel do backend). Token ilegível ou
+// sem `exp` conta como expirado (fail-closed).
+const tokenExpirado = (jwt) => {
+    try {
+        const payload = jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const { exp } = JSON.parse(atob(payload));
+        return typeof exp !== 'number' || exp * 1000 <= Date.now();
+    } catch (_) {
+        return true;
+    }
+};
+
+// Access token vencido continua sendo sessão válida enquanto houver refresh token: o interceptor
+// do api.js renova no primeiro 401 (ADR-029). Sem refresh, não há como a sessão se recuperar.
+const sessaoValida = (jwt) =>
+    !!jwt && (!tokenExpirado(jwt) || !!localStorage.getItem('refreshToken'));
+
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
@@ -15,7 +33,11 @@ export function AuthProvider({ children }) {
     // Carrega somente o usuário se houver token armazenado. NÃO redireciona.
     useEffect(() => {
         const existingToken = getStoredToken();
-        if (existingToken) {
+        if (existingToken && !sessaoValida(existingToken)) {
+            // L-5: token vencido e sem refresh — descarta sem gastar uma ida ao /auth/me.
+            localStorage.removeItem('authToken');
+            setLoading(false);
+        } else if (existingToken) {
             setToken(existingToken);
             api.get('/auth/me')
                 .then(response => {
@@ -103,7 +125,7 @@ export function AuthProvider({ children }) {
         login,
         logout,
         updateUser,
-        isAuthenticated: !!token
+        isAuthenticated: sessaoValida(token)
     }), [user, token, loading, login, logout, updateUser]);
 
     return (
