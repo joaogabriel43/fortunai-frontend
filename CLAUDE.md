@@ -13,7 +13,7 @@
 - Health: https://api.pondero.com.br/actuator/health
 
 ## Estado Atual
-- 958 testes backend + 441 frontend GREEN (medidos em clone limpo: `mvnw clean install -Pintegration-tests` e `npm ci && npx vitest run` — 2026-07-19)
+- 1278 testes unitários + 33 de integração no backend e 703 testes Vitest (95 arquivos) no frontend — GREEN (`./mvnw verify -Pintegration-tests` e `npx vitest run`, 2026-09-13, fechamento da auditoria Antigravity)
 - CI/CD: GitHub Actions (push na main = deploy automático)
 - Deploy: Vercel (frontend); backend e PostgreSQL no servidor próprio, publicados via Cloudflare Tunnel
 
@@ -96,6 +96,15 @@ NUNCA inverta esse contrato
 ### Padrão: propagação do mês de referência para consumidores do painel de Orçamento
 Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesOrcamento()` com guarda (`Number.isInteger(mesOrcamento?.mes)`) e degrada para o mês corrente via `hojeLocal()` quando não há provider acima. Recorte client-side por prefixo `YYYY-MM` quando o endpoint não aceita `mes`/`ano`; refetch com `params: { mes, ano }` quando aceita. Nenhum consumidor mantém seletor de mês próprio — dois seletores na mesma tela divergem e o usuário não sabe qual vale.
 
+### [2026-09-13] Padrão: `isAuthenticated` considera a expiração do JWT (L-5)
+**O que é**: o `AuthContext` lê o `exp` do payload do access token (base64url → base64 → `atob`) para decidir se a sessão local ainda faz sentido. Token ilegível ou sem `exp` numérico conta como expirado (fail-closed). Access token vencido **com** refresh token no `localStorage` continua sendo sessão válida — o interceptor do `api.js` renova no primeiro 401 (ADR-029). Vencido **e** sem refresh: o token é descartado no carregamento, sem gastar uma ida ao `/auth/me`.
+**Limite**: essa leitura não verifica assinatura (papel do backend) e só roda em render. Um token que vence com a tela parada não desloga até a próxima renderização — registrado como backlog no CLAUDE.md do backend.
+**Onde**: [AuthContext.jsx](src/contexts/AuthContext.jsx) (`272f8c1`).
+
+### [2026-09-13] Padrão: `X-Frame-Options: DENY` como fallback de `frame-ancestors` (M-5, M-6)
+**O que é**: o `vercel.json` envia a CSP com `frame-ancestors 'none'` **e** `X-Frame-Options: DENY`. O primeiro é o controle moderno; o segundo cobre navegador que não honra `frame-ancestors`. Os dois headers dizem a mesma coisa, então não há conflito.
+**Onde**: [vercel.json](vercel.json), pinado por [cspConfig.test.js](src/__tests__/cspConfig.test.js) (`8b446aa`) — mudar um header sem mudar o teste falha a suíte.
+
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)
@@ -129,12 +138,22 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **Por que**: encoding do payload no Git Bash sobre Windows, não defeito da aplicação.
 **Como prevenir**: usar ASCII em payload de seed via curl nesse ambiente, ou enviar o corpo por arquivo com `--data-binary @arquivo` gravado em UTF-8.
 
+### [2026-09-13] Erro: filtrar a saída colorida do Vitest dá falso vazio
+**O que aconteceu**: um filtro de texto sobre a saída do `npx vitest run` não encontrava a linha de resumo, e a suíte parecia não ter terminado.
+**Por que**: o Vitest colore a saída com códigos ANSI, que ficam entre as palavras da linha de resumo — o texto visível não é o texto que o filtro recebe.
+**Como prevenir**: remover as cores antes de filtrar, com `sed 's/\x1b\[[0-9;]*m//g'`, e só depois procurar a linha `Test Files` / `Tests`.
+
+### [2026-09-13] Erro: `AuthContext.jsx` usa CRLF
+**O que aconteceu**: uma edição por script que normalizava para LF e regravava sem restaurar o CRLF faria o diff marcar o arquivo inteiro como alterado.
+**Como prevenir**: antes de editar por script, conferir o terminador (`file <arquivo>`); se for CRLF, regravar com CRLF e validar com `git diff --stat` que só as linhas pretendidas mudaram.
+
 ## Configurações do Ambiente
 
 ### Vitest no Windows: timeout de forks com suíte completa
 `npx vitest run` rodando a suíte inteira pode falhar em ~11 arquivos com "[vitest-pool]: Failed to start forks worker" / "Timeout waiting for worker to respond", por pressão de recursos ao subir muitos workers em paralelo. Os testes em si não têm relação com o erro — reexecutar os arquivos afetados com `--maxWorkers=1` resolve. Considerar fixar `test.maxWorkers` (ou `poolOptions.forks.maxForks`) no `vitest.config` se o problema persistir.
 **Atenção ao contar testes**: uma execução com forks falhando reporta um total PARCIAL (ex.: 273) sem falhar visivelmente. Sempre conferir o número de arquivos (`Test Files X passed (X)`) — se o total de arquivos for menor que o esperado, a contagem de testes está incompleta.
 **Complemento — rodar pelo Bash não funciona neste ambiente**: `npx vitest run` disparado pela ferramenta Bash (Git Bash) estoura o tempo limite sem devolver saída, mesmo quando a suíte de fato roda. Pelo PowerShell a mesma suíte completa termina normalmente. Rodar sempre pelo PowerShell e no MESMO comando do `Set-Location` da worktree (`Set-Location <worktree>; npx vitest run`) — o cwd do PowerShell é redefinido a cada chamada.
+**[2026-09-13] Atualização**: pelo Bash **em background** (`run_in_background`) a suíte completa terminou normalmente — 95 arquivos, 703 testes. O que estoura é a execução em primeiro plano. Duas condições: passar `--exclude 'finassistant-frontend/**'` (há um gitlink `finassistant-frontend` dentro do repo que o Vitest tentaria varrer) e, em worktree ou clone novo, rodar `npm ci` antes — com `node_modules` vazio a suíte falha por import, não por teste.
 
 ### E2E de auth/tutorial vs. rate limiter local do backend
 O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por hora por IP** (`REGISTRAR_MAX`) e `POST /api/auth/login` a 10/min, com buckets Bucket4j **em memória** (Caffeine). Uma rodada de `e2e/tutorial.spec.ts` consome 4 registros (1 do `globalSetup` + 3 cenários), então **duas rodadas seguidas na mesma hora falham por design**, não por regressão.
@@ -163,3 +182,4 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 - 2026-09-12: registrados em "Próximos passos pendentes" os achados fora de escopo do teste manual da propagação do mês — seletor próprio de mês/ano da seção "Exportar Relatórios" e `useComparativoMensal` fixo no mês corrente, ambos divergindo do `MesOrcamentoContext`.
 - 2026-09-12: registrados em "Padrões do Projeto" a propagação do mês de referência para os consumidores do painel de Orçamento (contexto com guarda + fallback `hojeLocal()`, nenhum seletor de mês próprio) e em "Erros Conhecidos" o 400 de payload curl com acento no Git Bash do Windows.
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
+- 2026-09-13: remediação da auditoria Antigravity — contagem de testes em "Estado Atual" atualizada (1278+33 backend / 703 frontend); padrões do L-5 (expiração do JWT no `AuthContext`) e do M-5/M-6 (`X-Frame-Options` como fallback de `frame-ancestors`); erros de filtro sobre saída ANSI do Vitest e de CRLF no `AuthContext.jsx`; suíte Vitest pelo Bash em background com `--exclude` do gitlink.
