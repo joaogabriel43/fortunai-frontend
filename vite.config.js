@@ -44,7 +44,11 @@ export default defineConfig({
         importScripts: ['/sw-purge-caches.js'],
         // F-01: allowlist positiva. Nada sob /api/** e cacheado por padrao;
         // ver src/pwa/apiRuntimeCaching.js para o criterio de classificacao.
-        runtimeCaching: apiRuntimeCaching
+        runtimeCaching: apiRuntimeCaching,
+        // robots.txt, sitemap.xml e llms.txt sao arquivos estaticos para crawlers:
+        // sem a denylist, um navegador com o SW ativo cairia no navigateFallback
+        // (index.html) ao abrir essas URLs diretamente.
+        navigateFallbackDenylist: [/^\/robots\.txt$/, /^\/sitemap\.xml$/, /^\/llms\.txt$/]
       }
     })
   ],
