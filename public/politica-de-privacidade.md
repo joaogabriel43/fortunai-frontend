@@ -8,13 +8,13 @@ Em conformidade com a **Lei Geral de Proteção de Dados (LGPD — Lei 13.709/20
 
 ---
 
-## 1. Responsável pelo Tratamento
+## 1. Controladora e Encarregado de Dados
 
-**João Gabriel Borba do Nascimento** é o controlador dos dados pessoais coletados por meio desta plataforma e a pessoa física responsável por sua operação.
+**Pondero** é a Controladora dos dados pessoais tratados por meio desta plataforma, nos termos do art. 5º, VI, da LGPD (Lei 13.709/2018) — a quem cabem as decisões referentes ao tratamento de dados pessoais dos titulares. No momento, a operação é realizada sem CNPJ próprio, sob responsabilidade de João Gabriel Borba do Nascimento como pessoa física operadora da plataforma.
 
-**Pondero** é a marca utilizada para identificar a plataforma e não corresponde, atualmente, a uma pessoa jurídica. A operação é realizada pelo controlador acima identificado, sem CNPJ neste momento.
+**João Gabriel Borba do Nascimento** atua como Encarregado de Dados (Data Protection Officer — DPO), nos termos do art. 5º, VIII, da LGPD. O Encarregado é a ponte entre a Pondero e os titulares dos dados (e, quando aplicável, a Autoridade Nacional de Proteção de Dados — ANPD), responsável por receber reclamações e comunicações dos titulares, prestar esclarecimentos e adotar providências — **o Encarregado não é o controlador dos dados**.
 
-Canal de privacidade: privacidade@pondero.com.br
+Canal de privacidade (contato do Encarregado de Dados): privacidade@pondero.com.br
 
 ## 2. Dados Coletados
 
@@ -97,7 +97,7 @@ Alterações relevantes serão comunicadas por e-mail e/ou exigirão novo consen
 ## 11. Contato
 
 Para questões de privacidade e exercício de direitos LGPD:
-- **Canal de privacidade**: privacidade@pondero.com.br
+- **Canal de privacidade (Encarregado de Dados — DPO)**: João Gabriel Borba do Nascimento, privacidade@pondero.com.br
 - **Assunto**: [LGPD] — sua solicitação
 
 Para comunicações gerais sobre a plataforma:

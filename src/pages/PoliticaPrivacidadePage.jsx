@@ -27,10 +27,13 @@ const PoliticaPrivacidadePage = () => {
   }
 
   return (
-    /* Wrapper com overflow próprio — garante scroll mesmo sem Layout pai */
+    /* height (não minHeight): precisa ficar travado em 100vh para que o
+       overflowY:auto abra scroll interno de verdade — #root/body/html têm
+       overflow:hidden globalmente (ver index.css), então com minHeight a
+       caixa só cresce com o conteúdo e o excesso é cortado pelo ancestral. */
     <Box
       sx={{
-        minHeight: '100vh',
+        height: '100vh',
         overflowY: 'auto',
         bgcolor: 'background.default',
       }}
