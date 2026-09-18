@@ -82,9 +82,9 @@ Adotamos medidas técnicas para proteção dos dados:
 
 ## 8. Cookies e Rastreamento
 
-A Pondero não utiliza cookies de rastreamento ou publicidade. Apenas armazenamento local (localStorage) para sessão de autenticação.
+A Pondero não utiliza cookies de publicidade. Para o funcionamento do serviço, usamos apenas armazenamento local (localStorage) para a sessão de autenticação e para registrar a sua escolha no aviso de cookies.
 
-Caso ferramentas de análise (como Google Analytics) sejam adicionadas no futuro, esta política será atualizada antes da ativação, com aviso e, quando aplicável, banner de consentimento.
+Com o seu consentimento, utilizamos Google Analytics (Google LLC) e Microsoft Clarity (Microsoft Corp.) para medir o uso do site e melhorar o produto. Essas ferramentas usam cookies e identificadores e podem tratar dados como páginas visitadas, tipo de dispositivo e interações; o Clarity pode registrar sessões anonimizadas nas páginas públicas. Não são executadas na área logada nem antes da sua escolha no aviso de cookies, e você pode recusar sem perda de funcionalidade. Os dados podem ser transferidos para fora do Brasil (LGPD, art. 33).
 
 ## 9. Menores de Idade
 
