@@ -8,6 +8,7 @@ import PageLoader from './components/ui/PageLoader';
 import ConsentimentoModal from './components/ConsentimentoModal';
 import TutorialOnboarding from './components/onboarding/TutorialOnboarding';
 import PWAInstallBanner from './components/pwa/PWAInstallBanner';
+import CookieConsentBanner from './components/consent/CookieConsentBanner';
 import OfflinePage from './components/pwa/OfflinePage';
 import api from './services/api';
 
@@ -77,6 +78,7 @@ function AppContent({ children }) {
                 Se consentimentoPendente, não renderiza para evitar conflito de overlays */}
             {!consentimentoPendente && <TutorialOnboarding />}
 
+            <CookieConsentBanner />
             <PWAInstallBanner />
             <OfflinePage />
         </>
