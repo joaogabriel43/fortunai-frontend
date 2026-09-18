@@ -45,7 +45,9 @@ describe('Content Security Policy de produção', () => {
 
   it('carrega o bootstrap de tema como script externo sem liberar scripts inline', () => {
     const indexHtml = readProjectFile('index.html')
-    const inlineScripts = [...indexHtml.matchAll(/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/gi)]
+    // JSON-LD (type="application/ld+json") é bloco de dados: o navegador não o executa e o
+    // script-src não se aplica. Crawlers exigem que ele esteja inline no HTML estático.
+    const inlineScripts = [...indexHtml.matchAll(/<script(?![^>]*\bsrc=)(?![^>]*type=["']application\/ld\+json["'])[^>]*>[\s\S]*?<\/script>/gi)]
 
     expect(cspDirective('script-src')).not.toContain("'unsafe-inline'")
     expect(inlineScripts).toHaveLength(0)
