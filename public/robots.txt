@@ -1,0 +1,28 @@
+# robots.txt — Pondero (https://pondero.com.br)
+# Orientação de indexação, NÃO é controle de acesso: as rotas abaixo já exigem
+# autenticação no app. O objetivo é só não poluir o índice de busca com telas
+# internas que o crawler veria como redirecionamento para o login.
+
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /registrar
+Allow: /privacidade
+Allow: /termos
+
+Disallow: /dashboard
+Disallow: /chat
+Disallow: /orcamento
+Disallow: /investimentos
+Disallow: /questionario
+Disallow: /questionario-perfil
+Disallow: /fire-calculator
+Disallow: /fluxo-caixa
+Disallow: /metas
+Disallow: /configuracoes
+Disallow: /calculadoras
+Disallow: /plano
+Disallow: /ir
+Disallow: /resumo
+
+Sitemap: https://pondero.com.br/sitemap.xml

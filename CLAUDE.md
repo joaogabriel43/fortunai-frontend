@@ -147,6 +147,10 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **O que aconteceu**: uma edição por script que normalizava para LF e regravava sem restaurar o CRLF faria o diff marcar o arquivo inteiro como alterado.
 **Como prevenir**: antes de editar por script, conferir o terminador (`file <arquivo>`); se for CRLF, regravar com CRLF e validar com `git diff --stat` que só as linhas pretendidas mudaram.
 
+### [2026-09-18] Erro: guard de "sem script inline" reprova o JSON-LD
+**O que aconteceu**: o `cspConfig.test.js` reprova qualquer `<script>` sem `src`, e o JSON-LD exigido para SEO é justamente um script inline.
+**Como prevenir**: o guard ignora só `type="application/ld+json"`, que é dado e não executa. Qualquer outro script inline continua barrado, e o CSP não ganha `unsafe-inline`. Regra geral: ao adicionar tag nova em `index.html`, rodar `cspConfig.test.js` antes de commitar.
+
 ## Configurações do Ambiente
 
 ### Vitest no Windows: timeout de forks com suíte completa
@@ -168,6 +172,9 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 **Se já commitou errado**: `git reset --soft HEAD~1; git reset` e recommitar com `-F` — nada do working tree se perde.
 **Quirk irmão, mesmo shell**: `npx eslint $(git diff --name-only <base>)` vira UM argumento só e falha com "No files matching the pattern". A forma correta é splatting: `$f = git diff --name-only <base>; npx eslint @f`.
 
+### SW e arquivos estáticos de SEO
+O `navigateFallback` do Workbox serviria `index.html` para `/robots.txt`, `/sitemap.xml` e `/llms.txt`. O denylist em `vite.config.js` (`navigateFallbackDenylist`) impede isso; todo novo arquivo estático na raiz de `public/` precisa entrar nele.
+
 ## Regras de Negócio
 
 ### Uso do limite por categoria só existe para o mês corrente
@@ -183,3 +190,4 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 - 2026-09-12: registrados em "Padrões do Projeto" a propagação do mês de referência para os consumidores do painel de Orçamento (contexto com guarda + fallback `hojeLocal()`, nenhum seletor de mês próprio) e em "Erros Conhecidos" o 400 de payload curl com acento no Git Bash do Windows.
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
 - 2026-09-13: remediação da auditoria Antigravity — contagem de testes em "Estado Atual" atualizada (1278+33 backend / 703 frontend); padrões do L-5 (expiração do JWT no `AuthContext`) e do M-5/M-6 (`X-Frame-Options` como fallback de `frame-ancestors`); erros de filtro sobre saída ANSI do Vitest e de CRLF no `AuthContext.jsx`; suíte Vitest pelo Bash em background com `--exclude` do gitlink.
+- 2026-09-18: registrados em "Erros Conhecidos" o guard de script inline vs. JSON-LD e em "Configurações do Ambiente" o denylist do Workbox para arquivos estáticos de SEO — lições da branch `claude/pondero-seo-compliance` (itens a-f; GA/Clarity ainda pendentes).

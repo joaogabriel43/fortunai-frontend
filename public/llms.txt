@@ -1,0 +1,27 @@
+# Pondero
+
+> Assistente financeiro pessoal em português do Brasil que reúne orçamento, investimentos e Imposto de Renda da bolsa em uma visão integrada, com registro de gastos em linguagem natural.
+
+Pondero é um aplicativo web. A área logada (dashboard, chat, orçamento, investimentos, IR) exige conta e não é indexável; apenas as páginas públicas abaixo são destinadas a rastreadores.
+
+## Páginas públicas
+
+- [Início](https://pondero.com.br/): apresentação do produto, recursos, como funciona e perguntas frequentes.
+- [Criar conta](https://pondero.com.br/registrar): cadastro de novos usuários.
+- [Entrar](https://pondero.com.br/login): acesso de usuários existentes.
+- [Política de Privacidade](https://pondero.com.br/privacidade): tratamento de dados pessoais conforme a LGPD.
+- [Termos de Uso](https://pondero.com.br/termos): condições de uso do serviço.
+
+## Recursos do produto
+
+- Organização assistida: registro de gastos em linguagem natural.
+- Orçamento: limites por categoria com projeção de estouro, calendário de gastos, cartões virtuais e assinaturas detectadas automaticamente.
+- Carteira e análises: acompanhamento de carteira, setores, correlação, simulações de alocação e metodologias de preço-teto.
+- IR da bolsa: apuração mensal com isenção de R$ 20 mil, compensação de prejuízos, DARF e relatório anual para a declaração.
+- Scanner de notas fiscais: leitura do QR Code da NF-e com itens categorizados no orçamento.
+- Orçamento a dois: compartilhamento das finanças entre pessoas, com visão unificada e contas separadas.
+
+## Observações
+
+- O Pondero não é consultoria financeira ou recomendação de investimento personalizada.
+- Idioma: português (pt-BR).
