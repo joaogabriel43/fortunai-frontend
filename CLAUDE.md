@@ -14,7 +14,7 @@
 
 ## Estado Atual
 - 1278 testes unitários + 33 de integração no backend e 703 testes Vitest (95 arquivos) no frontend — GREEN (`./mvnw verify -Pintegration-tests` e `npx vitest run`, 2026-09-13, fechamento da auditoria Antigravity)
-- CI/CD: GitHub Actions (push na main = deploy automático)
+- CI/CD: GitHub Actions roda só testes e build; o deploy é feito pela integração Git da Vercel
 - Deploy: Vercel (frontend); backend e PostgreSQL no servidor próprio, publicados via Cloudflare Tunnel
 
 ## Features Implementadas
