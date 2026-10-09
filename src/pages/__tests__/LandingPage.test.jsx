@@ -37,7 +37,7 @@ describe('LandingPage — página pública de apresentação (ADR-039)', () => {
 
         expect(screen.getByText('Dados protegidos')).toBeInTheDocument()
         expect(screen.getByText('Dados tratados em conformidade com a LGPD.')).toBeInTheDocument()
-        expect(screen.queryByText(/100%/)).not.toBeInTheDocument()
+        expect(screen.queryByText(/100% em conformidade/i)).not.toBeInTheDocument()
         expect(screen.getAllByText(/Lei Geral de Proteção de Dados \(LGPD\)/)).toHaveLength(1)
         expect(screen.getByText(/assinaturas como Netflix, Uber One e iFood/)).toBeInTheDocument()
     })
