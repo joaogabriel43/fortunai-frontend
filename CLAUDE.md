@@ -105,6 +105,13 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **O que é**: o `vercel.json` envia a CSP com `frame-ancestors 'none'` **e** `X-Frame-Options: DENY`. O primeiro é o controle moderno; o segundo cobre navegador que não honra `frame-ancestors`. Os dois headers dizem a mesma coisa, então não há conflito.
 **Onde**: [vercel.json](vercel.json), pinado por [cspConfig.test.js](src/__tests__/cspConfig.test.js) (`8b446aa`) — mudar um header sem mudar o teste falha a suíte.
 
+### [2026-10-09] Padrão: cherry-pick de copy de branch antiga — a main manda no texto de conformidade
+**Contexto**: o commit 4b564f6 (branch `claude/landing-page-copy-829ac6`, nunca mergeada) conflitou com a main no stat de conformidade da `LandingPage.jsx`: a main já tinha "Dados protegidos" / "Dados tratados em conformidade com a LGPD." (sem "100%"), a branch antiga ainda afirmava "100% em conformidade".
+**Regra**: em conflito de copy jurídica/de conformidade, vence a main — ela já passou pela revisão de compliance; a branch parada só contribui com o que é novo e independente (siglas por extenso, copy de feature).
+**Sigla por extenso**: expandir apenas na primeira menção que sobrar na ordem de renderização da página, sem repetir. Aqui, o stat manteve "LGPD" e a expansão foi para a seção de segurança; o FAQ ficou com a sigla.
+**Como travar**: teste que conta ocorrências (`getAllByText(/Lei Geral de Proteção de Dados \(LGPD\)/)` com `toHaveLength(1)`) e `queryByText(/100% em conformidade/i)` ausente. Cuidado: asserção `/100%/` solta casa com "100% virtuais" da seção de segurança.
+**Onde**: [LandingPage.jsx](src/pages/LandingPage.jsx), PR #4.
+
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)
@@ -191,3 +198,4 @@ O `navigateFallback` do Workbox serviria `index.html` para `/robots.txt`, `/site
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
 - 2026-09-13: remediação da auditoria Antigravity — contagem de testes em "Estado Atual" atualizada (1278+33 backend / 703 frontend); padrões do L-5 (expiração do JWT no `AuthContext`) e do M-5/M-6 (`X-Frame-Options` como fallback de `frame-ancestors`); erros de filtro sobre saída ANSI do Vitest e de CRLF no `AuthContext.jsx`; suíte Vitest pelo Bash em background com `--exclude` do gitlink.
 - 2026-09-18: registrados em "Erros Conhecidos" o guard de script inline vs. JSON-LD e em "Configurações do Ambiente" o denylist do Workbox para arquivos estáticos de SEO — lições da branch `claude/pondero-seo-compliance` (itens a-f; GA/Clarity ainda pendentes).
+- 2026-10-09: registrado em "Padrões do Projeto" o cherry-pick de copy de branch antiga (a main manda no texto de conformidade; sigla por extenso só na primeira menção restante, travada por teste) — lição do PR #4.
