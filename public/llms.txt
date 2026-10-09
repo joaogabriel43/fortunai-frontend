@@ -6,11 +6,11 @@ Pondero é um aplicativo web. A área logada (dashboard, chat, orçamento, inves
 
 ## Páginas públicas
 
-- [Início](https://pondero.com.br/): apresentação do produto, recursos, como funciona e perguntas frequentes.
-- [Criar conta](https://pondero.com.br/registrar): cadastro de novos usuários.
-- [Entrar](https://pondero.com.br/login): acesso de usuários existentes.
-- [Política de Privacidade](https://pondero.com.br/privacidade): tratamento de dados pessoais conforme a LGPD.
-- [Termos de Uso](https://pondero.com.br/termos): condições de uso do serviço.
+- [Início](https://www.pondero.com.br/): apresentação do produto, recursos, como funciona e perguntas frequentes.
+- [Criar conta](https://www.pondero.com.br/registrar): cadastro de novos usuários.
+- [Entrar](https://www.pondero.com.br/login): acesso de usuários existentes.
+- [Política de Privacidade](https://www.pondero.com.br/privacidade): tratamento de dados pessoais conforme a LGPD.
+- [Termos de Uso](https://www.pondero.com.br/termos): condições de uso do serviço.
 
 ## Recursos do produto
 
