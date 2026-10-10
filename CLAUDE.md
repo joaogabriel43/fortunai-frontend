@@ -8,13 +8,13 @@
 - MUI v7: sempre usar size={{xs, md}} — NUNCA prop "item"
 
 ## URLs de Produção
-- Frontend: https://pondero.com.br
+- Frontend: https://www.pondero.com.br
 - Backend: https://api.pondero.com.br
 - Health: https://api.pondero.com.br/actuator/health
 
 ## Estado Atual
 - 1278 testes unitários + 33 de integração no backend e 703 testes Vitest (95 arquivos) no frontend — GREEN (`./mvnw verify -Pintegration-tests` e `npx vitest run`, 2026-09-13, fechamento da auditoria Antigravity)
-- CI/CD: GitHub Actions (push na main = deploy automático)
+- CI/CD: GitHub Actions roda só testes e build; o deploy é feito pela integração Git da Vercel
 - Deploy: Vercel (frontend); backend e PostgreSQL no servidor próprio, publicados via Cloudflare Tunnel
 
 ## Features Implementadas
@@ -175,6 +175,9 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 ### SW e arquivos estáticos de SEO
 O `navigateFallback` do Workbox serviria `index.html` para `/robots.txt`, `/sitemap.xml` e `/llms.txt`. O denylist em `vite.config.js` (`navigateFallbackDenylist`) impede isso; todo novo arquivo estático na raiz de `public/` precisa entrar nele.
 
+### [2026-10-09] Domínio canônico é `www.pondero.com.br`
+O apex `pondero.com.br` responde 308 para `www`. Canonical, `og:*`, JSON-LD, sitemap, robots e llms.txt devem usar `https://www.pondero.com.br`. E-mails `@pondero.com.br` e a API (`api.pondero.com.br`) não mudam. Ao criar URL pública nova, conferir com `grep -rE "https?://pondero\.com\.br" src public index.html`.
+
 ## Regras de Negócio
 
 ### Uso do limite por categoria só existe para o mês corrente
@@ -191,3 +194,4 @@ O `navigateFallback` do Workbox serviria `index.html` para `/robots.txt`, `/site
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
 - 2026-09-13: remediação da auditoria Antigravity — contagem de testes em "Estado Atual" atualizada (1278+33 backend / 703 frontend); padrões do L-5 (expiração do JWT no `AuthContext`) e do M-5/M-6 (`X-Frame-Options` como fallback de `frame-ancestors`); erros de filtro sobre saída ANSI do Vitest e de CRLF no `AuthContext.jsx`; suíte Vitest pelo Bash em background com `--exclude` do gitlink.
 - 2026-09-18: registrados em "Erros Conhecidos" o guard de script inline vs. JSON-LD e em "Configurações do Ambiente" o denylist do Workbox para arquivos estáticos de SEO — lições da branch `claude/pondero-seo-compliance` (itens a-f; GA/Clarity ainda pendentes).
+- 2026-10-09: CI sem job de deploy (Vercel Git integration cuida do deploy) e domínio canônico alinhado para `www.pondero.com.br` — PR #3.
