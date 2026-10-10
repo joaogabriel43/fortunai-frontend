@@ -8,7 +8,7 @@
 - MUI v7: sempre usar size={{xs, md}} — NUNCA prop "item"
 
 ## URLs de Produção
-- Frontend: https://pondero.com.br
+- Frontend: https://www.pondero.com.br
 - Backend: https://api.pondero.com.br
 - Health: https://api.pondero.com.br/actuator/health
 
