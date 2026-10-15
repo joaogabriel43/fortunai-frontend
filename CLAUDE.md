@@ -79,6 +79,18 @@ NUNCA inverta esse contrato
   fix também dispensa mudança de contrato. De quebra, o hook usa `new Date()` em vez
   de `hojeLocal()` (fuso America/Sao_Paulo). Registrado fora do escopo da mesma rodada.
 
+- **Estratégia de testes — Faixa 1 (auditoria de 2026-10-15; fazer primeiro, custo baixo)**:
+  - **Lint no CI do frontend**: a baseline do lint é vermelha, então não entra como gate global. Começar só nos arquivos alterados do PR (`git diff --name-only <base>` → `eslint`) **ou** com a regra que proíbe `new Date()` (usar `hojeLocal()`, fuso America/Sao_Paulo) como `warn`; endurecer para `error` quando a baseline zerar.
+  - **Dependabot** (`.github/dependabot.yml`): `open-pull-requests-limit` explícito (default 5) e `groups` por ecossistema (`patterns` / `update-types`), para não gerar uma enxurrada de PRs.
+  - **gitleaks** (`gitleaks/gitleaks-action@v3`): o histórico tem achados antigos, então rodar com baseline para barrar só segredo novo. Ver a nota em "Configurações do Ambiente" — o suporte a baseline na *action* não está documentado.
+  - **Smoke tests**: URLs sempre explícitas por env, sem default silencioso apontando para produção.
+  - **Cobertura sem gate**: `@vitest/coverage-v8` só gerando relatório (backend: relatório JaCoCo). Medir antes de impor número.
+  - **Backend (repo `finassistant`)**: corrigir os 3 `YearMonth.parse` apontados na auditoria e impor piso de 1s no `Retry-After`.
+  - **Protocolo de Correção de Bug**: registrado em "Padrões do Projeto".
+- **Estratégia de testes — Faixa 2 (depois da Faixa 1; custo médio)**:
+  - Mutation testing (PIT no backend), ArchUnit (fronteiras de camada), property-based (jqwik no backend; `fast-check` + `@fast-check/vitest` no frontend), gates de cobertura (só depois de medir na Faixa 1), SpotBugs + FindSecBugs com baseline, e E2E (Playwright) no CI do frontend.
+  - **Fuzz de API com Schemathesis** (backend): o `springdoc-openapi` 2.8.6 está no `pom.xml`, então há schema para alimentá-lo. Rodar só contra dev/test/e2e do CI — `application-prod.properties` desliga `springdoc.api-docs` e `swagger-ui`, e fuzzar produção está fora de cogitação. Versão mínima de Python e da action **não confirmadas**.
+
 ## Padrões do Projeto
 
 ### [2026-09-01] Viabilidade de merge de branch órfã: contam os commits que tocaram os ARQUIVOS-ALVO, não o total no `main`
@@ -104,6 +116,17 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 ### [2026-09-13] Padrão: `X-Frame-Options: DENY` como fallback de `frame-ancestors` (M-5, M-6)
 **O que é**: o `vercel.json` envia a CSP com `frame-ancestors 'none'` **e** `X-Frame-Options: DENY`. O primeiro é o controle moderno; o segundo cobre navegador que não honra `frame-ancestors`. Os dois headers dizem a mesma coisa, então não há conflito.
 **Onde**: [vercel.json](vercel.json), pinado por [cspConfig.test.js](src/__tests__/cspConfig.test.js) (`8b446aa`) — mudar um header sem mudar o teste falha a suíte.
+
+### [2026-10-15] Protocolo de Correção de Bug
+**Contexto**: código escrito por IA tende a repetir o mesmo defeito em vários pontos, e um fix feito só no sintoma deixa os irmãos quebrados. Vale para todo fix de bug, nos dois repos.
+1. **Teste vermelho primeiro**: reproduzir o bug num teste que falha *antes* do fix e rodá-lo para ver falhar pelo motivo certo. Fix sem teste vermelho prévio não conta.
+2. **Varredura da classe inteira**: `grep` por todo outro ponto com o mesmo padrão (ex.: `new Date()`, `YearMonth.parse`); corrigir todos ou registrar os que ficaram de fora. Bug quase nunca é único.
+3. **Asserção de valor exato**: asserir o valor esperado literal (`toBe('2026-07')`), nunca só "não lançou" / `toBeTruthy` / `toBeDefined`.
+4. **Nome e tag**: backend `@Tag("regression")` + método `regressao_<id>_<sintoma>`; frontend `describe('regressão: <sintoma>')`. Permite rodar e contar as regressões.
+5. **Property test quando couber**: se o bug é de domínio amplo (datas, dinheiro, parsing), acrescentar propriedade (jqwik / fast-check) em vez de só o exemplo que quebrou.
+6. **Mutation quando couber**: no backend, rodar PIT sobre a classe corrigida e confirmar que o teste novo mata o mutante da linha do fix.
+7. **Conteúdo do PR**: sintoma, causa raiz, o teste vermelho, o resultado da varredura (passo 2) e o que ficou fora.
+8. **Proibido**: apagar ou afrouxar asserção, `skip`/`xit` para passar; "consertar" o teste em vez do código sem justificar; mascarar com `pointerEvents`/timeout/retry (ver o erro de 2026-08-31); corrigir só o chamador quando a causa está num helper compartilhado.
 
 ## Erros Conhecidos e Como Evitá-los
 
@@ -175,6 +198,13 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 ### SW e arquivos estáticos de SEO
 O `navigateFallback` do Workbox serviria `index.html` para `/robots.txt`, `/sitemap.xml` e `/llms.txt`. O denylist em `vite.config.js` (`navigateFallbackDenylist`) impede isso; todo novo arquivo estático na raiz de `public/` precisa entrar nele.
 
+### [2026-10-15] gitleaks-action@v3: baseline não documentada para a action
+A `gitleaks/gitleaks-action@v3` aceita `GITLEAKS_CONFIG` e `GITLEAKS_ENABLE_*` por env; a documentação da *action* **não** descreve baseline. O CLI tem `--baseline-path`, e o `.gitleaksignore` (fingerprint `commit:arquivo:regra:linha`, recurso experimental) cobre achados antigos.
+**Não confirmado**: se a action repassa `--baseline-path`. Validar numa branch descartável antes de contar com baseline no CI.
+
+### [2026-10-15] `@fast-check/vitest`: conferir o peer antes de subir o Vitest
+`@fast-check/vitest` suporta Vitest `^4`. O Vitest 5 saiu em set/2026 — antes de atualizar o Vitest, conferir se o peer do `@fast-check/vitest` já cobre a 5; senão o `npm ci` quebra por ERESOLVE.
+
 ## Regras de Negócio
 
 ### Uso do limite por categoria só existe para o mês corrente
@@ -191,3 +221,4 @@ O `navigateFallback` do Workbox serviria `index.html` para `/robots.txt`, `/site
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
 - 2026-09-13: remediação da auditoria Antigravity — contagem de testes em "Estado Atual" atualizada (1278+33 backend / 703 frontend); padrões do L-5 (expiração do JWT no `AuthContext`) e do M-5/M-6 (`X-Frame-Options` como fallback de `frame-ancestors`); erros de filtro sobre saída ANSI do Vitest e de CRLF no `AuthContext.jsx`; suíte Vitest pelo Bash em background com `--exclude` do gitlink.
 - 2026-09-18: registrados em "Erros Conhecidos" o guard de script inline vs. JSON-LD e em "Configurações do Ambiente" o denylist do Workbox para arquivos estáticos de SEO — lições da branch `claude/pondero-seo-compliance` (itens a-f; GA/Clarity ainda pendentes).
+- 2026-10-15: auditoria da estratégia de testes — registrados o "Protocolo de Correção de Bug" em "Padrões do Projeto", as Faixas 1 e 2 em "Próximos passos pendentes" (lint em arquivos alterados, Dependabot com limite e grupos, gitleaks com baseline, Schemathesis na Faixa 2 por causa do springdoc) e, em "Configurações do Ambiente", as notas do `gitleaks-action@v3` e do peer do `@fast-check/vitest`.
