@@ -39,3 +39,16 @@ export const hojeLocal = () =>
     month: '2-digit',
     day: '2-digit',
   }).format(new Date());
+
+/** Mês/ano de "hoje" em America/Sao_Paulo: `{ ano, mes }` numéricos (mes 1-12). */
+export const mesCorrente = () => {
+  const [ano, mes] = hojeLocal().split('-').map(Number);
+  return { ano, mes };
+};
+
+/** Prefixo "YYYY-MM" do mês de hoje (America/Sao_Paulo). */
+export const prefixoMesCorrente = () => hojeLocal().slice(0, 7);
+
+/** Mês imediatamente anterior a `{ ano, mes }`, virando o ano em janeiro. */
+export const mesAnterior = ({ ano, mes }) =>
+  mes === 1 ? { ano: ano - 1, mes: 12 } : { ano, mes: mes - 1 };
