@@ -74,11 +74,18 @@ describe('LandingPage — página pública de apresentação (ADR-039)', () => {
         expect(screen.getByText('Política de Privacidade')).toHaveAttribute('href', '/privacidade')
     })
 
-    it('mostra as 6 features e os placeholders de mídia (imagem e vídeo)', () => {
+    it('mostra as 6 features e o placeholder de imagem do dashboard', () => {
         renderLanding()
         expect(screen.getAllByTestId('landing-feature-card')).toHaveLength(6)
         expect(screen.getByTestId('landing-placeholder-screenshot')).toBeInTheDocument()
-        expect(screen.getByTestId('landing-placeholder-video')).toBeInTheDocument()
+    })
+
+    describe('regressão: bloco de vídeo "em breve" exposto na landing pública', () => {
+        it('não renderiza placeholder nem texto de vídeo de demonstração', () => {
+            renderLanding()
+            expect(screen.queryByTestId('landing-placeholder-video')).not.toBeInTheDocument()
+            expect(screen.queryByText(/Vídeo de demonstração/i)).not.toBeInTheDocument()
+        })
     })
 
     it('não faz nenhuma chamada de API (página 100% estática)', () => {
