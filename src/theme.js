@@ -72,11 +72,12 @@ const palettes = {
     // Semanticas de estado como TEXTO (SC 1.4.3). Os tons de `status` servem a
     // icone/fundo/borda, mas como texto reprovam no claro (ex.: #76A968 sobre
     // #FFFDF8 = 2,7:1). Mesma familia de matiz, so rebaixados; >= 4,5:1 sobre
-    // papel #FFFDF8 e sobre o canvas #F4EEE3 (restricao dominante: 4,6:1).
-    posText: '#4E7543',
-    negText: '#B74541',
-    warnText: '#8C6229',
-    infoText: '#4B7079',
+    // papel #FFFDF8 e sobre o canvas #F4EEE3 (4,8:1 a 5,8:1) e tambem sobre o
+    // fundo de chip (main a 20% sobre o papel, ~4,6:1) onde o texto aparece.
+    posText: '#4B7241',
+    negText: '#AC413D',
+    warnText: '#885F27',
+    infoText: '#476A73',
 
     line: 'rgba(25,55,47,0.13)',
     lineStrong: 'rgba(25,55,47,0.22)',

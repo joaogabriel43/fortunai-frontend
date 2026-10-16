@@ -57,11 +57,23 @@ describe.each(['light', 'dark'])('tokens de texto semantico — tema %s', (mode)
   })
 })
 
+// Chips/avisos pintam o texto sobre alpha(main, ate 0.2) sobre o papel.
+const blend = (fg, bg, a) =>
+  '#' + [1, 3, 5].map((i) => Math.round(a * parseInt(fg.slice(i, i + 2), 16) + (1 - a) * parseInt(bg.slice(i, i + 2), 16)).toString(16).padStart(2, '0')).join('').toUpperCase()
+
+describe('tokens de texto sobre fundo tingido (chip a 20%) — tema light', () => {
+  const { colors } = getTokens('light')
+  const MAIN = { posText: STATUS_MAIN.success, negText: STATUS_MAIN.error, warnText: STATUS_MAIN.warning, infoText: STATUS_MAIN.info }
+  it.each(TEXT_KEYS)('%s >= 4,5:1 sobre o tom a 20%% sobre o papel', (key) => {
+    expect(ratio(colors[key], blend(MAIN[key], colors.surface, 0.2))).toBeGreaterThanOrEqual(4.5)
+  })
+})
+
 describe('regressao de valores', () => {
   it('claro: positiveText escurecido (ratio calculado fixo sobre o canvas)', () => {
     const { colors } = getTokens('light')
     expect(colors.posText).not.toBe(STATUS_MAIN.success)
-    expect(ratio(colors.posText, colors.bg)).toBeCloseTo(4.6, 1)
+    expect(ratio(colors.posText, colors.bg)).toBeCloseTo(4.8, 1)
   })
 
   it('o tom original reprova no claro (motivo da existencia dos tokens)', () => {
