@@ -69,7 +69,7 @@ const ListaTransacoes = ({ refreshKey, onChanged }) => {
         try {
             const res = await api.get(`/orcamento/transacoes/${user.id}`);
             const list = Array.isArray(res.data) ? res.data : [];
-            setTransacoes(list.sort((a, b) => new Date(b.data) - new Date(a.data)));
+            setTransacoes(list.sort((a, b) => (b.data || '').localeCompare(a.data || '')));
         } catch (e) {
             logErroSeguro('Falha ao carregar transações', e);
         } finally {
