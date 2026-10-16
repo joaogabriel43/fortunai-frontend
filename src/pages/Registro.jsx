@@ -134,7 +134,7 @@ const Registro = () => {
                                 key={texto}
                                 variant="caption"
                                 component="div"
-                                sx={{ color: ok ? 'success.main' : 'text.disabled' }}
+                                sx={{ color: ok ? 'statusText.positive' : 'text.disabled' }}
                             >
                                 {ok ? '✓' : '○'} {texto}
                             </Typography>
@@ -157,7 +157,7 @@ const Registro = () => {
                         <Typography
                             variant="caption"
                             component="div"
-                            sx={{ color: 'error.main', mt: -1, mb: 0.5 }}
+                            sx={{ color: 'statusText.negative', mt: -1, mb: 0.5 }}
                         >
                             As senhas não coincidem
                         </Typography>

@@ -79,7 +79,7 @@ const StatusPage = () => {
           }
         }}>
           <CardContent sx={{ textAlign: 'center', py: 3 }}>
-            <Typography variant="h6" fontWeight={600} data-testid="overall-status" sx={{ color: allOperational ? 'success.main' : 'warning.main' }}>
+            <Typography variant="h6" fontWeight={600} data-testid="overall-status" sx={{ color: allOperational ? 'statusText.positive' : 'statusText.warning' }}>
               {loading ? 'Verificando...' : allOperational ? 'Todos os sistemas operacionais' : 'Alguns servicos com problemas'}
             </Typography>
           </CardContent>
@@ -92,7 +92,7 @@ const StatusPage = () => {
         )}
 
         {error && (
-          <Typography color="error" sx={{ textAlign: 'center', mb: 2 }}>
+          <Typography color="statusText.negative" sx={{ textAlign: 'center', mb: 2 }}>
             {error}
           </Typography>
         )}

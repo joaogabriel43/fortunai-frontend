@@ -178,7 +178,7 @@ const JurosCompostosCalculadora = () => {
                     </Box>
 
                     {error && (
-                        <Typography variant="body2" color="error" sx={{ mt: 1.5 }}>
+                        <Typography variant="body2" color="statusText.negative" sx={{ mt: 1.5 }}>
                             {error}
                         </Typography>
                     )}

@@ -94,7 +94,7 @@ const Disclaimer = () => {
   >
     <WarningAmberIcon sx={{ color: 'warning.main', mt: 0.2, flexShrink: 0 }} />
     <Typography variant="body2" sx={{ color: 'text.secondary', lineHeight: 1.6 }}>
-      <strong style={{ color: theme.palette.warning.main }}>⚠️ Aviso importante:</strong> Este cálculo é{' '}
+      <strong style={{ color: theme.palette.statusText.warning }}>⚠️ Aviso importante:</strong> Este cálculo é{' '}
       <strong>apenas informativo</strong> e pode conter imprecisões. Ele não substitui a
       orientação de um contador ou especialista tributário. Consulte um profissional para
       sua declaração oficial do Imposto de Renda.
@@ -167,7 +167,7 @@ const ResumoCard = ({ apuracao, onGerarDarf, loadingDarf, darf, errorDarf }) => 
                 <Typography
                   variant="body1"
                   fontWeight={700}
-                  sx={{ color: highlight === 'warning' ? 'warning.main' : 'text.primary' }}
+                  sx={{ color: highlight === 'warning' ? 'statusText.warning' : 'text.primary' }}
                 >
                   {formatBRL(value)}
                 </Typography>
@@ -185,7 +185,7 @@ const ResumoCard = ({ apuracao, onGerarDarf, loadingDarf, darf, errorDarf }) => 
             {isento ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
                 <CheckCircleIcon sx={{ color: 'success.main', fontSize: 20 }} />
-                <Typography variant="h6" fontWeight={700} sx={{ color: 'success.main' }}>
+                <Typography variant="h6" fontWeight={700} sx={{ color: 'statusText.positive' }}>
                   Isento
                 </Typography>
                 <Tooltip title="Vendas de ações abaixo de R$20.000 no mês — isenção de IR (Swing Trade de ações)">
@@ -193,7 +193,7 @@ const ResumoCard = ({ apuracao, onGerarDarf, loadingDarf, darf, errorDarf }) => 
                 </Tooltip>
               </Box>
             ) : (
-              <Typography variant="h5" fontWeight={700} sx={{ color: 'error.main', mt: 0.5 }}>
+              <Typography variant="h5" fontWeight={700} sx={{ color: 'statusText.negative', mt: 0.5 }}>
                 {formatBRL(irDevido)}
               </Typography>
             )}

@@ -136,8 +136,8 @@ const FluxoCaixa = () => {
                                         fontWeight={800}
                                         sx={{
                                             color: projecaoAtiva.saldoProjetado >= projecaoAtiva.saldoAtual
-                                                ? theme.palette.success.main
-                                                : theme.palette.error.main,
+                                                ? theme.palette.statusText.positive
+                                                : theme.palette.statusText.negative,
                                             letterSpacing: '-0.5px',
                                         }}
                                     >
@@ -160,7 +160,7 @@ const FluxoCaixa = () => {
                                             Receitas Esperadas
                                         </Typography>
                                     </Box>
-                                    <Typography variant="h5" fontWeight={800} sx={{ color: 'success.main' }}>
+                                    <Typography variant="h5" fontWeight={800} sx={{ color: 'statusText.positive' }}>
                                         {formatCurrency(projecaoAtiva.receitasEsperadas)}
                                     </Typography>
                                 </CardContent>
@@ -177,7 +177,7 @@ const FluxoCaixa = () => {
                                             Despesas Esperadas
                                         </Typography>
                                     </Box>
-                                    <Typography variant="h5" fontWeight={800} sx={{ color: 'error.main' }}>
+                                    <Typography variant="h5" fontWeight={800} sx={{ color: 'statusText.negative' }}>
                                         {formatCurrency(projecaoAtiva.despesasEsperadas)}
                                     </Typography>
                                 </CardContent>
@@ -296,8 +296,8 @@ const FluxoCaixa = () => {
                                                                 ? alpha(theme.palette.success.main, 0.15)
                                                                 : alpha(theme.palette.error.main, 0.15),
                                                             color: t.tipo === 'CREDIT'
-                                                                ? theme.palette.success.main
-                                                                : theme.palette.error.main,
+                                                                ? theme.palette.statusText.positive
+                                                                : theme.palette.statusText.negative,
                                                             fontWeight: 600,
                                                             fontSize: '0.7rem',
                                                         }}

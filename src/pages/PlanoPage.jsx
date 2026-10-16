@@ -63,7 +63,7 @@ const PlanoPage = () => {
             label={`Plano atual: ${plano}`}
             sx={(theme) => ({
               bgcolor: isPremium ? alpha(theme.palette.warning.main, 0.15) : theme.palette.surfaces.surfaceSoft,
-              color: isPremium ? 'warning.main' : 'text.secondary',
+              color: isPremium ? 'statusText.warning' : 'text.secondary',
               border: `1px solid ${isPremium ? alpha(theme.palette.warning.main, 0.3) : alpha(theme.palette.text.primary, 0.1)}`,
             })}
           />
@@ -133,7 +133,7 @@ const PlanoPage = () => {
                   <Chip
                     label="Plano ativo"
                     size="small"
-                    sx={(theme) => ({ bgcolor: alpha(theme.palette.warning.main, 0.2), color: 'warning.main', fontSize: 11 })}
+                    sx={(theme) => ({ bgcolor: alpha(theme.palette.warning.main, 0.2), color: 'statusText.warning', fontSize: 11 })}
                   />
                 )}
               </Box>
