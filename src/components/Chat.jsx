@@ -163,7 +163,6 @@ const Chat = () => {
 
     const handleDownloadAutenticado = async (url, label) => {
         try {
-            const token = localStorage.getItem('authToken');
             const fullUrl = url.startsWith('http') ? url : `${BACKEND_ORIGIN}${url}`;
 
             // SEC: nunca enviar JWT para domínio externo — validar same-origin
@@ -174,11 +173,9 @@ const Chat = () => {
                 return;
             }
 
-            const response = await fetch(fullUrl, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (!response.ok) throw new Error(`Download falhou: ${response.status}`);
-            const blob = await response.blob();
+            // Cliente central: injeta o JWT e renova a sessão em 401/403 expirado (F7).
+            // fullUrl é absoluta, então a baseURL do cliente é ignorada.
+            const { data: blob } = await api.get(fullUrl, { responseType: 'blob' });
             const objectUrl = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = objectUrl;
