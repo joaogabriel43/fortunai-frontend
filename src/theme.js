@@ -128,6 +128,8 @@ const palettes = {
     copperText: '#D49A69',
     focusRing: '#B8D979',
     // No escuro os tons de `status` ja passam (>= 4,7:1 sobre papel e canvas).
+    // Ressalva: sobre chip tingido (20%) no escuro negativo/info ficam ~3,7:1 (ja era assim
+    // antes; tokens proprios do escuro ficam como pendencia, ver docs/sprints/F9.md).
     posText: status.positive,
     negText: status.negative,
     warnText: status.warning,
