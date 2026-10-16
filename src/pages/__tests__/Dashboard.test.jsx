@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { render, screen, waitFor, within, fireEvent } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router-dom'
@@ -402,5 +402,57 @@ describe('Dashboard', () => {
     expect(
       screen.getByRole('region', { name: /insight educacional/i })
     ).toBeInTheDocument()
+  })
+
+  // --- Regressão: fonte indisponível NUNCA pode virar "vazio confirmado" ---
+  describe('regressão: próxima ação trata fonte indisponível como vazia', () => {
+    const chamadasPortfolio = () =>
+      api.get.mock.calls.filter(([url]) => url === '/dashboard/portfolio-composition').length
+
+    it('falha na carteira não sugere "Cadastre seus ativos" e oferece nova tentativa que recarrega', async () => {
+      setupApiMocks(api, { falhaPortfolio: true })
+      renderDash()
+
+      const acao = await screen.findByTestId('proxima-acao')
+      expect(screen.getByText('Não foi possível verificar seus ativos')).toBeInTheDocument()
+      expect(screen.queryByText('Cadastre seus ativos')).toBeNull()
+      expect(acao).toHaveTextContent('Tentar novamente')
+      expect(acao).not.toHaveAttribute('href')
+      expect(chamadasPortfolio()).toBe(1)
+
+      fireEvent.click(acao)
+
+      await waitFor(() => expect(chamadasPortfolio()).toBe(2))
+      // Voltou a renderizar a ação de recuperação depois do recarregamento.
+      expect(await screen.findByTestId('proxima-acao')).toHaveTextContent('Tentar novamente')
+    })
+
+    it('falha nas transações não sugere "Registre seus gastos do mês"', async () => {
+      setupApiMocks(api, { falhaTransacoes: true })
+      renderDash()
+
+      const acao = await screen.findByTestId('proxima-acao')
+      expect(screen.getByText('Não foi possível verificar seus registros')).toBeInTheDocument()
+      expect(screen.queryByText('Registre seus gastos do mês')).toBeNull()
+      expect(acao).toHaveTextContent('Tentar novamente')
+      expect(acao).not.toHaveAttribute('href')
+    })
+
+    it('mostra um único "Tentar novamente" no panorama quando a ação já é de recuperação', async () => {
+      setupApiMocks(api, { falhaPortfolio: true })
+      renderDash()
+
+      const panorama = await screen.findByTestId('panorama')
+      expect(within(panorama).getAllByRole('button', { name: 'Tentar novamente' })).toHaveLength(1)
+    })
+
+    it('vazio confirmado (200 com lista vazia) continua sugerindo "Cadastre seus ativos"', async () => {
+      setupApiMocks(api, { portfolio: [] })
+      renderDash()
+
+      const acao = await screen.findByTestId('proxima-acao')
+      expect(screen.getByText('Cadastre seus ativos')).toBeInTheDocument()
+      expect(acao).toHaveAttribute('href', '/investimentos')
+    })
   })
 })
