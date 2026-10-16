@@ -101,7 +101,7 @@ const ConsentimentoModal = ({ open, onAceitar }) => {
         />
 
         {erro && (
-          <Typography variant="body2" color="error" sx={{ mb: 1.5 }}>
+          <Typography variant="body2" color="statusText.negative" sx={{ mb: 1.5 }}>
             {erro}
           </Typography>
         )}

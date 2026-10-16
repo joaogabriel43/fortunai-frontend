@@ -66,9 +66,9 @@ const ExclusaoContaModal = ({ open, onClose }) => {
       fullWidth
       PaperProps={{ sx: (t) => ({ borderRadius: 3, bgcolor: 'background.paper', border: `1px solid ${t.palette.error.main}` }) }}
     >
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'error.main' }}>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: 'statusText.negative' }}>
         <WarningAmberIcon />
-        <Typography variant="h6" component="span" fontWeight={700} sx={{ color: 'error.main' }} data-testid="exclusao-titulo">
+        <Typography variant="h6" component="span" fontWeight={700} sx={{ color: 'statusText.negative' }} data-testid="exclusao-titulo">
           Excluir conta permanentemente
         </Typography>
       </DialogTitle>
@@ -81,7 +81,7 @@ const ExclusaoContaModal = ({ open, onClose }) => {
         </Alert>
 
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Digite <strong style={{ color: theme.palette.error.main }}>EXCLUIR</strong> para confirmar:
+          Digite <strong style={{ color: theme.palette.statusText.negative }}>EXCLUIR</strong> para confirmar:
         </Typography>
 
         <TextField

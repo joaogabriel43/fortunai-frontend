@@ -46,7 +46,7 @@ const Dashboard = () => {
                                 Resumo das Contas
                             </Typography>
                             {loading && <Typography>Carregando contas...</Typography>}
-                            {error && <Typography color="error">{error}</Typography>}
+                            {error && <Typography color="statusText.negative">{error}</Typography>}
                             {summary && summary.contas && summary.contas.length > 0 ? (
                                 <List>
                                     {summary.contas.map((conta) => (
@@ -74,7 +74,7 @@ const Dashboard = () => {
                             </Typography>
                             {loading && <Typography>Carregando gráfico...</Typography>}
                             {error && (
-                                <Typography color="error">Não foi possível carregar os dados do gráfico.</Typography>
+                                <Typography color="statusText.negative">Não foi possível carregar os dados do gráfico.</Typography>
                             )}
                             {/* Renderiza o gráfico somente quando houver mais de um item na composição */}
                             {composition && composition.length > 1 ? (

@@ -124,7 +124,7 @@ const GastosPorCategoriaChart = ({ showTitle = true }) => {
         );
     }
 
-    if (error) return <p style={{ color: theme.palette.error.main }}>{error}</p>;
+    if (error) return <p style={{ color: theme.palette.statusText.negative }}>{error}</p>;
     if (data.length === 0) {
         return modoMensal
             ? <p>{`Não há despesas em ${MESES[mes - 1].toLowerCase()} de ${ano} para exibir.`}</p>

@@ -19,6 +19,15 @@ function corPorClassificacao(theme) {
   }
 }
 
+// Mesma classificacao, tom legivel como TEXTO (WCAG 1.4.3). Anel/barra seguem em `cor`.
+// Caminhos de paleta resolvidos pelo sx (nao le theme em JS: seguro sem o tema do app).
+const CORES_TEXTO_CLASSIFICACAO = {
+  EXCELENTE: 'statusText.positive',
+  BOM: 'primary.main',
+  REGULAR: 'statusText.warning',
+  CRITICO: 'statusText.negative',
+}
+
 function ComponenteBar({ nome, pontos, descricao, cor }) {
   return (
     <Box sx={{ mb: 1.5 }}>
@@ -68,6 +77,7 @@ const ScoreSaudeCard = () => {
 
   const cores = corPorClassificacao(theme)
   const cor = cores[data.classificacao] || cores.REGULAR
+  const corTexto = CORES_TEXTO_CLASSIFICACAO[data.classificacao] || CORES_TEXTO_CLASSIFICACAO.REGULAR
 
   const componentes = [
     data.taxaPoupanca,
@@ -85,7 +95,7 @@ const ScoreSaudeCard = () => {
           <Typography sx={{ fontFamily: mono, fontSize: 30, fontWeight: 600, lineHeight: 1 }}>
             {data.score}
           </Typography>
-          <Typography variant="caption" sx={{ color: cor, fontWeight: 600, fontSize: 10, mt: 0.25 }}>
+          <Typography variant="caption" sx={{ color: corTexto, fontWeight: 600, fontSize: 10, mt: 0.25 }}>
             {data.classificacao}
           </Typography>
         </RingGauge>
