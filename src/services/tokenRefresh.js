@@ -12,11 +12,14 @@ let refreshEmAndamento = null;
 
 /**
  * Decide se um erro de resposta merece tentativa de refresh:
- * 401, fora dos endpoints de auth, sem retry anterior e com refresh token salvo.
+ * 401 ou 403, fora dos endpoints de auth, sem retry anterior e com refresh token salvo.
+ * O Spring (sem entry point configurado) devolve 403 sem corpo para JWT ausente/expirado,
+ * então 403 é candidato a sessão expirada. Se a reexecução voltar 403, `_retry` barra o
+ * loop e o erro sobe como "sem permissão".
  */
 export const deveTentarRefresh = (error) => {
   const status = error?.response?.status;
-  if (status !== 401) return false;
+  if (status !== 401 && status !== 403) return false;
   if (error?.config?._retry) return false;
   const url = error?.config?.url || '';
   if (url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/registrar')) {
