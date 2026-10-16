@@ -13,12 +13,10 @@ import {
 import { useTheme, alpha } from '@mui/material/styles'
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
+import { formatarDataLocal } from '../../utils/dateUtils'
 
 const formatBRL = (value) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value ?? 0)
-
-const formatDate = (dateStr) =>
-  new Date(`${dateStr}T00:00:00`).toLocaleDateString('pt-BR')
 
 const capitalize = (str) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : ''
@@ -86,7 +84,7 @@ export default function TransactionList({ transacoes }) {
                     }}
                   />
                   <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
-                    {formatDate(t.data)}
+                    {formatarDataLocal(t.data)}
                   </Typography>
                 </Box>
               }

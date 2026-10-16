@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
     Box, Grid, Card, CardContent, Typography, Button,
-    Select, MenuItem, FormControl, InputLabel, Snackbar, Alert,
-    CircularProgress, Divider, Skeleton, Tab, Tabs,
+    Snackbar, Alert,
+    CircularProgress, Skeleton, Tab, Tabs,
 } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -25,19 +25,65 @@ import SeletorMesOrcamento from '../components/orcamento/SeletorMesOrcamento';
 import { useExportacao } from '../hooks/useExportacao';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { MesOrcamentoProvider } from '../contexts/MesOrcamentoContext';
+import { MesOrcamentoProvider, useMesOrcamento } from '../contexts/MesOrcamentoContext';
+import { formatarDataLocal } from '../utils/dateUtils';
 
-const MESES = [
-    { value: 1, label: 'Janeiro' }, { value: 2, label: 'Fevereiro' },
-    { value: 3, label: 'Março' },   { value: 4, label: 'Abril' },
-    { value: 5, label: 'Maio' },    { value: 6, label: 'Junho' },
-    { value: 7, label: 'Julho' },   { value: 8, label: 'Agosto' },
-    { value: 9, label: 'Setembro'},  { value: 10, label: 'Outubro' },
-    { value: 11, label: 'Novembro'},  { value: 12, label: 'Dezembro' },
-];
-
-const anoAtual = new Date().getFullYear();
-const ANOS = [anoAtual - 2, anoAtual - 1, anoAtual, anoAtual + 1];
+// Exporta o mês de referência da página (MesOrcamentoContext): um único
+// seletor de mês no Orçamento, sem estado de período próprio aqui.
+const ExportarRelatoriosCard = ({ exportLoading, downloadArquivo }) => {
+    const { mes, ano } = useMesOrcamento();
+    const periodo = formatarDataLocal(`${ano}-${String(mes).padStart(2, '0')}-01`, { month: 'long', year: 'numeric' });
+    return (
+        <Card sx={{ mb: 3 }}>
+            <CardContent>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                    Exportar Relatórios
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }} data-testid="export-periodo">
+                    Período: {periodo}
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    <Button
+                        variant="outlined"
+                        startIcon={exportLoading ? <CircularProgress size={16} /> : <PictureAsPdfIcon />}
+                        disabled={exportLoading}
+                        onClick={() => downloadArquivo(
+                            `/api/exportacao/extrato?mes=${mes}&ano=${ano}`,
+                            `extrato_${String(mes).padStart(2,'0')}_${ano}.pdf`
+                        )}
+                        data-testid="btn-extrato-pdf"
+                    >
+                        Exportar Extrato PDF
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={exportLoading ? <CircularProgress size={16} /> : <PictureAsPdfIcon />}
+                        disabled={exportLoading}
+                        onClick={() => downloadArquivo(
+                            `/api/exportacao/mensal?mes=${mes}&ano=${ano}`,
+                            `resumo_mensal_${String(mes).padStart(2,'0')}_${ano}.pdf`
+                        )}
+                        data-testid="btn-mensal-pdf"
+                    >
+                        Exportar Resumo Mensal PDF
+                    </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={exportLoading ? <CircularProgress size={16} /> : <TableChartIcon />}
+                        disabled={exportLoading}
+                        onClick={() => downloadArquivo(
+                            `/api/exportacao/transacoes/csv?mes=${mes}&ano=${ano}`,
+                            `transacoes_${String(mes).padStart(2,'0')}_${ano}.csv`
+                        )}
+                        data-testid="btn-transacoes-csv"
+                    >
+                        Exportar Transações CSV
+                    </Button>
+                </Box>
+            </CardContent>
+        </Card>
+    );
+};
 
 // Sub-abas do Orçamento (Lote K — mesmo padrão de organização do ADR-037)
 const ABAS_ORCAMENTO = [
@@ -54,11 +100,6 @@ const Orcamento = () => {
     const [refreshKey, setRefreshKey] = useState(0);
     const [extratoModalOpen, setExtratoModalOpen] = useState(false);
     const [nfceOpen, setNfceOpen] = useState(false);
-    const now = new Date();
-    // Filtro de período dos botões de exportação (Transações) — independente
-    // do mês de referência do MesOrcamentoContext, que rege navegação/lançamento.
-    const [mesExportacao, setMesExportacao] = useState(now.getMonth() + 1);
-    const [anoExportacao, setAnoExportacao] = useState(now.getFullYear());
     const { loading: exportLoading, error: exportError, downloadArquivo, clearError } = useExportacao();
     const [abaAtiva, setAbaAtiva] = useState('visao-geral');
     const [recorrencias, setRecorrencias] = useState([]);
@@ -235,83 +276,7 @@ const Orcamento = () => {
 
             {abaAtiva === 'transacoes' && (
             <>
-            {/* Exportar */}
-            <Card sx={{ mb: 3 }}>
-                <CardContent>
-                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                        Exportar Relatórios
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', mb: 2 }}>
-                        <FormControl size="small" sx={{ minWidth: 140 }}>
-                            <InputLabel id="orcamento-export-mes-label">Mês</InputLabel>
-                            <Select
-                                id="orcamento-export-mes"
-                                labelId="orcamento-export-mes-label"
-                                value={mesExportacao}
-                                label="Mês"
-                                onChange={(e) => setMesExportacao(e.target.value)}
-                            >
-                                {MESES.map((m) => (
-                                    <MenuItem key={m.value} value={m.value}>{m.label}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <FormControl size="small" sx={{ minWidth: 100 }}>
-                            <InputLabel id="orcamento-export-ano-label">Ano</InputLabel>
-                            <Select
-                                id="orcamento-export-ano"
-                                labelId="orcamento-export-ano-label"
-                                value={anoExportacao}
-                                label="Ano"
-                                onChange={(e) => setAnoExportacao(e.target.value)}
-                            >
-                                {ANOS.map((a) => (
-                                    <MenuItem key={a} value={a}>{a}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-                    <Divider sx={{ mb: 2 }} />
-                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                        <Button
-                            variant="outlined"
-                            startIcon={exportLoading ? <CircularProgress size={16} /> : <PictureAsPdfIcon />}
-                            disabled={exportLoading}
-                            onClick={() => downloadArquivo(
-                                `/api/exportacao/extrato?mes=${mesExportacao}&ano=${anoExportacao}`,
-                                `extrato_${String(mesExportacao).padStart(2,'0')}_${anoExportacao}.pdf`
-                            )}
-                            data-testid="btn-extrato-pdf"
-                        >
-                            Exportar Extrato PDF
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            startIcon={exportLoading ? <CircularProgress size={16} /> : <PictureAsPdfIcon />}
-                            disabled={exportLoading}
-                            onClick={() => downloadArquivo(
-                                `/api/exportacao/mensal?mes=${mesExportacao}&ano=${anoExportacao}`,
-                                `resumo_mensal_${String(mesExportacao).padStart(2,'0')}_${anoExportacao}.pdf`
-                            )}
-                            data-testid="btn-mensal-pdf"
-                        >
-                            Exportar Resumo Mensal PDF
-                        </Button>
-                        <Button
-                            variant="outlined"
-                            startIcon={exportLoading ? <CircularProgress size={16} /> : <TableChartIcon />}
-                            disabled={exportLoading}
-                            onClick={() => downloadArquivo(
-                                `/api/exportacao/transacoes/csv?mes=${mesExportacao}&ano=${anoExportacao}`,
-                                `transacoes_${String(mesExportacao).padStart(2,'0')}_${anoExportacao}.csv`
-                            )}
-                            data-testid="btn-transacoes-csv"
-                        >
-                            Exportar Transações CSV
-                        </Button>
-                    </Box>
-                </CardContent>
-            </Card>
+            <ExportarRelatoriosCard exportLoading={exportLoading} downloadArquivo={downloadArquivo} />
 
             {/* Bottom: full-width transactions table */}
             <ListaTransacoes refreshKey={refreshKey} onChanged={handleTransacaoAlterada} />

@@ -10,6 +10,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { mesCorrente } from '../utils/dateUtils';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import StarIcon from '@mui/icons-material/Star';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -32,7 +33,7 @@ const MESES = [
   { value: 11, label: 'Novembro' },{ value: 12, label: 'Dezembro' },
 ];
 
-const anoAtual = new Date().getFullYear();
+const { ano: anoAtual } = mesCorrente();
 const ANOS = [anoAtual - 2, anoAtual - 1, anoAtual];
 
 const TIPOS_OPERACAO = ['COMPRA', 'VENDA'];
@@ -452,9 +453,9 @@ const IrPage = () => {
   const { user } = useAuth();
   const { isPremium, isLimitado, loading: planoLoading } = usePlano();
 
-  const now = new Date();
-  const [mes, setMes] = useState(now.getMonth() + 1);
-  const [ano, setAno] = useState(now.getFullYear());
+  const hoje = mesCorrente();
+  const [mes, setMes] = useState(hoje.mes);
+  const [ano, setAno] = useState(hoje.ano);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [salvandoOp, setSalvandoOp] = useState(false);
   const [snackMsg, setSnackMsg] = useState('');

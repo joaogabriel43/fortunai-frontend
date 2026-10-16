@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import { formatarDataLocal } from '../../utils/dateUtils'
 import {
   AreaChart,
   Area,
@@ -12,10 +13,7 @@ import {
 } from 'recharts'
 
 const formatDate = (val) =>
-  new Date(`${val}T00:00:00`).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-  })
+  formatarDataLocal(val, { day: '2-digit', month: '2-digit' })
 
 const formatCurrency = (val) =>
   new Intl.NumberFormat('pt-BR', {
@@ -25,10 +23,7 @@ const formatCurrency = (val) =>
   }).format(val)
 
 const formatDateLong = (val) =>
-  new Date(`${val}T00:00:00`).toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'long',
-  })
+  formatarDataLocal(val, { day: '2-digit', month: 'long' })
 
 const formatBRL = (val) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)

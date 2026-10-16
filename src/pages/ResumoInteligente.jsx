@@ -16,6 +16,7 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useAuth } from '../contexts/AuthContext';
 import useResumoInteligente from '../hooks/useResumoInteligente';
+import { mesCorrente } from '../utils/dateUtils';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
@@ -28,7 +29,7 @@ const MESES = [
   { value: 11, label: 'Novembro' },{ value: 12, label: 'Dezembro' },
 ];
 
-const anoAtual = new Date().getFullYear();
+const { ano: anoAtual } = mesCorrente();
 const ANOS = [anoAtual - 2, anoAtual - 1, anoAtual];
 
 // Mapa tipo → apresentação (ícone + cor). O tipo vem do backend (ADR-045).
@@ -182,9 +183,9 @@ const ResumoInteligente = () => {
   const { user } = useAuth();
   const { resumo, loading, error, gerar } = useResumoInteligente();
 
-  const now = new Date();
-  const [mes, setMes] = useState(now.getMonth() + 1);
-  const [ano, setAno] = useState(now.getFullYear());
+  const hoje = mesCorrente();
+  const [mes, setMes] = useState(hoje.mes);
+  const [ano, setAno] = useState(hoje.ano);
   const [modoDireto, setModoDireto] = useState(false);
 
   useEffect(() => {

@@ -1,8 +1,12 @@
 /**
  * Converte uma string de data (YYYY-MM-DD) para o formato local (pt-BR)
  * sem ser afetado por problemas de fuso horário (timezone).
+ *
+ * É uma data de calendário, sem instante: monta em UTC e formata em UTC, assim
+ * o dia nunca desloca, qualquer que seja a TZ do navegador. `opcoes` repassa
+ * opções de Intl (ex.: `{ day: '2-digit', month: '2-digit' }`).
  */
-export const formatarDataLocal = (dataString) => {
+export const formatarDataLocal = (dataString, opcoes) => {
   if (!dataString) return '';
 
   // Quebra a string "YYYY-MM-DD"
@@ -11,11 +15,9 @@ export const formatarDataLocal = (dataString) => {
 
   const [ano, mes, dia] = partes;
 
-  // Cria a data explicitamente com os componentes, tratando o mês (que é 0-indexado)
-  const data = new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
+  const data = new Date(Date.UTC(parseInt(ano), parseInt(mes) - 1, parseInt(dia)));
 
-  // Formata para o padrão brasileiro
-  return data.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  return data.toLocaleDateString('pt-BR', { ...opcoes, timeZone: 'UTC' });
 };
 
 /**
@@ -39,3 +41,16 @@ export const hojeLocal = () =>
     month: '2-digit',
     day: '2-digit',
   }).format(new Date());
+
+/** Mês/ano de "hoje" em America/Sao_Paulo: `{ ano, mes }` numéricos (mes 1-12). */
+export const mesCorrente = () => {
+  const [ano, mes] = hojeLocal().split('-').map(Number);
+  return { ano, mes };
+};
+
+/** Prefixo "YYYY-MM" do mês de hoje (America/Sao_Paulo). */
+export const prefixoMesCorrente = () => hojeLocal().slice(0, 7);
+
+/** Mês imediatamente anterior a `{ ano, mes }`, virando o ano em janeiro. */
+export const mesAnterior = ({ ano, mes }) =>
+  mes === 1 ? { ano: ano - 1, mes: 12 } : { ano, mes: mes - 1 };

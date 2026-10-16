@@ -205,3 +205,24 @@ describe('ListaTransacoes — editar e excluir', () => {
         })
     })
 })
+
+describe('regressão: ListaTransacoes ordena por data ISO, da mais recente para a mais antiga', () => {
+    it('ordena sem depender de Date (inclui virada de mês e de ano)', async () => {
+        mockApiGet.mockResolvedValue({
+            data: [
+                { ...mockTransacao, id: 'a', descricao: 'Antiga', data: '2025-12-31' },
+                { ...mockTransacao, id: 'b', descricao: 'Recente', data: '2026-01-01' },
+                { ...mockTransacao, id: 'c', descricao: 'Meio', data: '2026-01-02' },
+            ],
+        })
+
+        render(<ListaTransacoes />)
+        await screen.findByText('Recente')
+
+        const descricoes = screen
+            .getAllByRole('row')
+            .slice(1)
+            .map((row) => row.cells[1].textContent)
+        expect(descricoes).toEqual(['Meio', 'Recente', 'Antiga'])
+    })
+})
