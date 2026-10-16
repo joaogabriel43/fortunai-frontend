@@ -19,12 +19,12 @@ const ENDPOINT = '/api/exportacao/extrato?mes=3&ano=2026'
 describe('useExportacao', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    global.fetch = vi.fn()
+    globalThis.fetch = vi.fn()
 
     mockCreateObjectURL = vi.fn(() => mockObjectURL)
     mockRevokeObjectURL = vi.fn()
-    global.URL.createObjectURL = mockCreateObjectURL
-    global.URL.revokeObjectURL = mockRevokeObjectURL
+    globalThis.URL.createObjectURL = mockCreateObjectURL
+    globalThis.URL.revokeObjectURL = mockRevokeObjectURL
 
     // Usa um anchor element REAL para que document.body.appendChild funcione normalmente
     // no jsdom — mas espia o click para evitar navegação real.
@@ -59,7 +59,7 @@ describe('useExportacao', () => {
         responseType: 'blob',
         baseURL: BACKEND_ORIGIN,
       })
-      expect(global.fetch).not.toHaveBeenCalled()
+      expect(globalThis.fetch).not.toHaveBeenCalled()
     })
 
     it('endpoint relativo (sem /api) parte da baseURL padrão do cliente', async () => {

@@ -48,9 +48,9 @@ describe('Chat — download autenticado', () => {
     useAuth.mockReturnValue({ user: { id: 'u-1', email: 'a@b.c' }, loading: false })
     localStorage.clear()
     api.get.mockResolvedValue({ data: [] })
-    global.fetch = vi.fn()
-    global.URL.createObjectURL = vi.fn(() => 'blob:http://localhost/x')
-    global.URL.revokeObjectURL = vi.fn()
+    globalThis.fetch = vi.fn()
+    globalThis.URL.createObjectURL = vi.fn(() => 'blob:http://localhost/x')
+    globalThis.URL.revokeObjectURL = vi.fn()
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
   })
 
@@ -67,9 +67,9 @@ describe('Chat — download autenticado', () => {
         `${BACKEND_ORIGIN}/api/exportacao/extrato?mes=3&ano=2026`,
         { responseType: 'blob' }
       )
-      expect(global.fetch).not.toHaveBeenCalled()
-      await waitFor(() => expect(global.URL.createObjectURL).toHaveBeenCalledWith(BLOB))
-      expect(global.URL.revokeObjectURL).toHaveBeenCalled()
+      expect(globalThis.fetch).not.toHaveBeenCalled()
+      await waitFor(() => expect(globalThis.URL.createObjectURL).toHaveBeenCalledWith(BLOB))
+      expect(globalThis.URL.revokeObjectURL).toHaveBeenCalled()
     })
 
     it('mantém o bloqueio same-origin: URL de domínio externo não dispara requisição', async () => {
@@ -80,7 +80,7 @@ describe('Chat — download autenticado', () => {
 
       await new Promise((r) => setTimeout(r, 20))
       expect(api.get).not.toHaveBeenCalled()
-      expect(global.fetch).not.toHaveBeenCalled()
+      expect(globalThis.fetch).not.toHaveBeenCalled()
     })
   })
 })

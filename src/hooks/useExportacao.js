@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { getToken } from '../services/authService'
-import { API_BASE_URL, BACKEND_ORIGIN } from '../config/apiUrl'
+import api from '../services/api'
+import { BACKEND_ORIGIN } from '../config/apiUrl'
 
 /**
  * Hook para download autenticado de arquivos (PDF e CSV) dos endpoints de exportação.
  *
- * SEGURANÇA: O token JWT é obtido do authService e enviado no header Authorization.
+ * SEGURANÇA: a requisição passa pelo cliente central (services/api.js): o interceptor injeta
+ * o JWT e renova a sessão em 401/403 expirado (F7) — não monte Authorization à mão aqui.
  * Nunca armazena o blob no estado React — usa URL.createObjectURL e revoga imediatamente.
  *
  * INVARIANTE: O userId NUNCA é passado como parâmetro de URL — vem sempre do JWT no backend.
@@ -25,29 +26,11 @@ export function useExportacao() {
     setError(null)
 
     try {
-      const token = getToken()
-      // Endpoints absolutos sob /api partem do origin; os demais, da base da API.
-      const url = endpoint.startsWith('/api')
-        ? `${BACKEND_ORIGIN}${endpoint}`
-        : `${API_BASE_URL}${endpoint}`
+      // Endpoints absolutos sob /api partem do origin; os demais, da base da API (padrão do cliente).
+      const config = { responseType: 'blob' }
+      if (endpoint.startsWith('/api')) config.baseURL = BACKEND_ORIGIN
 
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          setError('Sessão expirada')
-        } else {
-          setError('Erro ao gerar relatório')
-        }
-        return
-      }
-
-      const blob = await response.blob()
+      const { data: blob } = await api.get(endpoint, config)
 
       // Criar URL temporária e disparar download programaticamente
       const objectUrl = URL.createObjectURL(blob)
@@ -61,7 +44,8 @@ export function useExportacao() {
       // Revogar imediatamente para evitar memory leak
       URL.revokeObjectURL(objectUrl)
     } catch (err) {
-      setError('Erro ao gerar relatório')
+      // Chegar aqui com 401 significa que o interceptor já tentou renovar e não conseguiu.
+      setError(err?.response?.status === 401 ? 'Sessão expirada' : 'Erro ao gerar relatório')
     } finally {
       setLoading(false)
     }
