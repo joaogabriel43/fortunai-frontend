@@ -8,13 +8,13 @@
 - MUI v7: sempre usar size={{xs, md}} — NUNCA prop "item"
 
 ## URLs de Produção
-- Frontend: https://pondero.com.br
+- Frontend: https://www.pondero.com.br
 - Backend: https://api.pondero.com.br
 - Health: https://api.pondero.com.br/actuator/health
 
 ## Estado Atual
 - 1278 testes unitários + 33 de integração no backend e 703 testes Vitest (95 arquivos) no frontend — GREEN (`./mvnw verify -Pintegration-tests` e `npx vitest run`, 2026-09-13, fechamento da auditoria Antigravity)
-- CI/CD: GitHub Actions (push na main = deploy automático)
+- CI/CD: GitHub Actions roda só testes e build; o deploy é feito pela integração Git da Vercel
 - Deploy: Vercel (frontend); backend e PostgreSQL no servidor próprio, publicados via Cloudflare Tunnel
 
 ## Features Implementadas
@@ -205,6 +205,9 @@ A `gitleaks/gitleaks-action@v3` aceita `GITLEAKS_CONFIG` e `GITLEAKS_ENABLE_*` p
 ### [2026-10-15] `@fast-check/vitest`: conferir o peer antes de subir o Vitest
 `@fast-check/vitest` suporta Vitest `^4`. O Vitest 5 saiu em set/2026 — antes de atualizar o Vitest, conferir se o peer do `@fast-check/vitest` já cobre a 5; senão o `npm ci` quebra por ERESOLVE.
 
+### [2026-10-09] Domínio canônico é `www.pondero.com.br`
+O apex `pondero.com.br` responde 308 para `www`. Canonical, `og:*`, JSON-LD, sitemap, robots e llms.txt devem usar `https://www.pondero.com.br`. E-mails `@pondero.com.br` e a API (`api.pondero.com.br`) não mudam. Ao criar URL pública nova, conferir com `grep -rE "https?://pondero\.com\.br" src public index.html`.
+
 ## Regras de Negócio
 
 ### Uso do limite por categoria só existe para o mês corrente
@@ -221,4 +224,5 @@ A `gitleaks/gitleaks-action@v3` aceita `GITLEAKS_CONFIG` e `GITLEAKS_ENABLE_*` p
 - 2026-09-11: registrados o mock obrigatório de `AuthContext` em teste de componente que lê o usuário, o `git commit -F` como única forma segura de mensagem multi-linha no PowerShell 5.1 (+ splatting do eslint), o complemento de que a suíte Vitest só termina pelo PowerShell neste ambiente Windows, e a nova seção "Regras de Negócio" com a limitação de mês corrente do `/orcamento/limites/progresso` — lições da branch `feat/painel-cartao-novo-gasto`.
 - 2026-09-13: remediação da auditoria Antigravity — contagem de testes em "Estado Atual" atualizada (1278+33 backend / 703 frontend); padrões do L-5 (expiração do JWT no `AuthContext`) e do M-5/M-6 (`X-Frame-Options` como fallback de `frame-ancestors`); erros de filtro sobre saída ANSI do Vitest e de CRLF no `AuthContext.jsx`; suíte Vitest pelo Bash em background com `--exclude` do gitlink.
 - 2026-09-18: registrados em "Erros Conhecidos" o guard de script inline vs. JSON-LD e em "Configurações do Ambiente" o denylist do Workbox para arquivos estáticos de SEO — lições da branch `claude/pondero-seo-compliance` (itens a-f; GA/Clarity ainda pendentes).
+- 2026-10-09: CI sem job de deploy (Vercel Git integration cuida do deploy) e domínio canônico alinhado para `www.pondero.com.br` — PR #3.
 - 2026-10-15: auditoria da estratégia de testes — registrados o "Protocolo de Correção de Bug" em "Padrões do Projeto", as Faixas 1 e 2 em "Próximos passos pendentes" (lint em arquivos alterados, Dependabot com limite e grupos, gitleaks com baseline, Schemathesis na Faixa 2 por causa do springdoc) e, em "Configurações do Ambiente", as notas do `gitleaks-action@v3` e do peer do `@fast-check/vitest`.

@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://pondero.com.br/</loc>
+    <loc>https://www.pondero.com.br/</loc>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://pondero.com.br/registrar</loc>
+    <loc>https://www.pondero.com.br/registrar</loc>
     <changefreq>yearly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://pondero.com.br/login</loc>
+    <loc>https://www.pondero.com.br/login</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://pondero.com.br/privacidade</loc>
+    <loc>https://www.pondero.com.br/privacidade</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://pondero.com.br/termos</loc>
+    <loc>https://www.pondero.com.br/termos</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
