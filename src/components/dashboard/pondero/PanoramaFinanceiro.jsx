@@ -152,7 +152,7 @@ export default function PanoramaFinanceiro({
             sx={{
               fontFamily: mono,
               fontSize: { xs: '2rem', md: '2.6rem' },
-              fontWeight: 750,
+              fontWeight: 600,
               lineHeight: 1.05,
               letterSpacing: '-0.02em',
               color: 'panorama.text',

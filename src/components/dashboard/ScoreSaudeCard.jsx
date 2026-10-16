@@ -82,7 +82,7 @@ const ScoreSaudeCard = () => {
           logo acima do painel — repetir aqui seria ruido visual. */}
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2.5 }}>
         <RingGauge value={data.score} size={118} stroke={10} color={cor}>
-          <Typography sx={{ fontFamily: mono, fontSize: 30, fontWeight: 750, lineHeight: 1 }}>
+          <Typography sx={{ fontFamily: mono, fontSize: 30, fontWeight: 600, lineHeight: 1 }}>
             {data.score}
           </Typography>
           <Typography variant="caption" sx={{ color: cor, fontWeight: 600, fontSize: 10, mt: 0.25 }}>
