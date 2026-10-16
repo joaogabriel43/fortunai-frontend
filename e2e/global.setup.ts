@@ -2,6 +2,7 @@ import { chromium, request as playwrightRequest } from '@playwright/test'
 import path, { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { TEST_USER_EMAIL, TEST_USER_PASSWORD, createTestUser, getAuthToken } from './helpers/auth.helper'
+import { COOKIE_CONSENT_KEY, CONSENT_DECLINED } from '../src/utils/cookieConsent.js'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
 const AUTH_STATE_PATH = path.join(currentDir, '.auth', 'user.json')
@@ -49,10 +50,14 @@ async function globalSetup() {
   const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173'
   await page.goto(baseURL)
 
-  // Injeta o token no localStorage (mesmo mecanismo que o authService.js usa)
-  await page.evaluate((t) => {
+  // Injeta o token no localStorage (mesmo mecanismo que o authService.js usa).
+  // Semeia também a escolha de cookies: sem ela o CookieConsentBanner (fixed,
+  // bottom, zIndex 9100) cobre botões na borda inferior e o Playwright falha
+  // com "intercepts pointer events". `declined` é a opção mais conservadora.
+  await page.evaluate(([t, consentKey, consentValue]) => {
     localStorage.setItem('authToken', t)
-  }, token)
+    localStorage.setItem(consentKey, consentValue)
+  }, [token, COOKIE_CONSENT_KEY, CONSENT_DECLINED])
 
   // Salva o storage state (localStorage + cookies)
   await context.storageState({ path: AUTH_STATE_PATH })
