@@ -69,6 +69,14 @@ const palettes = {
     // Anel de foco: no claro o verde primario a 45% de opacidade caia para
     // ~2,04:1 contra o creme. Solido e escuro, passa com folga (SC 1.4.11).
     focusRing: '#1E5143',
+    // Semanticas de estado como TEXTO (SC 1.4.3). Os tons de `status` servem a
+    // icone/fundo/borda, mas como texto reprovam no claro (ex.: #76A968 sobre
+    // #FFFDF8 = 2,7:1). Mesma familia de matiz, so rebaixados; >= 4,5:1 sobre
+    // papel #FFFDF8 e sobre o canvas #F4EEE3 (restricao dominante: 4,6:1).
+    posText: '#4E7543',
+    negText: '#B74541',
+    warnText: '#8C6229',
+    infoText: '#4B7079',
 
     line: 'rgba(25,55,47,0.13)',
     lineStrong: 'rgba(25,55,47,0.22)',
@@ -118,6 +126,11 @@ const palettes = {
     copper: '#D49A69',
     copperText: '#D49A69',
     focusRing: '#B8D979',
+    // No escuro os tons de `status` ja passam (>= 4,7:1 sobre papel e canvas).
+    posText: status.positive,
+    negText: status.negative,
+    warnText: status.warning,
+    infoText: status.information,
 
     line: 'rgba(255,255,255,0.085)',
     lineStrong: 'rgba(255,255,255,0.15)',
@@ -199,6 +212,13 @@ export function createAppTheme(mode = 'dark') {
         strong: c.strong,
       },
       lines: { subtle: c.line, strong: c.lineStrong },
+      // Estado semantico para uso como TEXTO (success.main continua para icone/fundo).
+      statusText: {
+        positive: c.posText,
+        negative: c.negText,
+        warning: c.warnText,
+        information: c.infoText,
+      },
       accent: {
         primarySoft: c.primarySoft,
         natural: c.accentNatural,
@@ -380,6 +400,8 @@ export function cssVars(mode = 'dark') {
     '--c-pri-soft': c.primarySoft,
     '--c-pos': status.positive, '--c-neg': status.negative,
     '--c-warn': status.warning, '--c-info': status.information,
+    '--c-pos-text': c.posText, '--c-neg-text': c.negText,
+    '--c-warn-text': c.warnText, '--c-info-text': c.infoText,
     // alias legado — o acento de dado deste tema é o cobre, não o rosa D4
     '--c-pink': c.copper,
     '--c-focus': c.focusRing,
