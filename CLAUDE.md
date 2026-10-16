@@ -128,6 +128,13 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 7. **Conteúdo do PR**: sintoma, causa raiz, o teste vermelho, o resultado da varredura (passo 2) e o que ficou fora.
 8. **Proibido**: apagar ou afrouxar asserção, `skip`/`xit` para passar; "consertar" o teste em vez do código sem justificar; mascarar com `pointerEvents`/timeout/retry (ver o erro de 2026-08-31); corrigir só o chamador quando a causa está num helper compartilhado.
 
+### [2026-10-09] Padrão: cherry-pick de copy de branch antiga — a main manda no texto de conformidade
+**Contexto**: o commit 4b564f6 (branch `claude/landing-page-copy-829ac6`, nunca mergeada) conflitou com a main no stat de conformidade da `LandingPage.jsx`: a main já tinha "Dados protegidos" / "Dados tratados em conformidade com a LGPD." (sem "100%"), a branch antiga ainda afirmava "100% em conformidade".
+**Regra**: em conflito de copy jurídica/de conformidade, vence a main — ela já passou pela revisão de compliance; a branch parada só contribui com o que é novo e independente (siglas por extenso, copy de feature).
+**Sigla por extenso**: expandir apenas na primeira menção que sobrar na ordem de renderização da página, sem repetir. Aqui, o stat manteve "LGPD" e a expansão foi para a seção de segurança; o FAQ ficou com a sigla.
+**Como travar**: teste que conta ocorrências (`getAllByText(/Lei Geral de Proteção de Dados \(LGPD\)/)` com `toHaveLength(1)`) e `queryByText(/100% em conformidade/i)` ausente. Cuidado: asserção `/100%/` solta casa com "100% virtuais" da seção de segurança.
+**Onde**: [LandingPage.jsx](src/pages/LandingPage.jsx), PR #4.
+
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)
@@ -225,4 +232,5 @@ O apex `pondero.com.br` responde 308 para `www`. Canonical, `og:*`, JSON-LD, sit
 - 2026-09-13: remediação da auditoria Antigravity — contagem de testes em "Estado Atual" atualizada (1278+33 backend / 703 frontend); padrões do L-5 (expiração do JWT no `AuthContext`) e do M-5/M-6 (`X-Frame-Options` como fallback de `frame-ancestors`); erros de filtro sobre saída ANSI do Vitest e de CRLF no `AuthContext.jsx`; suíte Vitest pelo Bash em background com `--exclude` do gitlink.
 - 2026-09-18: registrados em "Erros Conhecidos" o guard de script inline vs. JSON-LD e em "Configurações do Ambiente" o denylist do Workbox para arquivos estáticos de SEO — lições da branch `claude/pondero-seo-compliance` (itens a-f; GA/Clarity ainda pendentes).
 - 2026-10-09: CI sem job de deploy (Vercel Git integration cuida do deploy) e domínio canônico alinhado para `www.pondero.com.br` — PR #3.
+- 2026-10-09: registrado em "Padrões do Projeto" o cherry-pick de copy de branch antiga (a main manda no texto de conformidade; sigla por extenso só na primeira menção restante, travada por teste) — lição do PR #4.
 - 2026-10-15: auditoria da estratégia de testes — registrados o "Protocolo de Correção de Bug" em "Padrões do Projeto", as Faixas 1 e 2 em "Próximos passos pendentes" (lint em arquivos alterados, Dependabot com limite e grupos, gitleaks com baseline, Schemathesis na Faixa 2 por causa do springdoc) e, em "Configurações do Ambiente", as notas do `gitleaks-action@v3` e do peer do `@fast-check/vitest`.
