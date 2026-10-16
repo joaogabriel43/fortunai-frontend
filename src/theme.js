@@ -305,7 +305,9 @@ export function createAppTheme(mode = 'dark') {
         defaultProps: { disableElevation: true },
         styleOverrides: {
           // Flat by default: sem gradiente nem sombra colorida (DESIGN.md).
+          // Contrato de altura: 40 px por padrao (denso, telas de app); 48 px em size="large" (CTAs da landing). F9.
           root: { borderRadius: radius.md, fontWeight: 700, paddingInline: 18, minHeight: 40 },
+          sizeLarge: { minHeight: 48 },
           containedPrimary: {
             backgroundColor: c.primary,
             color: c.onPrimary,
