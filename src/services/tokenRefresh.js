@@ -2,7 +2,7 @@
  * Renovação de sessão via refresh token rotativo (ADR-029).
  *
  * Extraído do interceptor do axios para ser testável isoladamente.
- * Single-flight: N requests que tomam 401 simultaneamente disparam UMA única
+ * Single-flight: N requests que tomam 401/403 simultaneamente disparam UMA única
  * chamada a /auth/refresh — todas aguardam a mesma Promise (rotação emite um
  * refresh novo por chamada; chamadas paralelas seriam detectadas como reuso
  * pelo backend e derrubariam a família inteira).

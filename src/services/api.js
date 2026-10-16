@@ -21,9 +21,11 @@ api.interceptors.request.use(async config => {
     return config;
 });
 
-// Renovação transparente de sessão (ADR-029): 401 → tenta rotacionar o refresh
-// token UMA vez e repete a request original. Falha na rotação = sessão morta →
-// limpa storage e volta ao login.
+// Renovação transparente de sessão (ADR-029): 401 ou 403 (o Spring responde 403
+// sem corpo para JWT expirado — Http403ForbiddenEntryPoint) → tenta rotacionar o
+// refresh token UMA vez e repete a request original. Se a repetição devolver 403
+// de novo, é falta de permissão: o erro sobe ao chamador sem logout. Falha na
+// rotação = sessão morta → limpa storage e volta ao login.
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
