@@ -83,7 +83,7 @@ const RentabilidadePanel = () => {
   // Cor de acordo com o sinal do valor (≥ 0 lucro, < 0 prejuízo).
   const corPorSinal = useCallback(
     (valor) =>
-      Number(valor) >= 0 ? theme.palette.success.main : theme.palette.error.main,
+      Number(valor) >= 0 ? theme.palette.statusText.positive : theme.palette.statusText.negative,
     [theme],
   );
 
@@ -113,7 +113,7 @@ const RentabilidadePanel = () => {
         <Cabecalho />
         <Box sx={{ textAlign: 'center', py: 3 }}>
           <ShowChartIcon sx={{ fontSize: 40, color: 'error.main', opacity: 0.5 }} />
-          <Typography variant="body2" color="error" mt={1}>
+          <Typography variant="body2" color="statusText.negative" mt={1}>
             {error}
           </Typography>
         </Box>
@@ -213,7 +213,7 @@ const RentabilidadePanel = () => {
           <Typography variant="caption" sx={{
             fontWeight: 700,
             color: Number(dados?.retornoTotalPercentual) >= Number(dados.ipcaAcumulado12mPct)
-              ? theme.palette.success.main : theme.palette.error.main,
+              ? theme.palette.statusText.positive : theme.palette.statusText.negative,
           }}>
             {Number(dados?.retornoTotalPercentual) >= Number(dados.ipcaAcumulado12mPct)
               ? '· sua carteira supera a inflação' : '· sua carteira está abaixo da inflação'}

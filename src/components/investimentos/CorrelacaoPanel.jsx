@@ -219,8 +219,8 @@ const CorrelacaoPanel = ({ refreshKey }) => {
                                             py: 0.5, px: 1, textAlign: 'right', typography: 'body2',
                                             fontFamily: theme.typography.fontFamilyMono,
                                             color: item.alphaAnualizado >= 0
-                                                ? theme.palette.success.main
-                                                : theme.palette.error.main,
+                                                ? theme.palette.statusText.positive
+                                                : theme.palette.statusText.negative,
                                         }}>
                                             {fmtAlphaPct(item.alphaAnualizado)}
                                         </Box>

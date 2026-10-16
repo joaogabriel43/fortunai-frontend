@@ -80,6 +80,7 @@ const MetodoValuationCell = ({ metodo, campoTeto, testIdBase }) => {
     const teto = metodo[campoTeto];
     const abaixo = metodo.veredito === 'ABAIXO_DO_TETO';
     const cor = abaixo ? theme.palette.success.main : theme.palette.error.main;
+    const corTexto = abaixo ? theme.palette.statusText.positive : theme.palette.statusText.negative;
     const IconeVeredito = abaixo ? TrendingDownIcon : TrendingUpIcon;
 
     return (
@@ -95,7 +96,7 @@ const MetodoValuationCell = ({ metodo, campoTeto, testIdBase }) => {
                 <IconeVeredito sx={{ fontSize: 15, color: cor }} />
                 <Typography
                     variant="caption"
-                    sx={{ fontFamily: mono, fontWeight: 700, color: cor }}
+                    sx={{ fontFamily: mono, fontWeight: 700, color: corTexto }}
                     data-testid={`${testIdBase}-margem`}
                 >
                     {fmtMargem(metodo.margemSeguranca)}

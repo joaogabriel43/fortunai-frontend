@@ -126,7 +126,7 @@ const RendaPassivaPanel = () => {
         <Cabecalho theme={theme} filtro={filtro} onFiltro={handleFiltro} />
         <Box sx={{ textAlign: 'center', py: 3 }}>
           <PaidIcon sx={{ fontSize: 40, color: 'error.main', opacity: 0.5 }} />
-          <Typography variant="body2" color="error" mt={1}>
+          <Typography variant="body2" color="statusText.negative" mt={1}>
             {error}
           </Typography>
         </Box>
@@ -186,7 +186,7 @@ const RendaPassivaPanel = () => {
           label="Total no ano"
           valor={formatBRL(dados?.totalRecebidoNoAno)}
           mono={mono}
-          cor={theme.palette.success.main}
+          cor={theme.palette.statusText.positive}
         />
         <Metrica
           label="Média mensal"

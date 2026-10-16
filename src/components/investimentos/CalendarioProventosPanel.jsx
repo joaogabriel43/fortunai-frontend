@@ -100,7 +100,7 @@ const CalendarioProventosPanel = () => {
         <Cabecalho theme={theme} />
         <Box sx={{ textAlign: 'center', py: 3 }}>
           <EventIcon sx={{ fontSize: 40, color: 'error.main', opacity: 0.5 }} />
-          <Typography variant="body2" color="error" mt={1}>
+          <Typography variant="body2" color="statusText.negative" mt={1}>
             {error}
           </Typography>
         </Box>
@@ -216,7 +216,7 @@ function StatusChip({ confirmado, theme }) {
           height: 22,
           fontSize: 11,
           fontWeight: 600,
-          color: theme.palette.success.main,
+          color: theme.palette.statusText.positive,
           bgcolor: 'transparent',
           border: `1px solid ${theme.palette.success.main}`,
           '& .MuiChip-icon': { color: theme.palette.success.main },
@@ -234,7 +234,7 @@ function StatusChip({ confirmado, theme }) {
         height: 22,
         fontSize: 11,
         fontWeight: 600,
-        color: theme.palette.warning.main,
+        color: theme.palette.statusText.warning,
         bgcolor: 'transparent',
         // estilo de incerteza: borda tracejada
         border: `1px dashed ${theme.palette.warning.main}`,
@@ -290,7 +290,7 @@ function MesCard({ mes, theme, mono }) {
             variant="subtitle1"
             fontWeight={700}
             data-testid="calendario-mes-total"
-            sx={{ color: theme.palette.success.main, fontFamily: mono }}
+            sx={{ color: theme.palette.statusText.positive, fontFamily: mono }}
           >
             {formatBRL(mes.totalEstimado)}
           </Typography>

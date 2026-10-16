@@ -23,6 +23,7 @@ const AlphaChip = ({ label, value }) => {
     const theme = useTheme();
     const positive = value >= 0;
     const cor = positive ? theme.palette.success.main : theme.palette.error.main;
+    const corTexto = positive ? theme.palette.statusText.positive : theme.palette.statusText.negative;
     return (
         <Chip
             label={`${label}: ${positive ? '+' : ''}${formatPercent(value)}`}
@@ -30,7 +31,7 @@ const AlphaChip = ({ label, value }) => {
             sx={{
                 fontWeight: 600,
                 bgcolor: alpha(cor, 0.12),
-                color: cor,
+                color: corTexto,
                 border: `1px solid ${alpha(cor, 0.3)}`,
             }}
         />
@@ -75,7 +76,7 @@ const BenchmarkChart = () => {
 
     if (error) {
         return (
-            <Typography color="error" variant="body2">
+            <Typography color="statusText.negative" variant="body2">
                 {error}
             </Typography>
         );
