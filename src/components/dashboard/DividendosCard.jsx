@@ -12,6 +12,7 @@ import {
 } from '@mui/material'
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import { useDividendos } from '../../hooks/useDividendos'
+import { formatarDataLocal, prefixoMesCorrente } from '../../utils/dateUtils'
 
 // `?? 0` aqui afirmaria "R$ 0,00 recebido" quando na verdade a fonte nao
 // informou o agregado. Ausencia de dado e travessao; zero financeiro real
@@ -26,7 +27,7 @@ const mono = (t) => t.typography.fontFamilyMono
 
 const formatDate = (dateStr) =>
   dateStr
-    ? new Date(dateStr + 'T00:00:00').toLocaleDateString('pt-BR')
+    ? formatarDataLocal(dateStr)
     : '—'
 
 /** Cores e labels dos tipos de provento. */
@@ -66,15 +67,11 @@ export default function DividendosCard() {
     )
   }
 
-  const hoje = new Date()
-  const mesAtual = hoje.getMonth()
-  const anoAtual = hoje.getFullYear()
+  const prefixoMes = prefixoMesCorrente()
 
-  const recebidosMes = proventos.filter((p) => {
-    if (!p.pago || !p.dataPagamento) return false
-    const d = new Date(p.dataPagamento + 'T00:00:00')
-    return d.getMonth() === mesAtual && d.getFullYear() === anoAtual
-  })
+  const recebidosMes = proventos.filter(
+    (p) => p.pago && p.dataPagamento?.startsWith(prefixoMes),
+  )
 
   const provisionados = proventos.filter((p) => !p.pago)
 

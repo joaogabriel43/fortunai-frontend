@@ -9,6 +9,7 @@ import CloseIcon from '@mui/icons-material/Close'
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner'
 import { useTheme, alpha } from '@mui/material/styles'
 import api from '../../services/api'
+import { formatarDataLocal } from '../../utils/dateUtils'
 
 // ── Cores por categoria de item NFC-e ────────────────────────────────────────
 
@@ -29,13 +30,6 @@ const corCategoria = (t) => ({
 
 const formatBRL = (v) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
-
-const formatData = (iso) => {
-  if (!iso) return ''
-  try {
-    return new Date(iso + 'T00:00:00').toLocaleDateString('pt-BR')
-  } catch { return iso }
-}
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
@@ -208,7 +202,7 @@ const NfceScannerModal = ({ open, onClose, onSuccess }) => {
             <Box sx={(t) => ({ mb: 2, p: 1.5, borderRadius: 2, bgcolor: t.palette.surfaces.surfaceSoft })}>
               <Typography variant="subtitle1" fontWeight={700}>{nfce.estabelecimento}</Typography>
               <Typography variant="caption" color="text.secondary">
-                {formatData(nfce.dataEmissao)} · Total: {formatBRL(nfce.valorTotal)}
+                {formatarDataLocal(nfce.dataEmissao)} · Total: {formatBRL(nfce.valorTotal)}
               </Typography>
             </Box>
 
