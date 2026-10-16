@@ -107,7 +107,7 @@ export default function NotificacoesBadge() {
           <Button
             size="small"
             onClick={handleVerResumo}
-            sx={{ color: 'info.main', fontWeight: 600, ml: 0.5, whiteSpace: 'nowrap' }}
+            sx={{ color: 'statusText.information', fontWeight: 600, ml: 0.5, whiteSpace: 'nowrap' }}
           >
             Ver resumo
           </Button>
