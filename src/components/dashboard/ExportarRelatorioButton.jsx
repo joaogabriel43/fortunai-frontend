@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Button, CircularProgress } from '@mui/material'
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import api from '../../services/api'
+import { prefixoMesCorrente } from '../../utils/dateUtils'
 
 const ExportarRelatorioButton = () => {
   const [loading, setLoading] = useState(false)
@@ -9,8 +10,7 @@ const ExportarRelatorioButton = () => {
   const handleExportar = async () => {
     setLoading(true)
     try {
-      const now = new Date()
-      const mes = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+      const mes = prefixoMesCorrente()
       const response = await api.get(`/relatorio/mensal?mes=${mes}`, {
         responseType: 'blob',
       })
