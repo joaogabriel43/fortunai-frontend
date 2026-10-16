@@ -22,10 +22,11 @@ describe('tokenRefresh (ADR-029)', () => {
       expect(deveTentarRefresh(erro())).toBe(false);
     });
 
-    it('status diferente de 401 → false', () => {
+    it('status diferente de 401/403 → false', () => {
       localStorage.setItem('refreshToken', 'rt-1');
       expect(deveTentarRefresh(erro({ status: 400 }))).toBe(false);
-      expect(deveTentarRefresh(erro({ status: 403 }))).toBe(false);
+      expect(deveTentarRefresh(erro({ status: 404 }))).toBe(false);
+      expect(deveTentarRefresh(erro({ status: 500 }))).toBe(false);
     });
 
     it('request já re-tentada (_retry) → false (nunca loop)', () => {
@@ -38,6 +39,27 @@ describe('tokenRefresh (ADR-029)', () => {
       expect(deveTentarRefresh(erro({ url: '/auth/login' }))).toBe(false);
       expect(deveTentarRefresh(erro({ url: '/auth/refresh' }))).toBe(false);
       expect(deveTentarRefresh(erro({ url: '/auth/registrar' }))).toBe(false);
+    });
+  });
+
+  describe('regressão: 403 do entry point do Spring tratado como sessão expirada', () => {
+    it('403 com refresh token salvo → true (candidato a sessão expirada)', () => {
+      localStorage.setItem('refreshToken', 'rt-1');
+      expect(deveTentarRefresh(erro({ status: 403 }))).toBe(true);
+    });
+
+    it('403 já re-tentado (_retry) → false (é falta de permissão, sem loop)', () => {
+      localStorage.setItem('refreshToken', 'rt-1');
+      expect(deveTentarRefresh(erro({ status: 403, retry: true }))).toBe(false);
+    });
+
+    it('403 sem refresh token salvo → false', () => {
+      expect(deveTentarRefresh(erro({ status: 403 }))).toBe(false);
+    });
+
+    it.each(['/auth/login', '/auth/refresh', '/auth/registrar'])('403 em %s → false', (url) => {
+      localStorage.setItem('refreshToken', 'rt-1');
+      expect(deveTentarRefresh(erro({ status: 403, url }))).toBe(false);
     });
   });
 
