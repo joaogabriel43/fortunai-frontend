@@ -1,23 +1,26 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useExportacao } from '../useExportacao'
+import api from '../../services/api'
+import { BACKEND_ORIGIN } from '../../config/apiUrl'
 
-// Mock do authService para obter token
-vi.mock('../../services/authService', () => ({
-  getToken: vi.fn(() => 'mock-jwt-token'),
+// F7 (continuação): o download passa pelo cliente central (api.js), que injeta o JWT
+// e renova a sessão em 401/403 expirado. Por isso o mock é do cliente, não do fetch.
+vi.mock('../../services/api', () => ({
+  default: { get: vi.fn() },
 }))
 
-// Mock do URL global
 const mockObjectURL = 'blob:http://localhost/mock-url'
 let mockCreateObjectURL
 let mockRevokeObjectURL
 
+const ENDPOINT = '/api/exportacao/extrato?mes=3&ano=2026'
+
 describe('useExportacao', () => {
   beforeEach(() => {
-    // Mock fetch global
+    vi.clearAllMocks()
     global.fetch = vi.fn()
 
-    // Mock URL.createObjectURL e revokeObjectURL
     mockCreateObjectURL = vi.fn(() => mockObjectURL)
     mockRevokeObjectURL = vi.fn()
     global.URL.createObjectURL = mockCreateObjectURL
@@ -40,106 +43,120 @@ describe('useExportacao', () => {
     vi.restoreAllMocks()
   })
 
-  it('downloadArquivo() chama fetch com Authorization header contendo JWT', async () => {
-    const mockBlob = new Blob(['pdf-content'], { type: 'application/pdf' })
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      blob: () => Promise.resolve(mockBlob),
-      status: 200,
-    })
+  describe('regressão: download fora do interceptor de sessão não renova token expirado', () => {
+    it('downloadArquivo() usa o cliente central com responseType blob e baseURL de origin para /api', async () => {
+      const mockBlob = new Blob(['pdf-content'], { type: 'application/pdf' })
+      api.get.mockResolvedValueOnce({ data: mockBlob, status: 200 })
 
-    const { result } = renderHook(() => useExportacao())
+      const { result } = renderHook(() => useExportacao())
 
-    await act(async () => {
-      await result.current.downloadArquivo('/api/exportacao/extrato?mes=3&ano=2026', 'extrato.pdf')
-    })
-
-    expect(global.fetch).toHaveBeenCalledWith(
-      expect.stringContaining('/api/exportacao/extrato'),
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          Authorization: 'Bearer mock-jwt-token',
-        }),
+      await act(async () => {
+        await result.current.downloadArquivo(ENDPOINT, 'extrato.pdf')
       })
-    )
+
+      expect(api.get).toHaveBeenCalledTimes(1)
+      expect(api.get).toHaveBeenCalledWith(ENDPOINT, {
+        responseType: 'blob',
+        baseURL: BACKEND_ORIGIN,
+      })
+      expect(global.fetch).not.toHaveBeenCalled()
+    })
+
+    it('endpoint relativo (sem /api) parte da baseURL padrão do cliente', async () => {
+      api.get.mockResolvedValueOnce({ data: new Blob(['x']), status: 200 })
+
+      const { result } = renderHook(() => useExportacao())
+
+      await act(async () => {
+        await result.current.downloadArquivo('/exportacao/extrato?mes=3&ano=2026', 'extrato.csv')
+      })
+
+      expect(api.get).toHaveBeenCalledWith('/exportacao/extrato?mes=3&ano=2026', {
+        responseType: 'blob',
+      })
+    })
+
+    it('não monta o header Authorization à mão (quem injeta o JWT é o interceptor)', async () => {
+      api.get.mockResolvedValueOnce({ data: new Blob(['x']), status: 200 })
+
+      const { result } = renderHook(() => useExportacao())
+
+      await act(async () => {
+        await result.current.downloadArquivo(ENDPOINT, 'extrato.pdf')
+      })
+
+      const config = api.get.mock.calls[0][1]
+      expect(config.headers).toBeUndefined()
+    })
   })
 
-  it('downloadArquivo() define loading=true durante fetch e false quando termina', async () => {
-    let resolveBlob
-    const blobPromise = new Promise((resolve) => { resolveBlob = resolve })
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      blob: () => blobPromise,
-      status: 200,
-    })
+  it('downloadArquivo() define loading=false quando termina', async () => {
+    let resolveGet
+    api.get.mockReturnValueOnce(new Promise((resolve) => { resolveGet = resolve }))
 
     const { result } = renderHook(() => useExportacao())
 
-    // Inicia download mas não aguarda
     let downloadPromise
     act(() => {
-      downloadPromise = result.current.downloadArquivo('/api/exportacao/extrato?mes=3&ano=2026', 'extrato.pdf')
+      downloadPromise = result.current.downloadArquivo(ENDPOINT, 'extrato.pdf')
     })
 
-    // loading deve ser true enquanto aguarda
-    // (após o act inicial, loading pode ainda ser false pois o state update é assíncrono)
-    // Aguardamos a resolução
     await act(async () => {
-      resolveBlob(new Blob(['pdf'], { type: 'application/pdf' }))
+      resolveGet({ data: new Blob(['pdf'], { type: 'application/pdf' }), status: 200 })
       await downloadPromise
     })
 
     expect(result.current.loading).toBe(false)
   })
 
-  it('resposta 401 define error="Sessão expirada"', async () => {
-    global.fetch.mockResolvedValueOnce({
-      ok: false,
-      status: 401,
-    })
+  it('erro 401 (após o interceptor desistir de renovar) define error="Sessão expirada"', async () => {
+    api.get.mockRejectedValueOnce({ response: { status: 401 } })
 
     const { result } = renderHook(() => useExportacao())
 
     await act(async () => {
-      await result.current.downloadArquivo('/api/exportacao/extrato?mes=3&ano=2026', 'extrato.pdf')
+      await result.current.downloadArquivo(ENDPOINT, 'extrato.pdf')
     })
 
     expect(result.current.error).toBe('Sessão expirada')
   })
 
-  it('resposta 500 define error="Erro ao gerar relatório"', async () => {
-    global.fetch.mockResolvedValueOnce({
-      ok: false,
-      status: 500,
-    })
+  it('erro 500 define error="Erro ao gerar relatório"', async () => {
+    api.get.mockRejectedValueOnce({ response: { status: 500 } })
 
     const { result } = renderHook(() => useExportacao())
 
     await act(async () => {
-      await result.current.downloadArquivo('/api/exportacao/extrato?mes=3&ano=2026', 'extrato.pdf')
+      await result.current.downloadArquivo(ENDPOINT, 'extrato.pdf')
     })
 
     expect(result.current.error).toBe('Erro ao gerar relatório')
   })
 
-  it('após download bem-sucedido, URL.createObjectURL é chamado (sem memory leak)', async () => {
-    const mockBlob = new Blob(['pdf-content'], { type: 'application/pdf' })
-    global.fetch.mockResolvedValueOnce({
-      ok: true,
-      blob: () => Promise.resolve(mockBlob),
-      status: 200,
-    })
+  it('falha de rede (sem response) define error="Erro ao gerar relatório"', async () => {
+    api.get.mockRejectedValueOnce(new Error('Network Error'))
 
     const { result } = renderHook(() => useExportacao())
 
     await act(async () => {
-      await result.current.downloadArquivo('/api/exportacao/extrato?mes=3&ano=2026', 'extrato.pdf')
+      await result.current.downloadArquivo(ENDPOINT, 'extrato.pdf')
     })
 
-    // createObjectURL deve ser chamado para criar URL temporária
+    expect(result.current.error).toBe('Erro ao gerar relatório')
+  })
+
+  it('após download bem-sucedido, o blob da resposta vira object URL e é revogado (sem memory leak)', async () => {
+    const mockBlob = new Blob(['pdf-content'], { type: 'application/pdf' })
+    api.get.mockResolvedValueOnce({ data: mockBlob, status: 200 })
+
+    const { result } = renderHook(() => useExportacao())
+
+    await act(async () => {
+      await result.current.downloadArquivo(ENDPOINT, 'extrato.pdf')
+    })
+
     expect(mockCreateObjectURL).toHaveBeenCalledTimes(1)
-    // revokeObjectURL deve ser chamado para liberar memória
-    // Nota: em jsdom a cadeia de chamadas pode variar — verificamos que houve tentativa de revogar
-    expect(mockRevokeObjectURL).toHaveBeenCalled()
+    expect(mockCreateObjectURL).toHaveBeenCalledWith(mockBlob)
+    expect(mockRevokeObjectURL).toHaveBeenCalledWith(mockObjectURL)
   })
 })
