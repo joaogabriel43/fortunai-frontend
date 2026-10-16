@@ -38,6 +38,11 @@ const UploadComprovanteModal = ({ open, onClose, file }) => {
     }
   }
 
+  // O extrator devolve RECEITA/DESPESA; o contrato do POST é ENTRADA/SAIDA (ADR-065).
+  // Qualquer outro valor vira SAIDA — comprovante é despesa na quase totalidade dos casos.
+  const toTipoApi = (tipo) =>
+    ['RECEITA', 'CREDIT', 'ENTRADA'].includes(String(tipo ?? '').toUpperCase()) ? 'ENTRADA' : 'SAIDA'
+
   const handleConfirm = async () => {
     if (!extractedData || !user?.id) return
     setSaving(true)
@@ -47,7 +52,7 @@ const UploadComprovanteModal = ({ open, onClose, file }) => {
         descricao: extractedData.descricao,
         valor: extractedData.valor,
         categoria: extractedData.categoria,
-        tipo: extractedData.tipo,
+        tipo: toTipoApi(extractedData.tipo),
         data: extractedData.dataTransacao,
       })
       setSuccess(true)

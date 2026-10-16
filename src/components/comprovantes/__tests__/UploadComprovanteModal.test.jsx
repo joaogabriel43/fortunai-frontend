@@ -73,7 +73,7 @@ describe('UploadComprovanteModal', () => {
   it('deve salvar transacao ao confirmar', async () => {
     api.post
       .mockResolvedValueOnce({
-        data: { valor: 150.0, descricao: 'Farmacia', categoria: 'Saude', tipo: 'DEBIT', dataTransacao: '2026-03-20', confianca: 'ALTA' },
+        data: { valor: 150.0, descricao: 'Farmacia', categoria: 'Saude', tipo: 'DESPESA', dataTransacao: '2026-03-20', confianca: 'ALTA' },
       })
       .mockResolvedValueOnce({ data: {} })
 
@@ -89,9 +89,34 @@ describe('UploadComprovanteModal', () => {
     fireEvent.click(screen.getByText('Confirmar e Salvar'))
 
     await waitFor(() => {
+      // DESPESA (saída do extrator) vira SAIDA no contrato do POST (ADR-065)
       expect(api.post).toHaveBeenCalledWith('/orcamento/transacao/test-user-id', expect.objectContaining({
         descricao: 'Farmacia',
         valor: 150.0,
+        tipo: 'SAIDA',
+      }))
+    })
+  })
+
+  it('deve mapear RECEITA para ENTRADA ao confirmar', async () => {
+    api.post
+      .mockResolvedValueOnce({
+        data: { valor: 2000.0, descricao: 'Salario', categoria: 'Renda', tipo: 'RECEITA', dataTransacao: '2026-03-05', confianca: 'ALTA' },
+      })
+      .mockResolvedValueOnce({ data: {} })
+
+    const file = createMockFile()
+    render(<UploadComprovanteModal open={true} onClose={vi.fn()} file={file} />)
+
+    fireEvent.click(screen.getByText('Extrair Dados'))
+    await waitFor(() => {
+      expect(screen.getByText('Confirmar e Salvar')).toBeInTheDocument()
+    })
+    fireEvent.click(screen.getByText('Confirmar e Salvar'))
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/orcamento/transacao/test-user-id', expect.objectContaining({
+        tipo: 'ENTRADA',
       }))
     })
   })
