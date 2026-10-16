@@ -24,6 +24,18 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector: "NewExpression[callee.name='Date']",
+          message:
+            'Use src/utils/dateUtils (hojeLocal, mesCorrente, formatarDataLocal): new Date() depende do fuso do navegador.',
+        },
+      ],
     },
+  },
+  {
+    files: ['src/utils/dateUtils.js'],
+    rules: { 'no-restricted-syntax': 'off' },
   },
 ])
