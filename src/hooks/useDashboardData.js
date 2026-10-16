@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
+import { prefixoMesCorrente } from '../utils/dateUtils'
 
 /**
  * Normaliza valor monetário vindo do backend.
@@ -11,11 +12,6 @@ export function normalizarValor(valor) {
   const bruto = valor?.quantia ?? valor ?? 0
   const numero = Number(bruto)
   return Number.isFinite(numero) ? numero : 0
-}
-
-/** Prefixo YYYY-MM do mês corrente, no fuso local. */
-function prefixoDoMesCorrente(hoje = new Date()) {
-  return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}`
 }
 
 /**
@@ -97,7 +93,7 @@ export function useDashboardData() {
       ? null
       : saldoAtual + totalInvestido
 
-    const prefixoMes = prefixoDoMesCorrente()
+    const prefixoMes = prefixoMesCorrente()
     const doMes = transacoes.filter((t) => ehDoMesCorrente(t, prefixoMes))
     const debitosDoMes = doMes.filter((t) => t.tipo === 'DEBIT')
 

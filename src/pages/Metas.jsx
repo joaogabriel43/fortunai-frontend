@@ -5,6 +5,7 @@ import {
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useMetas } from '../hooks/useMetas'
+import { formatarDataLocal } from '../utils/dateUtils'
 
 const formatBRL = (v) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
@@ -19,9 +20,9 @@ const TIPO_OPTIONS = [
 const formatarData = (str) => {
   if (!str) return '—'
   if (/^\d{4}-\d{2}-\d{2}$/.test(str))
-    return new Date(str + 'T00:00:00').toLocaleDateString('pt-BR')
+    return formatarDataLocal(str)
   if (/^\d{4}-\d{2}$/.test(str))
-    return new Date(str + '-01T00:00:00').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
+    return formatarDataLocal(`${str}-01`, { month: 'short', year: 'numeric' })
   return str
 }
 
