@@ -30,7 +30,7 @@ export default function ComposicaoCard({ data, totalInvestido }) {
           <Typography variant="caption" sx={{ color: 'text.disabled', fontSize: 10 }}>
             Total
           </Typography>
-          <Typography sx={{ fontFamily: mono, fontSize: 15, fontWeight: 750 }}>
+          <Typography sx={{ fontFamily: mono, fontSize: 15, fontWeight: 600 }}>
             {formatBRLShort(total)}
           </Typography>
         </Donut>

@@ -37,12 +37,12 @@ const ANOS = [anoAtual - 2, anoAtual - 1, anoAtual];
 // dos tokens de status do tema — nunca de hex fixo, que não responderia à
 // troca claro/escuro.
 const tipoMeta = (t) => ({
-  CONQUISTA:    { icon: EmojiEventsIcon,       cor: t.palette.success.main,       rotulo: 'Conquista' },
-  ALERTA:       { icon: WarningAmberIcon,      cor: t.palette.error.main,         rotulo: 'Alerta' },
-  OPORTUNIDADE: { icon: LightbulbOutlinedIcon, cor: t.palette.warning.main,       rotulo: 'Oportunidade' },
-  INVESTIMENTO: { icon: ShowChartIcon,         cor: t.palette.primary.main,       rotulo: 'Investimento' },
-  TENDENCIA:    { icon: TimelineIcon,          cor: t.palette.info.main,          rotulo: 'Tendência' },
-  IMPACTO:      { icon: TrendingUpIcon,        cor: t.palette.accent.copperText,  rotulo: 'Impacto' },
+  CONQUISTA:    { icon: EmojiEventsIcon,       cor: t.palette.success.main,       corTexto: t.palette.statusText.positive,    rotulo: 'Conquista' },
+  ALERTA:       { icon: WarningAmberIcon,      cor: t.palette.error.main,         corTexto: t.palette.statusText.negative,    rotulo: 'Alerta' },
+  OPORTUNIDADE: { icon: LightbulbOutlinedIcon, cor: t.palette.warning.main,       corTexto: t.palette.statusText.warning,     rotulo: 'Oportunidade' },
+  INVESTIMENTO: { icon: ShowChartIcon,         cor: t.palette.primary.main,       corTexto: t.palette.primary.main,           rotulo: 'Investimento' },
+  TENDENCIA:    { icon: TimelineIcon,          cor: t.palette.info.main,          corTexto: t.palette.statusText.information, rotulo: 'Tendência' },
+  IMPACTO:      { icon: TrendingUpIcon,        cor: t.palette.accent.copperText,  corTexto: t.palette.accent.copperText,       rotulo: 'Impacto' },
 });
 
 const cardStyle = (t) => ({
@@ -90,7 +90,7 @@ const InsightCard = ({ insight, destaque }) => {
                 size="small"
                 sx={{
                   height: 18, fontSize: 10, fontWeight: 700,
-                  bgcolor: `${meta.cor}1a`, color: meta.cor,
+                  bgcolor: `${meta.cor}1a`, color: meta.corTexto,
                   '& .MuiChip-label': { px: 0.75 },
                 }}
               />
@@ -117,7 +117,7 @@ const InsightCard = ({ insight, destaque }) => {
                   aria-expanded={aberto}
                   sx={{
                     mt: 1, px: 1, minWidth: 0, textTransform: 'none',
-                    color: meta.cor, fontSize: 12, fontWeight: 600,
+                    color: meta.corTexto, fontSize: 12, fontWeight: 600,
                   }}
                 >
                   por quê?

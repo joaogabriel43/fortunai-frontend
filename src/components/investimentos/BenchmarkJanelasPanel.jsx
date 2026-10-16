@@ -149,7 +149,7 @@ const BenchmarkJanelasPanel = () => {
         <Cabecalho />
         <Box sx={{ textAlign: 'center', py: 3 }}>
           <ShowChartIcon sx={{ fontSize: 40, color: 'error.main', opacity: 0.5 }} />
-          <Typography variant="body2" color="error" mt={1}>
+          <Typography variant="body2" color="statusText.negative" mt={1}>
             {error}
           </Typography>
         </Box>
@@ -334,7 +334,10 @@ function AlphaCard({ benchmark, valorBenchmark, alpha, superou, mono, cor }) {
         <Typography
           variant="subtitle1"
           fontWeight={700}
-          sx={{ color: cor, fontFamily: mono }}
+          sx={(t) => ({
+            color: superou ? t.palette.statusText.positive : t.palette.statusText.negative,
+            fontFamily: mono,
+          })}
           data-testid={`alpha-card-${benchmark}-valor`}
         >
           {formatPercentSigned(alpha)}

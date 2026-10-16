@@ -92,7 +92,7 @@ const AposentadoriaCalculadora = () => {
                         <Chip
                             label={`IPCA referência: ${resultado ? resultado.ipca : 4.8}% aa`}
                             size="small"
-                            sx={(t) => ({ bgcolor: alpha(t.palette.warning.main, 0.15), color: 'warning.main', fontSize: 11 })}
+                            sx={(t) => ({ bgcolor: alpha(t.palette.warning.main, 0.15), color: 'statusText.warning', fontSize: 11 })}
                         />
                     </Box>
 
@@ -198,7 +198,7 @@ const AposentadoriaCalculadora = () => {
                     </Box>
 
                     {error && (
-                        <Typography variant="body2" color="error" sx={{ mt: 1.5 }}>
+                        <Typography variant="body2" color="statusText.negative" sx={{ mt: 1.5 }}>
                             {error}
                         </Typography>
                     )}
@@ -213,7 +213,7 @@ const AposentadoriaCalculadora = () => {
                         <Chip
                             label={`IPCA usado: ${resultado.ipca}% aa`}
                             size="small"
-                            sx={(t) => ({ bgcolor: alpha(t.palette.warning.main, 0.15), color: 'warning.main' })}
+                            sx={(t) => ({ bgcolor: alpha(t.palette.warning.main, 0.15), color: 'statusText.warning' })}
                         />
                         {resultado.patrimonioAtual > 0 && (
                             <Chip
@@ -264,7 +264,7 @@ const AposentadoriaCalculadora = () => {
                                                 <Typography component="span" variant="caption" sx={{ color: 'text.secondary' }}>
                                                     Projetado:{' '}
                                                 </Typography>
-                                                <strong style={{ color: cenario.suficiente ? theme.palette.success.main : theme.palette.error.main }}>
+                                                <strong style={{ color: cenario.suficiente ? theme.palette.statusText.positive : theme.palette.statusText.negative }}>
                                                     {formatCurrency(cenario.patrimonioProjetado)}
                                                 </strong>
                                             </Typography>
@@ -308,7 +308,7 @@ const AposentadoriaCalculadora = () => {
                                                 y={cenarioGrafico.patrimonioNecessario}
                                                 stroke={theme.palette.warning.main}
                                                 strokeDasharray="6 3"
-                                                label={{ value: 'Meta', fill: theme.palette.warning.main, fontSize: 11, position: 'right' }}
+                                                label={{ value: 'Meta', fill: theme.palette.statusText.warning, fontSize: 11, position: 'right' }}
                                             />
                                             <Line
                                                 type="monotone"

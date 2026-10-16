@@ -229,7 +229,7 @@ const SaudeCarteiraPanel = ({ refreshKey = 0, onConfigurarEstrategia }) => {
                                     </Typography>
                                     <Typography
                                         variant="caption"
-                                        sx={{ fontFamily: mono, color: 'error.main', fontWeight: 700 }}
+                                        sx={{ fontFamily: mono, color: 'statusText.negative', fontWeight: 700 }}
                                     >
                                         +{fmtPct(a.excesso)} acima
                                     </Typography>

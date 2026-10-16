@@ -60,7 +60,7 @@ export default function DividendosCard() {
     return (
       <Box sx={{ textAlign: 'center', py: 3 }}>
         <CalendarMonthIcon sx={{ fontSize: 40, color: 'error.main', opacity: 0.5 }} />
-        <Typography variant="body2" color="error" mt={1}>
+        <Typography variant="body2" color="statusText.negative" mt={1}>
           {error}
         </Typography>
       </Box>
@@ -151,7 +151,7 @@ export default function DividendosCard() {
             <Typography variant="caption" color="text.secondary" display="block">
               Total recebido
             </Typography>
-            <Typography variant="body2" fontWeight={600} color="success.main" sx={(t) => ({ fontFamily: mono(t) })}>
+            <Typography variant="body2" fontWeight={600} color="statusText.positive" sx={(t) => ({ fontFamily: mono(t) })}>
               {formatBRL(resumo.totalPago)}
             </Typography>
           </Box>
@@ -159,7 +159,7 @@ export default function DividendosCard() {
             <Typography variant="caption" color="text.secondary" display="block">
               A receber
             </Typography>
-            <Typography variant="body2" fontWeight={600} color="warning.main" sx={(t) => ({ fontFamily: mono(t) })}>
+            <Typography variant="body2" fontWeight={600} color="statusText.warning" sx={(t) => ({ fontFamily: mono(t) })}>
               {formatBRL(resumo.totalProvisionado)}
             </Typography>
           </Box>

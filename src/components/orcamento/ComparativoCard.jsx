@@ -16,7 +16,7 @@ const capitalize = (str) =>
 
 function VariacaoChip({ valor, inverter = false }) {
   const positivo = valor > 0
-  const cor = inverter ? (positivo ? 'error.main' : 'success.main') : (positivo ? 'success.main' : 'error.main')
+  const cor = inverter ? (positivo ? 'statusText.negative' : 'statusText.positive') : (positivo ? 'statusText.positive' : 'statusText.negative')
   const Icon = positivo ? TrendingUpIcon : TrendingDownIcon
   return (
     <Box sx={{ display: 'inline-flex', alignItems: 'center', color: cor }}>

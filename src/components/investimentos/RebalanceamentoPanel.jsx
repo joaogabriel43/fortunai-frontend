@@ -63,7 +63,7 @@ const RebalanceamentoPanel = () => {
 
     if (error) {
         return (
-            <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+            <Typography color="statusText.negative" variant="body2" sx={{ mt: 1 }}>
                 {error}
             </Typography>
         );
@@ -135,7 +135,7 @@ const RebalanceamentoPanel = () => {
                                 <TableCell
                                     align="right"
                                     sx={{
-                                        color: s.desvio > 0 ? 'error.main' : s.desvio < 0 ? 'success.main' : 'text.secondary',
+                                        color: s.desvio > 0 ? 'statusText.negative' : s.desvio < 0 ? 'statusText.positive' : 'text.secondary',
                                         fontWeight: 600,
                                     }}
                                 >

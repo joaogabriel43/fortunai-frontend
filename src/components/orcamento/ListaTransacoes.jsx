@@ -178,7 +178,7 @@ const ListaTransacoes = ({ refreshKey, onChanged }) => {
                                         <TableCell
                                             align="right"
                                             sx={{
-                                                color: t.tipo === 'CREDIT' ? 'success.main' : 'error.main',
+                                                color: t.tipo === 'CREDIT' ? 'statusText.positive' : 'statusText.negative',
                                                 fontWeight: 600,
                                             }}
                                         >

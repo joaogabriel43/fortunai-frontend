@@ -166,14 +166,14 @@ const OrcamentoLimitesCard = () => {
                     </Typography>
                   </Box>
                   {item.diaEstimadoEstouro != null && (
-                    <Typography variant="caption" sx={{ color: theme.palette.warning.main }}>
+                    <Typography variant="caption" sx={{ color: theme.palette.statusText.warning }}>
                       No ritmo atual, o limite estoura por volta do dia {item.diaEstimadoEstouro}
                       {item.projecaoFimDeMes != null &&
                         ` (projeção do mês: ${formatBRL(item.projecaoFimDeMes)})`}.
                     </Typography>
                   )}
                   {item.status === 'ESTOURADO' && (
-                    <Typography variant="caption" sx={{ color: theme.palette.error.main }}>
+                    <Typography variant="caption" sx={{ color: theme.palette.statusText.negative }}>
                       Limite ultrapassado em {formatBRL(Number(item.gasto) - Number(item.limite))}.
                     </Typography>
                   )}

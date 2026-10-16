@@ -185,7 +185,7 @@ const PainelCartao = ({ open, cartao, onClose, onAtualizado, onExcluido }) => {
             <Typography variant="h6" component="h2" sx={{ fontWeight: 600 }}>
               Fatura — {cartao?.nome}
               {!isMesAtual && (
-                <Typography component="span" variant="body2" sx={{ color: 'warning.main', ml: 1 }}>
+                <Typography component="span" variant="body2" sx={{ color: 'statusText.warning', ml: 1 }}>
                   ({MESES[mes - 1]}/{ano})
                 </Typography>
               )}
@@ -347,7 +347,7 @@ const PainelCartao = ({ open, cartao, onClose, onAtualizado, onExcluido }) => {
       <Menu anchorEl={menuAncora} open={Boolean(menuAncora)} onClose={() => setMenuAncora(null)}>
         <MenuItem
           onClick={() => { setMenuAncora(null); setConfirmarExclusaoCartao(true); }}
-          sx={{ color: 'error.main' }}
+          sx={{ color: 'statusText.negative' }}
         >
           <ListItemIcon sx={{ color: 'inherit' }}><DeleteOutlineIcon fontSize="small" /></ListItemIcon>
           Excluir cartão

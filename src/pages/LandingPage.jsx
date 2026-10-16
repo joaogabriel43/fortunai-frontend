@@ -11,7 +11,6 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import CreditCardOffOutlinedIcon from '@mui/icons-material/CreditCardOffOutlined';
@@ -227,12 +226,6 @@ const LandingPage = () => {
                             </Grid>
                         ))}
                     </Grid>
-                    <Container maxWidth="md" disableGutters>
-                        <Reveal>
-                            <MediaPlaceholder label="Vídeo de demonstração (em breve)"
-                                icon={PlayCircleOutlineIcon} testid="landing-placeholder-video" />
-                        </Reveal>
-                    </Container>
                 </Box>
 
                 {/* Segurança */}

@@ -25,6 +25,9 @@ export default function TransactionList({ transacoes }) {
   const theme = useTheme()
   const corPorTipo = (tipo) =>
     tipo === 'CREDIT' ? theme.palette.success.main : theme.palette.error.main
+  // Texto do valor usa o token legivel (WCAG 1.4.3); avatar/icone mantem o tom pleno.
+  const corTextoPorTipo = (tipo) =>
+    tipo === 'CREDIT' ? theme.palette.statusText.positive : theme.palette.statusText.negative
 
   return (
     <List disablePadding>
@@ -36,7 +39,7 @@ export default function TransactionList({ transacoes }) {
               <Typography
                 variant="body2"
                 fontWeight={600}
-                sx={{ fontFamily: theme.typography.fontFamilyMono, color: corPorTipo(t.tipo) }}
+                sx={{ fontFamily: theme.typography.fontFamilyMono, color: corTextoPorTipo(t.tipo) }}
               >
                 {t.tipo === 'CREDIT' ? '+ ' : '- '}
                 {formatBRL(t.valor?.quantia)}

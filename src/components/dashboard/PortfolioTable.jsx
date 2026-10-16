@@ -82,7 +82,7 @@ const PortfolioTable = ({
 
     if (error) {
         return (
-            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+            <Typography variant="body2" color="statusText.negative" sx={{ mt: 1 }}>
                 {error}
             </Typography>
         );
@@ -131,7 +131,7 @@ const PortfolioTable = ({
                                     align="right"
                                     sx={{
                                         ...monoSx,
-                                        color: lucro >= 0 ? 'success.main' : 'error.main',
+                                        color: lucro >= 0 ? 'statusText.positive' : 'statusText.negative',
                                         fontWeight: 600,
                                     }}
                                 >

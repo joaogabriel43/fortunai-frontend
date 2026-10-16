@@ -21,6 +21,7 @@ import InsightEducacionalCard from '../components/InsightEducacionalCard'
 import PanoramaFinanceiro from '../components/dashboard/pondero/PanoramaFinanceiro'
 import SectionHead from '../components/dashboard/pondero/SectionHead'
 import ModuloIndisponivel from '../components/dashboard/pondero/ModuloIndisponivel'
+import { definirProximaAcao, estadoDaFonte } from '../components/dashboard/pondero/proximaAcao'
 
 const mono = (t) => t.typography.fontFamilyMono
 
@@ -40,36 +41,6 @@ function saudacaoPorHora(hora) {
 function dataPorExtenso(agora) {
   const texto = agora.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })
   return texto.charAt(0).toUpperCase() + texto.slice(1)
-}
-
-/**
- * Próxima ação: NAVEGACIONAL, nunca recomendação financeira.
- * Sem transações → orçamento. Sem investimentos → investimentos.
- * Com os dois → resumo do mês.
- */
-function definirProximaAcao({ temTransacoes, temInvestimentos }) {
-  if (!temTransacoes) {
-    return {
-      titulo: 'Registre seus gastos do mês',
-      descricao: 'O orçamento é onde suas entradas e despesas entram no sistema.',
-      rotulo: 'Ir para o orçamento',
-      to: '/orcamento',
-    }
-  }
-  if (!temInvestimentos) {
-    return {
-      titulo: 'Cadastre seus ativos',
-      descricao: 'Com a carteira cadastrada, o patrimônio passa a somar as duas partes.',
-      rotulo: 'Ir para investimentos',
-      to: '/investimentos',
-    }
-  }
-  return {
-    titulo: 'Veja o resumo do mês',
-    descricao: 'O resumo reúne o que aconteceu no período com mais detalhe que o painel.',
-    rotulo: 'Abrir resumo do mês',
-    to: '/resumo',
-  }
 }
 
 // Par rótulo/valor do sumário do mês. `null` = fonte indisponível; 0 = zero real.
@@ -184,9 +155,12 @@ const Dashboard = () => {
     )
   }
 
+  // `listaTransacoes`/`listaComposicao` já viraram [] em caso de erro; o estado
+  // da fonte vem dos dados crus + flag de erro para não confundir
+  // "indisponível" com "vazio confirmado".
   const proximaAcao = definirProximaAcao({
-    temTransacoes: listaTransacoes.length > 0,
-    temInvestimentos: listaComposicao.length > 0,
+    transacoes: estadoDaFonte({ erro: erros.transacoes, itens: transacoes }),
+    investimentos: estadoDaFonte({ erro: erros.portfolio, itens: portfolioComposition }),
   })
 
   return (
@@ -258,6 +232,7 @@ const Dashboard = () => {
         saldoAtual={saldoAtual}
         totalInvestido={totalInvestido}
         proximaAcao={proximaAcao}
+        onProximaAcao={recarregar}
         parcial={patrimonioTotal === null}
         onTentarNovamente={erros.summary || erros.portfolio ? recarregar : undefined}
       />

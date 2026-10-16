@@ -476,7 +476,7 @@ const EstrategiaSetoresPanel = ({ refreshKey = 0, onTetosSalvos }) => {
                                                     variant="caption"
                                                     sx={{
                                                         fontFamily: theme.typography.fontFamilyMono,
-                                                        color: excedeu ? 'error.main' : 'text.secondary',
+                                                        color: excedeu ? 'statusText.negative' : 'text.secondary',
                                                         fontWeight: excedeu ? 700 : 400,
                                                     }}
                                                 >
@@ -499,8 +499,8 @@ const EstrategiaSetoresPanel = ({ refreshKey = 0, onTetosSalvos }) => {
                                                         sx={{
                                                             fontFamily: theme.typography.fontFamilyMono,
                                                             color: excedeu
-                                                                ? 'error.main'
-                                                                : 'warning.main',
+                                                                ? 'statusText.negative'
+                                                                : 'statusText.warning',
                                                         }}
                                                     >
                                                         Teto: {fmtPct(item.percentualTeto)}

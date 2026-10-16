@@ -148,7 +148,7 @@ export default function EstrategiaForm() {
                 </Button>
                 <Typography
                     variant="body2"
-                    sx={{ color: valido ? 'success.main' : 'error.main', fontWeight: 600 }}
+                    sx={{ color: valido ? 'statusText.positive' : 'statusText.negative', fontWeight: 600 }}
                 >
                     Soma: {soma.toFixed(1)}%
                 </Typography>
@@ -168,7 +168,7 @@ export default function EstrategiaForm() {
             </Box>
 
             {mensagem && (
-                <Typography variant="body2" sx={{ mt: 1.5, color: mensagem.includes('sucesso') ? 'success.main' : 'error.main' }}>
+                <Typography variant="body2" sx={{ mt: 1.5, color: mensagem.includes('sucesso') ? 'statusText.positive' : 'statusText.negative' }}>
                     {mensagem}
                 </Typography>
             )}

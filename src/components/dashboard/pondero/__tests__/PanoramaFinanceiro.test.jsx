@@ -1,6 +1,6 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
-import { describe, it, expect } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi } from 'vitest'
 import { ThemeProvider } from '@mui/material/styles'
 import { MemoryRouter } from 'react-router-dom'
 import { createAppTheme } from '../../../../theme'
@@ -66,5 +66,28 @@ describe('PanoramaFinanceiro', () => {
     expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2)
     expect(screen.getByText(/fonte indisponível/i)).toBeInTheDocument()
     expect(screen.queryByText('R$ 0,00')).not.toBeInTheDocument()
+  })
+
+  it('ação de recuperação vira botão que chama onProximaAcao, sem link', () => {
+    const onProximaAcao = vi.fn()
+    renderPanorama('dark', {
+      proximaAcao: { titulo: 'Não foi possível verificar seus ativos', descricao: 'x', rotulo: 'Tentar novamente', recuperar: true },
+      onProximaAcao,
+      onTentarNovamente: vi.fn(),
+    })
+    const cta = screen.getByTestId('proxima-acao')
+    expect(cta).not.toHaveAttribute('href')
+    fireEvent.click(cta)
+    expect(onProximaAcao).toHaveBeenCalledTimes(1)
+    // O retry do panorama não duplica o botão da ação de recuperação.
+    expect(screen.getAllByRole('button', { name: 'Tentar novamente' })).toHaveLength(1)
+  })
+
+  it('estado carregando (sem rótulo) não renderiza botão nenhum na próxima ação', () => {
+    renderPanorama('dark', {
+      proximaAcao: { titulo: 'Verificando seus dados', descricao: 'x' },
+    })
+    expect(screen.getByText('Verificando seus dados')).toBeInTheDocument()
+    expect(screen.queryByTestId('proxima-acao')).toBeNull()
   })
 })

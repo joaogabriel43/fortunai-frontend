@@ -63,6 +63,7 @@ export default function PanoramaFinanceiro({
   saldoAtual,
   totalInvestido,
   proximaAcao,
+  onProximaAcao,
   parcial,
   onTentarNovamente,
 }) {
@@ -152,7 +153,7 @@ export default function PanoramaFinanceiro({
             sx={{
               fontFamily: mono,
               fontSize: { xs: '2rem', md: '2.6rem' },
-              fontWeight: 750,
+              fontWeight: 600,
               lineHeight: 1.05,
               letterSpacing: '-0.02em',
               color: 'panorama.text',
@@ -184,7 +185,8 @@ export default function PanoramaFinanceiro({
           {/* O panorama era o unico modulo sem afordancia de nova tentativa:
               quando uma das suas fontes cai, o usuario precisa poder recarregar
               daqui, como ja acontece nas demais secoes. */}
-          {onTentarNovamente && (
+          {/* Com ação de recuperação na "Próxima ação", um segundo botão igual sairia duplicado. */}
+          {onTentarNovamente && !proximaAcao.recuperar && (
             <Button
               onClick={onTentarNovamente}
               size="small"
@@ -240,27 +242,32 @@ export default function PanoramaFinanceiro({
           {proximaAcao.descricao}
         </Typography>
 
-        <Button
-          component={RouterLink}
-          to={proximaAcao.to}
-          data-testid="proxima-acao"
-          endIcon={<ArrowForwardIcon sx={{ fontSize: 16 }} />}
-          sx={(t) => ({
-            mt: 'auto',
-            alignSelf: 'flex-start',
-            px: '18px',
-            py: '10px',
-            textTransform: 'none',
-            fontWeight: 700,
-            fontSize: 14,
-            borderRadius: `${t.radius.pill}px`,
-            backgroundColor: t.palette.panorama.accent,
-            color: t.palette.panorama.onAccent,
-            '&:hover': { backgroundColor: t.palette.panorama.accent, filter: 'brightness(1.06)' },
-          })}
-        >
-          {proximaAcao.rotulo}
-        </Button>
+        {/* Link quando há rota; botão de recarregar na ação de recuperação;
+            nenhum controle enquanto carrega (sem rótulo). */}
+        {proximaAcao.rotulo && (
+          <Button
+            {...(proximaAcao.to
+              ? { component: RouterLink, to: proximaAcao.to }
+              : { onClick: onProximaAcao })}
+            data-testid="proxima-acao"
+            endIcon={proximaAcao.to ? <ArrowForwardIcon sx={{ fontSize: 16 }} /> : undefined}
+            sx={(t) => ({
+              mt: 'auto',
+              alignSelf: 'flex-start',
+              px: '18px',
+              py: '10px',
+              textTransform: 'none',
+              fontWeight: 700,
+              fontSize: 14,
+              borderRadius: `${t.radius.pill}px`,
+              backgroundColor: t.palette.panorama.accent,
+              color: t.palette.panorama.onAccent,
+              '&:hover': { backgroundColor: t.palette.panorama.accent, filter: 'brightness(1.06)' },
+            })}
+          >
+            {proximaAcao.rotulo}
+          </Button>
+        )}
       </Box>
     </Box>
   )

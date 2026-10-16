@@ -49,7 +49,7 @@ function SecaoCard({ titulo, descricao, tone = 'default', children }) {
               fontSize: 'clamp(15px, 1.3vw, 17px)',
               fontWeight: 700,
               letterSpacing: '-0.015em',
-              color: perigo ? 'error.main' : 'text.primary',
+              color: perigo ? 'statusText.negative' : 'text.primary',
               m: 0,
             }}
           >
