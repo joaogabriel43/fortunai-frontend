@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { hojeLocal, mesCorrente, prefixoMesCorrente, mesAnterior } from '../dateUtils'
+import { formatarDataLocal, hojeLocal, mesCorrente, prefixoMesCorrente, mesAnterior } from '../dateUtils'
 
 // Rodar com TZ=UTC e TZ=America/Sao_Paulo: o resultado precisa ser idêntico.
 describe('regressão: mês/ano de hoje independe da TZ do navegador', () => {
@@ -28,5 +28,18 @@ describe('regressão: mês/ano de hoje independe da TZ do navegador', () => {
   it('mesAnterior vira o ano em janeiro e recua um mês nos demais', () => {
     expect(mesAnterior({ ano: 2026, mes: 1 })).toEqual({ ano: 2025, mes: 12 })
     expect(mesAnterior({ ano: 2026, mes: 3 })).toEqual({ ano: 2026, mes: 2 })
+  })
+})
+
+describe('regressão: formatarDataLocal mostra o dia do calendário em qualquer TZ do navegador', () => {
+  it('formata YYYY-MM-DD sem deslocar o dia', () => {
+    expect(formatarDataLocal('2026-03-05')).toBe('05/03/2026')
+    expect(formatarDataLocal('2026-01-01')).toBe('01/01/2026')
+  })
+
+  it('aceita opções de Intl (formato curto e mês por extenso)', () => {
+    expect(formatarDataLocal('2026-03-05', { day: '2-digit', month: '2-digit' })).toBe('05/03')
+    expect(formatarDataLocal('2026-03-05', { day: '2-digit', month: 'long' })).toBe('05 de março')
+    expect(formatarDataLocal('2026-03-05', { month: 'short', year: 'numeric' })).toBe('mar. de 2026')
   })
 })
