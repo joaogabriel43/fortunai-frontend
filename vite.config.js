@@ -97,7 +97,7 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.js'],
     // .claude/** exclui worktrees de agente criados dentro do repo — sem isso o
     // vitest varre a cópia inteira (specs e2e do Playwright quebram e testes duplicam)
-    exclude: ['e2e/**', 'node_modules/**', '.claude/**', '**/.claude/**'],
+    exclude: ['e2e/**', 'node_modules/**', '.claude/**', '**/.claude/**', 'finassistant-frontend/**'],
     // pool 'forks' (default) satura no Windows: os workers via child_process.fork
     // travam em timeout do fork antes de iniciar quando o pool inteiro é
     // agendado de uma vez, deixando ~34 dos 81 arquivos sem nunca rodar.

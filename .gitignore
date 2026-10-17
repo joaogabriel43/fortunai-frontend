@@ -139,3 +139,6 @@ dist
 e2e/.auth/
 playwright-report/
 test-results/
+
+# Nested copy of this repo (not a submodule)
+finassistant-frontend/
