@@ -30,6 +30,22 @@ export const extrairMensagemErroApi = (error, fallback) => {
   return fallback;
 };
 
+/** Mensagem do 409 do lock otimista da conta (backend F1, ADR-066). */
+export const MSG_CONFLITO_SALDO =
+  'Seu saldo foi atualizado por outra operação neste momento. Recarregue a página e tente novamente.';
+
+/**
+ * O backend responde 409 { erro: "Conflito" } quando outra operação alterou a conta
+ * ao mesmo tempo. Checa também `erro` para não confundir com o 409
+ * PREVIEW_EM_PROCESSAMENTO da importação de extrato.
+ */
+export const ehConflitoDeSaldo = (error) =>
+  error?.response?.status === 409 && error.response.data?.erro === 'Conflito';
+
+/** Mensagem do conflito de saldo, ou `fallback` para qualquer outro erro. */
+export const mensagemComConflitoDeSaldo = (error, fallback) =>
+  ehConflitoDeSaldo(error) ? MSG_CONFLITO_SALDO : fallback;
+
 /**
  * Loga um erro de API no console SEM vazar dado sensível (SEC-03).
  *
