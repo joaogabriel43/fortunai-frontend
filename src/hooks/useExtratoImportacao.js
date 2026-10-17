@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import api from '../services/api'
+import { ehConflitoDeSaldo, MSG_CONFLITO_SALDO } from '../utils/apiErrorUtils'
 
 export function useExtratoImportacao() {
   const [preview, setPreview] = useState(null)
@@ -34,8 +35,24 @@ export function useExtratoImportacao() {
     try {
       const res = await api.post('/extrato/confirmar', transacoes)
       setResultado(res.data)
-    } catch {
-      setError('Erro ao importar transações.')
+    } catch (err) {
+      const status = err?.response?.status
+      const codigo = err?.response?.data?.erro
+      if (status === 410) {
+        // Preview expirado ou já confirmado: não dá para reaproveitar, precisa de novo upload.
+        setPreview(null)
+        setError(
+          codigo === 'PREVIEW_JA_CONFIRMADO'
+            ? 'Este extrato já foi importado. Se quiser importar de novo, envie o arquivo novamente.'
+            : 'A prévia do extrato expirou. Envie o arquivo novamente para continuar.'
+        )
+      } else if (status === 409 && codigo === 'PREVIEW_EM_PROCESSAMENTO') {
+        setError('Esta importação já está em andamento. Aguarde alguns instantes e confira suas transações.')
+      } else if (ehConflitoDeSaldo(err)) {
+        setError(MSG_CONFLITO_SALDO)
+      } else {
+        setError('Erro ao importar transações.')
+      }
     } finally {
       setConfirming(false)
     }

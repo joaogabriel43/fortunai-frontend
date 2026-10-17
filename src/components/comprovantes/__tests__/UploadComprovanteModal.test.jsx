@@ -134,3 +134,33 @@ describe('UploadComprovanteModal', () => {
     })
   })
 })
+
+describe('UploadComprovanteModal — conflito de saldo (409, ADR-066 do backend)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  const extrairEClicarSalvar = async (falhaAoSalvar) => {
+    api.post
+      .mockResolvedValueOnce({
+        data: { valor: 150.0, descricao: 'Farmacia', categoria: 'Saude', tipo: 'DEBIT', dataTransacao: '2026-03-20', confianca: 'ALTA' },
+      })
+      .mockRejectedValueOnce(falhaAoSalvar)
+    render(<UploadComprovanteModal open={true} onClose={vi.fn()} file={createMockFile()} />)
+    fireEvent.click(screen.getByText('Extrair Dados'))
+    await waitFor(() => expect(screen.getByText('Confirmar e Salvar')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Confirmar e Salvar'))
+  }
+
+  it('pede para recarregar e tentar de novo quando o saldo mudou', async () => {
+    await extrairEClicarSalvar(Object.assign(new Error('409'), { response: { status: 409, data: { status: 409, erro: 'Conflito', mensagem: 'A conta foi atualizada por outra operação. Recarregue e tente novamente.' } } }))
+
+    expect(await screen.findByText(/saldo.*recarregue.*tente novamente/i)).toBeInTheDocument()
+  })
+
+  it('mantém a mensagem genérica para outros erros ao salvar', async () => {
+    await extrairEClicarSalvar(new Error('fail'))
+
+    expect(await screen.findByText('Falha ao salvar transacao.')).toBeInTheDocument()
+  })
+})

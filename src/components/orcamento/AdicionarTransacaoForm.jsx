@@ -16,6 +16,7 @@ import api from '../../services/api';
 import { useTheme, alpha } from '@mui/material/styles';
 import CreatableSelect from 'react-select/creatable';
 import { hojeLocal } from '../../utils/dateUtils';
+import { mensagemComConflitoDeSaldo } from '../../utils/apiErrorUtils';
 
 const hoje = hojeLocal; // "yyyy-MM-dd" no fuso America/Sao_Paulo
 
@@ -148,7 +149,7 @@ const AdicionarTransacaoForm = ({ onTransacaoAdicionada }) => {
                 setCategoriasExistentes((prev) => [...prev, { value: requestData.categoria, label: requestData.categoria }]);
             }
         } catch (err) {
-            setError('Falha ao adicionar transação.');
+            setError(mensagemComConflitoDeSaldo(err, 'Falha ao adicionar transação.'));
         }
     };
 

@@ -3,7 +3,7 @@ import Modal from 'react-modal';
 import { useTheme, alpha } from '@mui/material/styles';
 import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
-import { logErroSeguro } from '../../utils/apiErrorUtils';
+import { logErroSeguro, mensagemComConflitoDeSaldo } from '../../utils/apiErrorUtils';
 
 Modal.setAppElement('#root');
 
@@ -38,7 +38,7 @@ const EditarTransacaoModal = ({ isOpen, onRequestClose, transacao, onUpdate }) =
             onRequestClose();
         } catch (error) {
             logErroSeguro('Erro ao editar transação', error);
-            alert('Falha ao editar a transação.');
+            alert(mensagemComConflitoDeSaldo(error, 'Falha ao editar a transação.'));
         }
     };
 

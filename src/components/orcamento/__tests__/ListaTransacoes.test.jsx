@@ -226,3 +226,25 @@ describe('regressão: ListaTransacoes ordena por data ISO, da mais recente para 
         expect(descricoes).toEqual(['Meio', 'Recente', 'Antiga'])
     })
 })
+
+describe('ListaTransacoes — conflito de saldo ao excluir (409, ADR-066 do backend)', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        mockApiGet.mockResolvedValue({ data: [mockTransacao] })
+    })
+
+    it('avisa que o saldo mudou, mantém a linha e recarrega a lista', async () => {
+        mockApiDelete.mockRejectedValueOnce(Object.assign(new Error('409'), { response: { status: 409, data: { status: 409, erro: 'Conflito', mensagem: 'A conta foi atualizada por outra operação. Recarregue e tente novamente.' } } }))
+
+        render(<ListaTransacoes />)
+        await screen.findByText('Almoço')
+
+        fireEvent.click(screen.getByRole('button', { name: /excluir transação/i }))
+        fireEvent.click(await screen.findByRole('button', { name: 'Excluir' }))
+
+        expect(await screen.findByText(/saldo.*recarregue.*tente novamente/i)).toBeInTheDocument()
+        expect(screen.getByText('Almoço')).toBeInTheDocument()
+        // GET inicial + recarga após o conflito
+        await waitFor(() => expect(mockApiGet).toHaveBeenCalledTimes(2))
+    })
+})

@@ -148,3 +148,26 @@ describe('AdicionarTransacaoForm — campo de data (RED)', () => {
     })
   })
 })
+
+describe('AdicionarTransacaoForm — conflito de saldo (409, ADR-066 do backend)', () => {
+  it('pede para recarregar e tentar de novo quando o saldo mudou', async () => {
+    api.post.mockRejectedValueOnce(Object.assign(new Error('409'), { response: { status: 409, data: { status: 409, erro: 'Conflito', mensagem: 'A conta foi atualizada por outra operação. Recarregue e tente novamente.' } } }))
+    renderForm()
+    await preencherCamposBase()
+
+    fireEvent.click(screen.getByRole('button', { name: /adicionar/i }))
+
+    expect(await screen.findByText(/saldo.*recarregue.*tente novamente/i)).toBeInTheDocument()
+    expect(screen.queryByText('Falha ao adicionar transação.')).not.toBeInTheDocument()
+  })
+
+  it('mantém a mensagem genérica para outros erros', async () => {
+    api.post.mockRejectedValueOnce(Object.assign(new Error('500'), { response: { status: 500, data: {} } }))
+    renderForm()
+    await preencherCamposBase()
+
+    fireEvent.click(screen.getByRole('button', { name: /adicionar/i }))
+
+    expect(await screen.findByText('Falha ao adicionar transação.')).toBeInTheDocument()
+  })
+})
