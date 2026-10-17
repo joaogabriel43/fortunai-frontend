@@ -10,6 +10,7 @@ import {
     IconButton,
     Typography,
     Box,
+    Alert,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -20,7 +21,7 @@ import EditarTransacaoModal from './EditarTransacaoModal';
 import ConfirmarExclusaoDialog from './ConfirmarExclusaoDialog';
 import { formatarDataLocal } from '../../utils/dateUtils';
 import { formatCurrency } from '../../utils/formatters';
-import { logErroSeguro } from '../../utils/apiErrorUtils';
+import { logErroSeguro, ehConflitoDeSaldo, mensagemComConflitoDeSaldo } from '../../utils/apiErrorUtils';
 
 const formatBRL = (value) => formatCurrency(value);
 
@@ -59,6 +60,7 @@ const ListaTransacoes = ({ refreshKey, onChanged }) => {
     const [transacaoSelecionada, setTransacaoSelecionada] = useState(null);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [transacaoParaExcluir, setTransacaoParaExcluir] = useState(null);
+    const [erroExclusao, setErroExclusao] = useState(null);
 
     const fetchTransacoes = useCallback(async () => {
         if (!user?.id) return;
@@ -95,12 +97,16 @@ const ListaTransacoes = ({ refreshKey, onChanged }) => {
 
     const handleConfirmDelete = async () => {
         setDeleteDialogOpen(false);
+        setErroExclusao(null);
         try {
             await api.delete(`/orcamento/transacao/${user.id}/${transacaoParaExcluir}`);
             setTransacoes(prev => prev.filter(t => t.id !== transacaoParaExcluir));
             if (onChanged) onChanged();
         } catch (error) {
             logErroSeguro('Falha ao excluir transação', error);
+            setErroExclusao(mensagemComConflitoDeSaldo(error, 'Não foi possível excluir a transação.'));
+            // Saldo mudou por outra operação: a lista em tela pode estar defasada.
+            if (ehConflitoDeSaldo(error)) await fetchTransacoes();
         } finally {
             setTransacaoParaExcluir(null);
         }
@@ -137,6 +143,12 @@ const ListaTransacoes = ({ refreshKey, onChanged }) => {
                     <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
                         {titulo}
                     </Typography>
+
+                    {erroExclusao && (
+                        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setErroExclusao(null)}>
+                            {erroExclusao}
+                        </Alert>
+                    )}
 
                     <TableContainer
                         component={Paper}

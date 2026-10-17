@@ -6,6 +6,7 @@ import {
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf'
 import api from '../../services/api'
 import { useAuth } from '../../contexts/AuthContext'
+import { mensagemComConflitoDeSaldo } from '../../utils/apiErrorUtils'
 
 const formatBRL = (v) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
@@ -59,8 +60,8 @@ const UploadComprovanteModal = ({ open, onClose, file }) => {
       setTimeout(() => {
         handleClose()
       }, 1500)
-    } catch {
-      setError('Falha ao salvar transacao.')
+    } catch (err) {
+      setError(mensagemComConflitoDeSaldo(err, 'Falha ao salvar transacao.'))
     } finally {
       setSaving(false)
     }
