@@ -61,11 +61,41 @@ describe.each(['light', 'dark'])('tokens de texto semantico — tema %s', (mode)
 const blend = (fg, bg, a) =>
   '#' + [1, 3, 5].map((i) => Math.round(a * parseInt(fg.slice(i, i + 2), 16) + (1 - a) * parseInt(bg.slice(i, i + 2), 16)).toString(16).padStart(2, '0')).join('').toUpperCase()
 
-describe('tokens de texto sobre fundo tingido (chip a 20%) — tema light', () => {
-  const { colors } = getTokens('light')
-  const MAIN = { posText: STATUS_MAIN.success, negText: STATUS_MAIN.error, warnText: STATUS_MAIN.warning, infoText: STATUS_MAIN.info }
-  it.each(TEXT_KEYS)('%s >= 4,5:1 sobre o tom a 20%% sobre o papel', (key) => {
+const MAIN = { posText: STATUS_MAIN.success, negText: STATUS_MAIN.error, warnText: STATUS_MAIN.warning, infoText: STATUS_MAIN.info }
+
+describe.each(['light', 'dark'])('tokens de texto sobre fundo tingido (chip a 20 por cento) — tema %s', (mode) => {
+  const { colors } = getTokens(mode)
+  it.each(TEXT_KEYS)('%s >= 4,5:1 sobre o tom a 20 por cento sobre o papel', (key) => {
     expect(ratio(colors[key], blend(MAIN[key], colors.surface, 0.2))).toBeGreaterThanOrEqual(4.5)
+  })
+})
+
+describe.each(['light', 'dark'])('text.secondary — tema %s', (mode) => {
+  const { colors } = getTokens(mode)
+  const theme = createAppTheme(mode)
+  it('palette.text.secondary espelha textDim e passa >= 4,5:1 sobre canvas e papel', () => {
+    expect(theme.palette.text.secondary).toBe(colors.textDim)
+    expect(ratio(colors.textDim, colors.bg)).toBeGreaterThanOrEqual(4.5)
+    expect(ratio(colors.textDim, colors.surface)).toBeGreaterThanOrEqual(4.5)
+  })
+})
+
+describe('regressao: textDim claro media 4,084:1 sobre o canvas', () => {
+  it('fica na mesma familia (matiz verde-acinzentado) e escurece pouco', () => {
+    const { colors } = getTokens('light')
+    expect(colors.textDim).not.toBe('#68776E')
+    expect(ratio('#68776E', colors.bg)).toBeCloseTo(4.084, 2)
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(colors.textDim.slice(i, i + 2), 16))
+    expect(g).toBeGreaterThan(r)
+    expect(g).toBeGreaterThanOrEqual(b)
+  })
+})
+
+describe('regressao: dark negText/infoText eram os tons de status (3,7:1 e 3,9:1 sobre o chip)', () => {
+  it('negText e infoText do escuro sao tokens proprios, distintos de status.main', () => {
+    const { colors } = getTokens('dark')
+    expect(colors.negText).not.toBe(STATUS_MAIN.error)
+    expect(colors.infoText).not.toBe(STATUS_MAIN.info)
   })
 })
 

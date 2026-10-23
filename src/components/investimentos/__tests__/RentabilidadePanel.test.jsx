@@ -98,7 +98,7 @@ const dadosVazios = {
 
 // rgb equivalentes dos tokens Pondero (success #76A968 / error #C76562)
 const RGB_SUCCESS = 'rgb(118, 169, 104)';
-const RGB_ERROR = 'rgb(199, 101, 98)';
+const RGB_ERROR = 'rgb(217, 128, 125)'; // negText do escuro (#D9807D)
 
 describe('RentabilidadePanel', () => {
   beforeEach(() => {

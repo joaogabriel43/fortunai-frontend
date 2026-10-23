@@ -162,6 +162,7 @@ const CorrelacaoPanel = ({ refreshKey }) => {
                                 <Chip
                                     color="warning"
                                     variant="outlined"
+                                    sx={{ color: 'statusText.warning' }}
                                     label={`${par.tickerA} × ${par.tickerB} · ρ ${fmtRho(par.correlacao)}`}
                                 />
                             </Tooltip>

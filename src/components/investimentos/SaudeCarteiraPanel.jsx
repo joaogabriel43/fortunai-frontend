@@ -217,6 +217,7 @@ const SaudeCarteiraPanel = ({ refreshKey = 0, onConfigurarEstrategia }) => {
                                         size="small"
                                         variant="outlined"
                                         color="warning"
+                                        sx={{ color: 'statusText.warning' }}
                                         label={LABEL_DIMENSAO[a.dimensao] ?? a.dimensao}
                                         data-testid={`chip-dimensao-${a.dimensao}-${a.chave}`}
                                     />
