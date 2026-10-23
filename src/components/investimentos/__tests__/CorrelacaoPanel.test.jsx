@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
-import theme from '../../../theme';
+import theme, { createAppTheme } from '../../../theme';
 import CorrelacaoPanel from '../CorrelacaoPanel';
 
 vi.mock('../../../services/investimentoService', () => ({
@@ -47,6 +47,21 @@ describe('CorrelacaoPanel (ADR-030)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     investimentoService.obterAlphaBeta.mockResolvedValue(alphaBetaIndisponivel);
+  });
+
+  describe('regressão: chip de alta correlação usava warning.main como texto', () => {
+    it('pinta o texto com statusText.warning (>= 4,5:1)', async () => {
+      // No claro warning.main (#C78C3D) reprova como texto; o tema expõe CSS vars; statusText.warning resolve para warnText (#885F27 no claro, coberto em themeContrast).
+      investimentoService.obterAnaliseCorrelacao.mockResolvedValueOnce(analiseCompleta);
+      render(
+        <ThemeProvider theme={createAppTheme('light')}>
+          <CorrelacaoPanel refreshKey={0} />
+        </ThemeProvider>
+      );
+
+      const chip = (await screen.findByText(/PETR4 × PETR3/)).closest('.MuiChip-root');
+      expect(chip).toHaveStyle({ color: 'var(--fa-palette-statusText-warning)' });
+    });
   });
 
   it('renderiza heatmap, par correlacionado, score e disclaimer', async () => {

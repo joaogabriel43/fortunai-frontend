@@ -74,10 +74,23 @@ describe('LandingPage — página pública de apresentação (ADR-039)', () => {
         expect(screen.getByText('Política de Privacidade')).toHaveAttribute('href', '/privacidade')
     })
 
-    it('mostra as 6 features e o placeholder de imagem do dashboard', () => {
+    it('mostra as 6 features', () => {
         renderLanding()
         expect(screen.getAllByTestId('landing-feature-card')).toHaveLength(6)
-        expect(screen.getByTestId('landing-placeholder-screenshot')).toBeInTheDocument()
+    })
+
+    it('oferece o alternador de tema no header público da landing', () => {
+        renderLanding()
+        const header = screen.getByTestId('public-header')
+        expect(within(header).getByTestId('theme-toggle')).toBeInTheDocument()
+    })
+
+    describe('regressão: placeholder "imagem em breve" exposto na landing pública', () => {
+        it('não renderiza o placeholder da prévia do dashboard', () => {
+            renderLanding()
+            expect(screen.queryByTestId('landing-placeholder-screenshot')).not.toBeInTheDocument()
+            expect(screen.queryByText(/imagem em breve/i)).not.toBeInTheDocument()
+        })
     })
 
     describe('regressão: bloco de vídeo "em breve" exposto na landing pública', () => {
@@ -92,7 +105,7 @@ describe('LandingPage — página pública de apresentação (ADR-039)', () => {
         // sem mock de api: se algum fetch/api fosse chamado, o import real de axios
         // dispararia rede no jsdom e o teste falharia por unhandled rejection
         renderLanding()
-        expect(screen.getByTestId('landing-placeholder-screenshot')).toBeInTheDocument()
+        expect(screen.getAllByTestId('landing-feature-card')).toHaveLength(6)
     })
 })
 

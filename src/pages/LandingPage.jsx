@@ -62,22 +62,6 @@ const ANCORAS = [
     { id: 'faq', label: 'FAQ' },
 ];
 
-const MediaPlaceholder = ({ label, icon: Icon, testid }) => {
-    const theme = useTheme();
-    return (
-        <Box data-testid={testid} role="img" aria-label={label}
-            sx={{
-                width: '100%', aspectRatio: '16 / 9', borderRadius: '16px',
-                border: `1px dashed ${theme.palette.divider}`,
-                background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.14)} 0%, ${alpha(theme.palette.primary.main, 0.03)} 100%)`,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
-            }}>
-            <Icon sx={{ fontSize: 56, color: 'primary.main', opacity: 0.85 }} />
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>{label}</Typography>
-        </Box>
-    );
-};
-
 /** Seção com scroll-reveal: sobe suavemente ao entrar no viewport. */
 const Reveal = ({ children, delay = 0 }) => {
     const [ref, visivel] = useInView();
@@ -118,7 +102,7 @@ const LandingPage = () => {
                         pointerEvents: 'none',
                     }} />
                     <Grid container spacing={6} alignItems="center" sx={{ py: { xs: 6, md: 10 } }}>
-                        <Grid size={{ xs: 12, md: 6 }}>
+                        <Grid size={{ xs: 12, md: 8 }}>
                             <Reveal>
                                 <Chip label="Orçamento e investimentos em uma visão integrada" size="small"
                                     sx={{ mb: 2, bgcolor: alpha(theme.palette.primary.main, 0.15), color: 'primary.main', fontWeight: 600 }} />
@@ -141,12 +125,6 @@ const LandingPage = () => {
                                 <Typography variant="caption" sx={{ display: 'block', mt: 1.5, color: 'text.secondary' }}>
                                     Grátis para começar • Sem cartão de crédito
                                 </Typography>
-                            </Reveal>
-                        </Grid>
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <Reveal delay={0.15}>
-                                <MediaPlaceholder label="Prévia do dashboard (imagem em breve)"
-                                    icon={ShowChartIcon} testid="landing-placeholder-screenshot" />
                             </Reveal>
                         </Grid>
                     </Grid>

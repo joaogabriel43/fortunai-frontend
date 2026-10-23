@@ -163,4 +163,25 @@ describe('useDashboardData', () => {
     expect(result.current.erros.summary).toBe(false)
     expect(result.current.patrimonioTotal).toBeNull()
   })
+
+  describe('regressão: transações 200 fora do contrato viravam estado vazio', () => {
+    it('trata corpo não-array como indisponível (null/erro), nunca como lista vazia', async () => {
+      api.get.mockImplementation(respostaDe({
+        summary: { contas: [{ saldoAtual: 1500 }] },
+        transacoes: { mensagem: 'ok' },
+        portfolio: [{ name: 'PETR4', value: 605 }],
+        evolucao: [],
+      }))
+
+      const { result } = renderHook(() => useDashboardData())
+      await waitFor(() => expect(result.current.loading).toBe(false))
+
+      expect(result.current.transacoes).toBeNull()
+      expect(result.current.erros.transacoes).toBe(true)
+      // Sem a fonte, entradas/despesas são desconhecidas — não R$ 0,00
+      expect(result.current.entradasDoMes).toBeNull()
+      expect(result.current.despesasDoMes).toBeNull()
+      expect(result.current.maiorGastoDoMes).toBeNull()
+    })
+  })
 })

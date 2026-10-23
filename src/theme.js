@@ -49,7 +49,9 @@ const palettes = {
     strong: '#173029',
 
     text: '#19372F',
-    textDim: '#68776E',
+    // 4,08:1 sobre o canvas (#F4EEE3) reprovava o SC 1.4.3; mesmo matiz, so mais
+    // escuro: 4,66:1 sobre o canvas e 5,29:1 sobre o papel.
+    textDim: '#5F6E65',
     textFaint: '#89948E',
 
     primary: '#285F50',
@@ -127,13 +129,13 @@ const palettes = {
     copper: '#D49A69',
     copperText: '#D49A69',
     focusRing: '#B8D979',
-    // No escuro os tons de `status` ja passam (>= 4,7:1 sobre papel e canvas).
-    // Ressalva: sobre chip tingido (20%) no escuro negativo/info ficam ~3,7:1 (ja era assim
-    // antes; tokens proprios do escuro ficam como pendencia, ver docs/sprints/F9.md).
+    // No escuro pos/warn passam sobre papel, canvas e chip tingido (20%). Neg e
+    // info, nao: sobre o chip ficavam em 3,7:1 e 3,9:1. Tokens proprios, mesma
+    // familia de matiz, so mais claros: 5,0:1 e 5,1:1 sobre o chip.
     posText: status.positive,
-    negText: status.negative,
+    negText: '#D9807D',
     warnText: status.warning,
-    infoText: status.information,
+    infoText: '#74A5B0',
 
     line: 'rgba(255,255,255,0.085)',
     lineStrong: 'rgba(255,255,255,0.15)',

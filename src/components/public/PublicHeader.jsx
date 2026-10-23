@@ -73,7 +73,8 @@ const PublicHeader = ({ anchors = [], onNavigateSection, variant = 'landing' }) 
               </Button>
             </Box>
           ) : (
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.25, sm: 1 } }}>
+              <ThemeToggle />
               <Button component={RouterLink} to="/login" variant="text" data-testid="landing-btn-entrar">
                 Entrar
               </Button>

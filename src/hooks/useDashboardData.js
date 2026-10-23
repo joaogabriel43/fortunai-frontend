@@ -58,15 +58,19 @@ export function useDashboardData() {
 
     const erros = {
       summary: summaryRes.status === 'rejected',
-      transacoes: transacoesRes.status === 'rejected',
+      // 200 com corpo nao-array tambem e fonte indisponivel (como a carteira)
+      transacoes: transacoesRes.status === 'rejected' || !Array.isArray(transacoesRes.value?.data),
       portfolio: portfolioRes.status === 'rejected',
       evolucao: evolucaoRes.status === 'rejected',
     }
 
     const summary = summaryRes.status === 'fulfilled' ? summaryRes.value?.data : null
-    const transacoes = transacoesRes.status === 'fulfilled' && Array.isArray(transacoesRes.value?.data)
+    // Corpo 200 fora do contrato (nao-array) -> null:
+    // `[]` aqui viraria o estado "vazio" e afirmaria que nao ha transacoes.
+    const transacoesBrutas = transacoesRes.status === 'fulfilled' && Array.isArray(transacoesRes.value?.data)
       ? transacoesRes.value.data
-      : []
+      : null
+    const transacoes = transacoesBrutas ?? []
     const portfolioComposition = portfolioRes.status === 'fulfilled' && Array.isArray(portfolioRes.value?.data)
       ? portfolioRes.value.data.map((item) => ({ ...item, value: normalizarValor(item?.value) }))
       : null
@@ -138,7 +142,7 @@ export function useDashboardData() {
       entradasDoMes,
       despesasDoMes,
       maiorGastoDoMes,
-      transacoes: ultimas,
+      transacoes: transacoesBrutas === null ? null : ultimas,
       portfolioComposition,
       evolucaoSaldo,
       usuarioId,

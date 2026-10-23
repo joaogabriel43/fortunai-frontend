@@ -41,6 +41,12 @@ const NIVEL_CONFIANCA_COLOR = {
   BAIXA: 'default',
 }
 
+// Chip outlined: borda segue `color`, mas o texto precisa de statusText (contraste no claro).
+const NIVEL_CONFIANCA_TEXT = {
+  ALTA: 'statusText.positive',
+  MEDIA: 'statusText.warning',
+}
+
 const formatBRL = (valor) =>
   Number(valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
@@ -118,6 +124,7 @@ const RecorrenciasCard = ({ recorrencias = [], totalMensalComprometido = 0, load
                           color={NIVEL_CONFIANCA_COLOR[rec.confianca] ?? 'default'}
                           size="small"
                           variant="outlined"
+                          sx={{ color: NIVEL_CONFIANCA_TEXT[rec.confianca] }}
                         />
                       )}
                     </Box>
@@ -164,7 +171,7 @@ const RecorrenciasCard = ({ recorrencias = [], totalMensalComprometido = 0, load
                             size="small"
                             color="warning"
                             variant="outlined"
-                            sx={{ height: 20, fontSize: 11 }}
+                            sx={{ height: 20, fontSize: 11, color: 'statusText.warning' }}
                           />
                         )}
                       </Box>

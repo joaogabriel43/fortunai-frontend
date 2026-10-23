@@ -78,6 +78,8 @@ const SeletorMesOrcamento = () => {
             label={isMesAtual ? 'Mês atual' : 'Fora do mês atual'}
             color={isMesAtual ? 'success' : 'warning'}
             variant={isMesAtual ? 'outlined' : 'filled'}
+            // Outlined: o texto não pode ser success.main (reprova no claro); filled o MUI resolve.
+            sx={isMesAtual ? { color: 'statusText.positive' } : undefined}
           />
           {!isMesAtual && (
             <Button size="small" startIcon={<TodayIcon fontSize="small" />} onClick={irParaMesAtual}>

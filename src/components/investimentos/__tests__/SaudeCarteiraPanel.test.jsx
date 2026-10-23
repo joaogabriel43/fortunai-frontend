@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import theme from '@/theme';
+import theme, { createAppTheme } from '@/theme';
 import SaudeCarteiraPanel from '../SaudeCarteiraPanel';
 
 // ─── Mocks ───────────────────────────────────────────────────────────────────
@@ -56,9 +56,9 @@ const sugestaoCompleta = {
   disclaimer: 'Sugestão meramente informativa — não constitui recomendação de investimento.',
 };
 
-const renderPanel = (props = {}) =>
+const renderPanel = (props = {}, appTheme = theme) =>
   render(
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={appTheme}>
       <SaudeCarteiraPanel {...props} />
     </ThemeProvider>,
   );
@@ -109,6 +109,16 @@ describe('SaudeCarteiraPanel — score de aderência', () => {
 });
 
 describe('SaudeCarteiraPanel — alertas de concentração', () => {
+  describe('regressão: chip de dimensão usava warning.main como texto', () => {
+    it('pinta o texto com statusText.warning (>= 4,5:1)', async () => {
+      // No claro warning.main (#C78C3D) reprova como texto; o tema expõe CSS vars; statusText.warning resolve para warnText (#885F27 no claro, coberto em themeContrast).
+      renderPanel({}, createAppTheme('light'));
+
+      const chip = await screen.findByTestId('chip-dimensao-ATIVO-PETR4');
+      expect(chip).toHaveStyle({ color: 'var(--fa-palette-statusText-warning)' });
+    });
+  });
+
   it('renderiza cada violação com chip da dimensão, real vs limite e excesso', async () => {
     renderPanel();
 

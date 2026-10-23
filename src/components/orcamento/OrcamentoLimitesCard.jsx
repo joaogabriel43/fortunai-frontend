@@ -27,6 +27,8 @@ import { extrairMensagemErroApi } from '../../utils/apiErrorUtils';
  */
 
 const STATUS_COLOR = { OK: 'success', ATENCAO: 'warning', ESTOURADO: 'error' };
+// Texto do chip outlined (a barra e a borda seguem STATUS_COLOR).
+const STATUS_TEXT = { OK: 'statusText.positive', ATENCAO: 'statusText.warning', ESTOURADO: 'statusText.negative' };
 const STATUS_LABEL = { OK: 'Dentro do limite', ATENCAO: 'Atenção', ESTOURADO: 'Estourado' };
 
 const parseValorBR = (texto) => {
@@ -151,6 +153,7 @@ const OrcamentoLimitesCard = () => {
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                     <Typography variant="body2" sx={{ fontWeight: 600 }}>{item.categoria}</Typography>
                     <Chip size="small" color={STATUS_COLOR[item.status]} variant="outlined"
+                          sx={{ color: STATUS_TEXT[item.status] }}
                           label={STATUS_LABEL[item.status]} />
                   </Box>
                   <LinearProgress variant="determinate" value={pct}
