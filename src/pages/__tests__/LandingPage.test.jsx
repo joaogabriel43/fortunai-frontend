@@ -85,6 +85,14 @@ describe('LandingPage — página pública de apresentação (ADR-039)', () => {
         expect(within(header).getByTestId('theme-toggle')).toBeInTheDocument()
     })
 
+    describe('regressão: placeholder "imagem em breve" exposto na landing pública', () => {
+        it('não renderiza o placeholder da prévia do dashboard', () => {
+            renderLanding()
+            expect(screen.queryByTestId('landing-placeholder-screenshot')).not.toBeInTheDocument()
+            expect(screen.queryByText(/imagem em breve/i)).not.toBeInTheDocument()
+        })
+    })
+
     describe('regressão: bloco de vídeo "em breve" exposto na landing pública', () => {
         it('não renderiza placeholder nem texto de vídeo de demonstração', () => {
             renderLanding()
