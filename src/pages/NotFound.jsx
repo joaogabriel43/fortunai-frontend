@@ -3,6 +3,8 @@ import { Box, Button, Typography } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import SearchOffIcon from '@mui/icons-material/SearchOff'
 import HomeIcon from '@mui/icons-material/Home'
+import Seo from '../components/Seo'
+import { PAGINAS } from '../seo/paginas'
 
 const NotFound = () => {
   const navigate = useNavigate()
@@ -23,6 +25,7 @@ const NotFound = () => {
         overflow: 'hidden',
       }}
     >
+      <Seo {...PAGINAS.naoEncontrada} />
       {/* Big faded 404 background number */}
       <Typography
         sx={{

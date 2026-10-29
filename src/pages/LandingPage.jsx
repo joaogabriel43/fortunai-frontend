@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
     Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Container,
@@ -18,6 +18,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import useInView from '../components/landing/useInView';
 import PublicHeader from '../components/public/PublicHeader';
+import Seo from '../components/Seo';
+import { PAGINAS } from '../seo/paginas';
 
 /**
  * Landing page pública v2 (ADR-039/ADR-042): scroll próprio (o app confina o
@@ -79,11 +81,6 @@ const Reveal = ({ children, delay = 0 }) => {
 const LandingPage = () => {
     const theme = useTheme();
 
-    useEffect(() => {
-        document.title = 'Pondero — Clareza para organizar suas finanças';
-        return () => { document.title = 'Pondero'; };
-    }, []);
-
     const irPara = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     return (
@@ -91,6 +88,7 @@ const LandingPage = () => {
             height: '100vh', overflowY: 'auto', overflowX: 'hidden',
             bgcolor: 'background.default', color: 'text.primary', scrollBehavior: 'smooth',
         }}>
+            <Seo {...PAGINAS.home} />
             <PublicHeader anchors={ANCORAS} onNavigateSection={irPara} />
 
             <Container maxWidth="lg" component="main">
