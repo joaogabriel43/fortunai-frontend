@@ -5,6 +5,14 @@ import { describe, it, expect } from 'vitest'
 
 const ler = (arquivo) => readFileSync(resolve(cwd(), arquivo), 'utf8')
 
+describe('index.html', () => {
+  it('não declara canonical nem og:url (o <Seo> emite por rota; um "/" fixo contradiria)', () => {
+    const html = ler('index.html')
+    expect(html).not.toMatch(/rel="canonical"/)
+    expect(html).not.toMatch(/property="og:url"/)
+  })
+})
+
 describe('sitemap.xml', () => {
   const xml = ler('public/sitemap.xml')
 

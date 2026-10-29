@@ -43,4 +43,17 @@ describe('regressão: links do rodapé da landing são âncoras reais', () => {
     expect(naoCancelado).toBe(false)
     expect(alvo.scrollIntoView).toHaveBeenCalledTimes(1)
   })
+
+  it.each([['ctrlKey'], ['metaKey'], ['shiftKey']])(
+    'clique com %s não é cancelado (deixa o navegador abrir nova aba/janela)',
+    (modificador) => {
+      renderLanding()
+      const alvo = document.getElementById('faq')
+      alvo.scrollIntoView = vi.fn()
+      const link = within(screen.getByTestId('landing-footer')).getByRole('link', { name: 'Perguntas frequentes' })
+      const naoCancelado = fireEvent.click(link, { [modificador]: true })
+      expect(naoCancelado).toBe(true)
+      expect(alvo.scrollIntoView).not.toHaveBeenCalled()
+    }
+  )
 })

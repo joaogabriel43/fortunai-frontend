@@ -12,6 +12,7 @@ import NotFound from '../pages/NotFound'
 import TermosUsoPage from '../pages/TermosUsoPage'
 import PoliticaPrivacidadePage from '../pages/PoliticaPrivacidadePage'
 import Seo from '../components/Seo'
+import { PAGINAS } from '../seo/paginas'
 
 vi.mock('../contexts/AuthContext', () => ({ useAuth: () => ({ login: vi.fn(), user: null }) }))
 vi.mock('../services/authService', () => ({ default: { registrar: vi.fn() } }))
@@ -91,7 +92,8 @@ describe('SEO por rota: título, canonical, og e robots', () => {
     await waitFor(() => expect(document.title).toBe(title))
     expect(conteudo('meta[property="og:title"]')).toBe(title)
     expect(conteudo('meta[name="twitter:title"]')).toBe(title)
-    expect(conteudo('meta[name="description"]')).toBeTruthy()
+    const esperada = Object.values(PAGINAS).find((p) => p.title === title).description
+    expect(conteudo('meta[name="description"]')).toBe(esperada)
     expect(conteudo('meta[property="og:description"]')).toBe(conteudo('meta[name="description"]'))
 
     if (canonical) {
@@ -110,11 +112,15 @@ describe('SEO por rota: título, canonical, og e robots', () => {
     }
   })
 
-  it('a landing usa um único título, igual ao do index.html, e não o troca ao desmontar', () => {
+  it('a landing usa o título único da home e, ao desmontar, devolve o padrão do index.html', () => {
+    document.head.insertAdjacentHTML('beforeend', `<title data-seo-default>${TITULO_HOME}</title>`)
     const { unmount } = renderNaRota(<LandingPage />)
+    expect(document.head.querySelectorAll('title')).toHaveLength(1)
     expect(document.title).toBe(TITULO_HOME)
     unmount()
-    expect(document.title).not.toBe('Pondero')
+    expect(document.head.querySelectorAll('title')).toHaveLength(1)
+    expect(document.title).toBe(TITULO_HOME)
+    document.head.querySelectorAll('[data-seo-default]').forEach((n) => n.remove())
   })
 })
 
@@ -150,6 +156,41 @@ describe('Seo — convivência com as tags padrão do index.html', () => {
     expect(meta('link[rel="canonical"]')).toBeNull()
     expect(meta('meta[property="og:url"]')).toBeNull()
     expect(conteudo('meta[name="robots"]')).toBe('noindex')
+  })
+
+  it('troca de rota (rerender com outro path) mantém 1 canonical e 1 título', () => {
+    const { rerender } = renderNaRota(<Seo path="/login" title="Entrar — Pondero" description="d" />)
+    rerender(
+      <ThemeProvider theme={theme}>
+        <MemoryRouter>
+          <Seo path="/registrar" title="Criar conta — Pondero" description="d" />
+        </MemoryRouter>
+      </ThemeProvider>
+    )
+    expect(document.head.querySelectorAll('link[rel="canonical"]')).toHaveLength(1)
+    expect(meta('link[rel="canonical"]').getAttribute('href')).toBe(`${SITE}/registrar`)
+    expect(document.head.querySelectorAll('title')).toHaveLength(1)
+    expect(document.title).toBe('Criar conta — Pondero')
+  })
+
+  it('sob StrictMode (mount, cleanup, mount) o estado final tem 1 canonical e 1 título', () => {
+    renderNaRota(
+      <React.StrictMode>
+        <Seo path="/termos" title="Termos de Uso — Pondero" description="d" />
+      </React.StrictMode>
+    )
+    expect(document.head.querySelectorAll('link[rel="canonical"]')).toHaveLength(1)
+    expect(meta('link[rel="canonical"]').getAttribute('href')).toBe(`${SITE}/termos`)
+    expect(document.head.querySelectorAll('title')).toHaveLength(1)
+    expect(document.title).toBe('Termos de Uso — Pondero')
+  })
+
+  it('dois <Seo> montados: desmontar o primeiro não devolve os padrões', () => {
+    const A = renderNaRota(<Seo path="/login" title="Entrar — Pondero" description="d" />)
+    renderNaRota(<Seo path="/registrar" title="Criar conta — Pondero" description="d" />)
+    A.unmount()
+    expect(document.head.querySelectorAll('[data-seo-default]')).toHaveLength(0)
+    expect(document.head.querySelectorAll('link[rel="canonical"]')).toHaveLength(1)
   })
 
   it('restaura os padrões ao desmontar, para rotas sem Seo próprio', () => {

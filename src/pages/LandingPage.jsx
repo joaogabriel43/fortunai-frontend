@@ -295,7 +295,7 @@ const LandingPage = () => {
                             ].map(([label, id]) => (
                                 // <a href> real: rastreável por crawlers e abre em nova aba; o clique ainda rola suave.
                                 <Link key={label} href={`#${id}`}
-                                    onClick={(e) => { e.preventDefault(); irPara(id); }} variant="body2"
+                                    onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); irPara(id); }} variant="body2"
                                     underline="hover" color="text.secondary" sx={{ display: 'block', mb: 0.75, textAlign: 'left' }}>
                                     {label}
                                 </Link>
