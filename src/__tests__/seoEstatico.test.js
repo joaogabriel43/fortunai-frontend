@@ -18,3 +18,15 @@ describe('sitemap.xml', () => {
     expect(ler('public/llms.txt')).not.toContain('/status')
   })
 })
+
+describe('JSON-LD do index.html', () => {
+  it('declara SoftwareApplication, Organization e WebSite do Pondero, sem FAQPage', () => {
+    const m = ler('index.html').match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)
+    const grafo = JSON.parse(m[1])['@graph']
+    expect(grafo.map((n) => n['@type']).sort()).toEqual(['Organization', 'SoftwareApplication', 'WebSite'])
+    const site = grafo.find((n) => n['@type'] === 'WebSite')
+    expect(site.name).toBe('Pondero')
+    expect(site.url).toBe('https://www.pondero.com.br/')
+    expect(grafo.find((n) => n['@type'] === 'Organization').name).toBe('Pondero')
+  })
+})

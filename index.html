@@ -26,13 +26,29 @@
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Pondero",
-        "url": "https://www.pondero.com.br/",
-        "description": "Organize orçamento, investimentos e IR em uma visão integrada, com análises, insights e simulações para decidir com mais clareza.",
-        "applicationCategory": "FinanceApplication",
-        "operatingSystem": "Web",
-        "inLanguage": "pt-BR"
+        "@graph": [
+          {
+            "@type": "SoftwareApplication",
+            "name": "Pondero",
+            "url": "https://www.pondero.com.br/",
+            "description": "Organize orçamento, investimentos e IR em uma visão integrada, com análises, insights e simulações para decidir com mais clareza.",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Web",
+            "inLanguage": "pt-BR"
+          },
+          {
+            "@type": "Organization",
+            "name": "Pondero",
+            "url": "https://www.pondero.com.br/",
+            "logo": "https://www.pondero.com.br/icons/pwa-512x512.png"
+          },
+          {
+            "@type": "WebSite",
+            "name": "Pondero",
+            "url": "https://www.pondero.com.br/",
+            "inLanguage": "pt-BR"
+          }
+        ]
       }
     </script>
     <meta name="theme-color" content="#09100E">
