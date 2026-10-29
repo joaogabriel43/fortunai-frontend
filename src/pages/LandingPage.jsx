@@ -288,12 +288,14 @@ const LandingPage = () => {
                         <Grid size={{ xs: 6, md: 4 }}>
                             <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Produto</Typography>
                             {[
-                                ['Recursos', () => irPara('recursos')],
-                                ['Como funciona', () => irPara('como-funciona')],
-                                ['Segurança', () => irPara('seguranca')],
-                                ['Perguntas frequentes', () => irPara('faq')],
-                            ].map(([label, acao]) => (
-                                <Link key={label} component="button" onClick={acao} variant="body2"
+                                ['Recursos', 'recursos'],
+                                ['Como funciona', 'como-funciona'],
+                                ['Segurança', 'seguranca'],
+                                ['Perguntas frequentes', 'faq'],
+                            ].map(([label, id]) => (
+                                // <a href> real: rastreável por crawlers e abre em nova aba; o clique ainda rola suave.
+                                <Link key={label} href={`#${id}`}
+                                    onClick={(e) => { e.preventDefault(); irPara(id); }} variant="body2"
                                     underline="hover" color="text.secondary" sx={{ display: 'block', mb: 0.75, textAlign: 'left' }}>
                                     {label}
                                 </Link>
