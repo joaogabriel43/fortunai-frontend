@@ -37,4 +37,10 @@ describe('JSON-LD do index.html', () => {
     expect(site.url).toBe('https://www.pondero.com.br/')
     expect(grafo.find((n) => n['@type'] === 'Organization').name).toBe('Pondero')
   })
+
+  it('Organization não declara logo enquanto não existir um logo oficial da marca Pondero', () => {
+    const m = ler('index.html').match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)
+    const org = JSON.parse(m[1])['@graph'].find((n) => n['@type'] === 'Organization')
+    expect(org).not.toHaveProperty('logo')
+  })
 })
