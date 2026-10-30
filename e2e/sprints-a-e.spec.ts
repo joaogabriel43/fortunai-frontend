@@ -103,9 +103,9 @@ test.describe('Sprint B — NFC-e Scanner', () => {
     await ctx.dispose()
   })
 
-  // ── API: importar sem autenticação → 403 ──────────────────────────────
+  // ── API: importar sem autenticação → 401 (403 é só 'sem permissão') ──────────────────────────
 
-  test('Sprint B-2 — POST /api/orcamento/nfce/importar sem auth → 403', async () => {
+  test('Sprint B-2 — POST /api/orcamento/nfce/importar sem auth → 401', async () => {
     const ctx = await playwrightRequest.newContext({ baseURL: BACKEND_URL })
     const res = await ctx.post('/api/orcamento/nfce/importar', {
       data: {
@@ -114,7 +114,8 @@ test.describe('Sprint B — NFC-e Scanner', () => {
         indicesItensSelecionados: [],
       },
     })
-    expect(res.status()).toBe(403)
+    expect(res.status()).toBe(401)
+    expect(res.headers()['www-authenticate']).toContain('Bearer')
     await ctx.dispose()
   })
 
@@ -312,9 +313,9 @@ test.describe('Sprint E — IR Investimentos', () => {
     await ctx.dispose()
   })
 
-  // ── API: POST operacao sem auth → 403 ─────────────────────────────────
+  // ── API: POST operacao sem auth → 401 (403 é só 'sem permissão') ──────────────────────────────
 
-  test('Sprint E-2 — POST /api/ir/operacao sem autenticação → 403', async () => {
+  test('Sprint E-2 — POST /api/ir/operacao sem autenticação → 401', async () => {
     const ctx = await playwrightRequest.newContext({ baseURL: BACKEND_URL })
     const res = await ctx.post('/api/ir/operacao', {
       data: {
@@ -323,7 +324,8 @@ test.describe('Sprint E — IR Investimentos', () => {
         dataOperacao: '2026-05-15',
       },
     })
-    expect(res.status()).toBe(403)
+    expect(res.status()).toBe(401)
+    expect(res.headers()['www-authenticate']).toContain('Bearer')
     await ctx.dispose()
   })
 
