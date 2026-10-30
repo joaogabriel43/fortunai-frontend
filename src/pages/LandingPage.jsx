@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
     Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Container,
@@ -18,6 +18,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import useInView from '../components/landing/useInView';
 import PublicHeader from '../components/public/PublicHeader';
+import Seo from '../components/Seo';
+import { PAGINAS } from '../seo/paginas';
 
 /**
  * Landing page pública v2 (ADR-039/ADR-042): scroll próprio (o app confina o
@@ -79,11 +81,6 @@ const Reveal = ({ children, delay = 0 }) => {
 const LandingPage = () => {
     const theme = useTheme();
 
-    useEffect(() => {
-        document.title = 'Pondero — Clareza para organizar suas finanças';
-        return () => { document.title = 'Pondero'; };
-    }, []);
-
     const irPara = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     return (
@@ -91,6 +88,7 @@ const LandingPage = () => {
             height: '100vh', overflowY: 'auto', overflowX: 'hidden',
             bgcolor: 'background.default', color: 'text.primary', scrollBehavior: 'smooth',
         }}>
+            <Seo {...PAGINAS.home} />
             <PublicHeader anchors={ANCORAS} onNavigateSection={irPara} />
 
             <Container maxWidth="lg" component="main">
@@ -290,12 +288,14 @@ const LandingPage = () => {
                         <Grid size={{ xs: 6, md: 4 }}>
                             <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Produto</Typography>
                             {[
-                                ['Recursos', () => irPara('recursos')],
-                                ['Como funciona', () => irPara('como-funciona')],
-                                ['Segurança', () => irPara('seguranca')],
-                                ['Perguntas frequentes', () => irPara('faq')],
-                            ].map(([label, acao]) => (
-                                <Link key={label} component="button" onClick={acao} variant="body2"
+                                ['Recursos', 'recursos'],
+                                ['Como funciona', 'como-funciona'],
+                                ['Segurança', 'seguranca'],
+                                ['Perguntas frequentes', 'faq'],
+                            ].map(([label, id]) => (
+                                // <a href> real: rastreável por crawlers e abre em nova aba; o clique ainda rola suave.
+                                <Link key={label} href={`#${id}`}
+                                    onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); irPara(id); }} variant="body2"
                                     underline="hover" color="text.secondary" sx={{ display: 'block', mb: 0.75, textAlign: 'left' }}>
                                     {label}
                                 </Link>

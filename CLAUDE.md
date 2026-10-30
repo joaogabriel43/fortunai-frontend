@@ -135,6 +135,12 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **Como travar**: teste que conta ocorrências (`getAllByText(/Lei Geral de Proteção de Dados \(LGPD\)/)` com `toHaveLength(1)`) e `queryByText(/100% em conformidade/i)` ausente. Cuidado: asserção `/100%/` solta casa com "100% virtuais" da seção de segurança.
 **Onde**: [LandingPage.jsx](src/pages/LandingPage.jsx), PR #4.
 
+### [2026-10-29] Padrão: SEO por rota em SPA sem prerender (`data-seo-default`)
+**O que é**: o `<Seo>` ([Seo.jsx](src/components/Seo.jsx)) emite `<title>`, description, og/twitter e canonical por rota com as tags nativas do React 19. As tags padrão do `index.html` levam `data-seo-default`; o `<Seo>` as remove do `<head>` enquanto há algum montado (contador de módulo) e as devolve quando o último desmonta. Rotas sem `<Seo>` (área logada) mantêm o título/description padrão.
+**Regra**: canonical e `og:url` NÃO vão no `index.html`. A Vercel serve o mesmo HTML para toda rota, então um canonical "/" no HTML bruto contradiz o de `/privacidade` etc. Páginas `noindex` omitem canonical e `og:url`.
+**Limite**: sem prerender, crawlers sem JS veem só os metadados da home em qualquer rota. Só o prerender resolve.
+**Travado por**: `seoPorRota.test.jsx` e `seoEstatico.test.js`.
+**Logo no JSON-LD**: `Organization` fica sem `logo` enquanto não houver logo oficial da Pondero (`/icons/pwa-512x512.png` é o ícone provisório do FortunAI).
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)
@@ -202,6 +208,11 @@ O `RateLimitingFilter` do backend limita `POST /api/auth/registrar` a **5 por ho
 **Se já commitou errado**: `git reset --soft HEAD~1; git reset` e recommitar com `-F` — nada do working tree se perde.
 **Quirk irmão, mesmo shell**: `npx eslint $(git diff --name-only <base>)` vira UM argumento só e falha com "No files matching the pattern". A forma correta é splatting: `$f = git diff --name-only <base>; npx eslint @f`.
 
+### [2026-10-29] Vitest no Windows: `--pool=forks` contra "Failed to start ... worker"
+O pool padrão às vezes falha ao subir workers com a suíte cheia. Rodar com `--maxWorkers=2 --pool=forks` (ou `--maxWorkers=1` nos arquivos afetados) resolve. Suíte completa: `--exclude 'finassistant-frontend/**' --exclude '.claude/**'`. Durou ~9 min em worktree.
+
+### [2026-10-29] Mensagem de commit sem BOM no PowerShell 5.1
+`Set-Content -Encoding utf8` e a ferramenta Write podem gravar BOM no arquivo da mensagem; o `git commit -F` então começa o assunto com `U+FEFF`. Gravar com `[System.IO.File]::WriteAllText($f, $txt, (New-Object System.Text.UTF8Encoding $false))` ou limpar com `sed -i '1s/^\xEF\xBB\xBF//'`. Complementa a regra de `git commit -F`.
 ### SW e arquivos estáticos de SEO
 O `navigateFallback` do Workbox serviria `index.html` para `/robots.txt`, `/sitemap.xml` e `/llms.txt`. O denylist em `vite.config.js` (`navigateFallbackDenylist`) impede isso; todo novo arquivo estático na raiz de `public/` precisa entrar nele.
 
@@ -234,3 +245,4 @@ O apex `pondero.com.br` responde 308 para `www`. Canonical, `og:*`, JSON-LD, sit
 - 2026-10-09: CI sem job de deploy (Vercel Git integration cuida do deploy) e domínio canônico alinhado para `www.pondero.com.br` — PR #3.
 - 2026-10-09: registrado em "Padrões do Projeto" o cherry-pick de copy de branch antiga (a main manda no texto de conformidade; sigla por extenso só na primeira menção restante, travada por teste) — lição do PR #4.
 - 2026-10-15: auditoria da estratégia de testes — registrados o "Protocolo de Correção de Bug" em "Padrões do Projeto", as Faixas 1 e 2 em "Próximos passos pendentes" (lint em arquivos alterados, Dependabot com limite e grupos, gitleaks com baseline, Schemathesis na Faixa 2 por causa do springdoc) e, em "Configurações do Ambiente", as notas do `gitleaks-action@v3` e do peer do `@fast-check/vitest`.
+- 2026-10-29: PR #14 (SEO por rota) — registrados o padrão data-seo-default com canonical/og:url fora do index.html, --pool=forks no Vitest e o cuidado com BOM em mensagem de commit.

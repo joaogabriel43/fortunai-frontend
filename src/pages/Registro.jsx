@@ -10,6 +10,8 @@ import { regrasSenha, senhaValida } from '../utils/senhaPolicy';
 import { extrairMensagemErroApi } from '../utils/apiErrorUtils';
 import PasswordField from '../components/PasswordField';
 import AuthPageLayout from '../components/public/AuthPageLayout';
+import Seo from '../components/Seo';
+import { PAGINAS } from '../seo/paginas';
 
 const VERSAO_TERMOS = '1.0';
 const VERSAO_PRIVACIDADE = '1.0';
@@ -79,6 +81,7 @@ const Registro = () => {
 
     return (
         <AuthPageLayout>
+            <Seo {...PAGINAS.registrar} />
             <Paper
                 sx={{
                     p: 4,

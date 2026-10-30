@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Box, CircularProgress, Typography } from '@mui/material'
+import Seo from '../components/Seo'
+import { PAGINAS } from '../seo/paginas'
 
 /**
  * Página pública da Política de Privacidade — rota /privacidade.
@@ -20,9 +22,12 @@ const PoliticaPrivacidadePage = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-        <CircularProgress />
-      </Box>
+      <>
+        <Seo {...PAGINAS.privacidade} />
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
+          <CircularProgress />
+        </Box>
+      </>
     )
   }
 
@@ -38,6 +43,7 @@ const PoliticaPrivacidadePage = () => {
         bgcolor: 'background.default',
       }}
     >
+      <Seo {...PAGINAS.privacidade} />
       <Box
         sx={{
           maxWidth: 800,

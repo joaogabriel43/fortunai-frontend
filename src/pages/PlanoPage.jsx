@@ -29,7 +29,7 @@ const FEATURES_PREMIUM = FEATURES_FREE.map(f => ({ ...f, incluido: true }))
 const FAQ = [
   {
     q: 'Como faço upgrade?',
-    a: 'Entre em contato por e-mail em contato@fortunai.app e nossa equipe ativa o Premium manualmente.',
+    a: 'Entre em contato por e-mail em contato@pondero.com.br e nossa equipe ativa o Premium manualmente.',
   },
   {
     q: 'Posso cancelar?',
@@ -161,7 +161,7 @@ const PlanoPage = () => {
               startIcon={<StarIcon />}
               onClick={() => {
                 if (!isPremium) {
-                  window.location.href = 'mailto:contato@fortunai.app?subject=Upgrade Premium Pondero'
+                  window.location.href = 'mailto:contato@pondero.com.br?subject=Upgrade Premium Pondero'
                 }
               }}
               sx={{

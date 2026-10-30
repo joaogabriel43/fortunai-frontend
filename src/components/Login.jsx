@@ -4,6 +4,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { logErroSeguro } from '../utils/apiErrorUtils';
 import PasswordField from './PasswordField';
 import AuthPageLayout from './public/AuthPageLayout';
+import Seo from './Seo';
+import { PAGINAS } from '../seo/paginas';
 
 const inputSx = (theme) => ({
   '& .MuiOutlinedInput-root': {
@@ -57,6 +59,7 @@ const Login = () => {
 
   return (
     <AuthPageLayout>
+      <Seo {...PAGINAS.login} />
       <Paper
         sx={{
           p: 4,

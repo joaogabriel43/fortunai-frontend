@@ -11,6 +11,8 @@ import ChatBubbleIcon from '@mui/icons-material/ChatBubble'
 import ReceiptIcon from '@mui/icons-material/Receipt'
 import { useStatusPage } from '../hooks/useStatusPage'
 import { useMetricas } from '../hooks/useMetricas'
+import Seo from '../components/Seo'
+import { PAGINAS } from '../seo/paginas'
 
 const statusConfig = {
   OPERACIONAL: { color: 'success', icon: <CheckCircleIcon />, label: 'Operacional' },
@@ -45,6 +47,7 @@ const StatusPage = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', p: { xs: 2, md: 4 } }}>
+      <Seo {...PAGINAS.status} />
       <Box sx={{ maxWidth: 800, mx: 'auto' }}>
         <Button
           startIcon={<ArrowBackIcon />}
