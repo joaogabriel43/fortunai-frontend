@@ -11,6 +11,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import GroupOutlinedIcon from '@mui/icons-material/GroupOutlined';
+import { COMPARTILHAMENTO_HABILITADO } from '../config/features';
 import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import CreditCardOffOutlinedIcon from '@mui/icons-material/CreditCardOffOutlined';
@@ -34,7 +35,9 @@ const FEATURES = [
     { icon: ShowChartIcon, titulo: 'Carteira e análises', texto: 'Acompanhe carteira, setores, correlação, simulações de alocação e metodologias de preço-teto em uma visão organizada.' },
     { icon: ReceiptLongOutlinedIcon, titulo: 'IR da bolsa sem susto', texto: 'Apuração mensal com isenção de R$ 20 mil, compensação de prejuízos, DARF pronto e relatório anual para a declaração.' },
     { icon: QrCodeScannerIcon, titulo: 'Scanner de notas fiscais', texto: 'Aponte para o QR Code da NF-e e os itens entram categorizados no seu orçamento.' },
-    { icon: GroupOutlinedIcon, titulo: 'Orçamento a dois', texto: 'Compartilhe as finanças com quem divide a vida com você — visão unificada, contas separadas.' },
+    ...(COMPARTILHAMENTO_HABILITADO
+        ? [{ icon: GroupOutlinedIcon, titulo: 'Orçamento a dois', texto: 'Compartilhe as finanças com quem divide a vida com você — visão unificada, contas separadas.' }]
+        : []),
 ];
 
 const STATS = [

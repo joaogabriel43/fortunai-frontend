@@ -19,7 +19,6 @@ Pondero é um aplicativo web. A área logada (dashboard, chat, orçamento, inves
 - Carteira e análises: acompanhamento de carteira, setores, correlação, simulações de alocação e metodologias de preço-teto.
 - IR da bolsa: apuração mensal com isenção de R$ 20 mil, compensação de prejuízos, DARF e relatório anual para a declaração.
 - Scanner de notas fiscais: leitura do QR Code da NF-e com itens categorizados no orçamento.
-- Orçamento a dois: compartilhamento das finanças entre pessoas, com visão unificada e contas separadas.
 
 ## Observações
 
