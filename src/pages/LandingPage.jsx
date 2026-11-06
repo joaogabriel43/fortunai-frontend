@@ -2,7 +2,7 @@ import React from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
     Accordion, AccordionDetails, AccordionSummary, Box, Button, Chip, Container,
-    Divider, Grid, IconButton, Link, Paper, Typography,
+    Divider, Grid, Link, Paper, Typography,
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
@@ -15,7 +15,6 @@ import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import CreditCardOffOutlinedIcon from '@mui/icons-material/CreditCardOffOutlined';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import GitHubIcon from '@mui/icons-material/GitHub';
 import useInView from '../components/landing/useInView';
 import PublicHeader from '../components/public/PublicHeader';
 import Seo from '../components/Seo';
@@ -278,12 +277,8 @@ const LandingPage = () => {
                                 Plataforma de organização financeira que integra orçamento,
                                 investimentos e IR em um só lugar.
                             </Typography>
-                            <Box sx={{ display: 'flex', gap: 0.5 }}>
-                                <IconButton size="small" aria-label="GitHub do Pondero"
-                                    component="a" href="https://github.com/joaogabriel43/fortunai-frontend" target="_blank" rel="noopener noreferrer">
-                                    <GitHubIcon fontSize="small" />
-                                </IconButton>
-                            </Box>
+                            {/* Link do GitHub removido: apontava para o repo "fortunai-frontend" (nome antigo).
+                                Voltar quando existir um repositório público com o nome Pondero. */}
                         </Grid>
                         <Grid size={{ xs: 6, md: 4 }}>
                             <Typography variant="subtitle2" fontWeight={700} sx={{ mb: 1.5 }}>Produto</Typography>
