@@ -140,7 +140,7 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **Regra**: canonical e `og:url` NÃO vão no `index.html`. A Vercel serve o mesmo HTML para toda rota, então um canonical "/" no HTML bruto contradiz o de `/privacidade` etc. Páginas `noindex` omitem canonical e `og:url`.
 **Limite**: sem prerender, crawlers sem JS veem só os metadados da home em qualquer rota. Só o prerender resolve.
 **Travado por**: `seoPorRota.test.jsx` e `seoEstatico.test.js`.
-**Logo no JSON-LD**: `Organization` fica sem `logo` enquanto não houver logo oficial da Pondero (`/icons/pwa-512x512.png` é o ícone provisório do FortunAI).
+**Logo no JSON-LD**: `Organization` fica sem `logo` enquanto não houver logo oficial da Pondero (`/icons/pwa-512x512.png` é o ícone provisório "P" do Pondero, gerado por `scripts/generate-icons.js` — não é logo oficial).
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)
@@ -246,3 +246,4 @@ O apex `pondero.com.br` responde 308 para `www`. Canonical, `og:*`, JSON-LD, sit
 - 2026-10-09: registrado em "Padrões do Projeto" o cherry-pick de copy de branch antiga (a main manda no texto de conformidade; sigla por extenso só na primeira menção restante, travada por teste) — lição do PR #4.
 - 2026-10-15: auditoria da estratégia de testes — registrados o "Protocolo de Correção de Bug" em "Padrões do Projeto", as Faixas 1 e 2 em "Próximos passos pendentes" (lint em arquivos alterados, Dependabot com limite e grupos, gitleaks com baseline, Schemathesis na Faixa 2 por causa do springdoc) e, em "Configurações do Ambiente", as notas do `gitleaks-action@v3` e do peer do `@fast-check/vitest`.
 - 2026-10-29: PR #14 (SEO por rota) — registrados o padrão data-seo-default com canonical/og:url fora do index.html, --pool=forks no Vitest e o cuidado com BOM em mensagem de commit.
+- 2026-11-06: identidade visual provisória — favicon, ícones do PWA e apple-touch-icon agora são o "P" do Pondero gerado por `scripts/generate-icons.js` (tokens de `theme.js`); `vite.svg` removido; travado por `identidadeVisual.test.js`.
