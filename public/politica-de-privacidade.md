@@ -33,7 +33,7 @@ Canal de privacidade (contato do Encarregado de Dados): privacidade@pondero.com.
 
 ### 2.3 Dados Técnicos
 - Endereço IP, registrado (i) no momento do consentimento, para auditoria, e (ii) nas requisições ao serviço, para segurança e para o limite de uso (controle de excesso de requisições)
-- Logs de acesso (por até 90 dias)
+- Logs técnicos de acesso e de segurança, mantidos pelo tempo necessário à operação e à segurança, sem prazo fixo prometido (a retenção será definida e informada aqui)
 - Preferências de interface
 
 ## 3. Finalidade do Tratamento
@@ -53,8 +53,10 @@ Seus dados **não são vendidos** a terceiros. Compartilhamos apenas com:
 - **Google Gemini (Google LLC)**: as mensagens que você envia ao chat e as imagens de comprovantes que você envia são transmitidas ao Google Gemini para que sejam interpretadas (entendimento da mensagem e extração de dados do comprovante). Esse conteúdo pode incluir informações financeiras e pessoais que você mesmo digitar ou que constem na imagem; evite enviar o que não deseja compartilhar com esse fornecedor. O tratamento pelo Google pode ocorrer fora do Brasil (LGPD, art. 33)
 - **Alpha Vantage/BRAPI**: busca de cotações (sem dados do usuário)
 - **Cloudinary**: armazenamento de foto de perfil
-- **Render**: infraestrutura de hospedagem do backend
-- **Neon**: banco de dados PostgreSQL gerenciado
+- **Cloudflare**: operador de rede — o tráfego entre você e o serviço passa pela Cloudflare (proxy/túnel)
+- **Vercel**: operador de hospedagem do site (interface web)
+
+O backend e o banco de dados rodam em servidor próprio do controlador, no Brasil.
 
 ## 5. Seus Direitos (LGPD Art. 18)
 
@@ -79,7 +81,7 @@ Adotamos medidas técnicas para proteção dos dados:
 
 - Dados de conta: mantidos enquanto a conta existir
 - Após exclusão da conta: removidos imediatamente via DELETE CASCADE
-- Logs de acesso: retidos conforme a política padrão da infraestrutura de hospedagem, sem prazo fixo definido no código da aplicação.
+- Logs técnicos: mantidos pelo tempo necessário à operação e à segurança, sem prazo fixo prometido até a definição da retenção.
 
 ## 8. Cookies e Rastreamento
 

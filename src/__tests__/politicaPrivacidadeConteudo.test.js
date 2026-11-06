@@ -25,6 +25,27 @@ describe('política de privacidade (rascunho): transparência sobre Gemini e IP'
     expect(secao23).toMatch(/limite de uso/)
   })
 
+  describe('regressão: infraestrutura descrita na política bate com a real', () => {
+    const secao4 = politica.slice(politica.indexOf('## 4. Compartilhamento'), politica.indexOf('## 5.'))
+
+    it('não lista Render nem Neon (desativados em 10/09/2026)', () => {
+      expect(politica).not.toMatch(/\bRender\b/)
+      expect(politica).not.toMatch(/\bNeon\b/)
+    })
+
+    it('lista Cloudflare e Vercel como operadores e diz que backend e banco rodam em servidor próprio no Brasil', () => {
+      expect(secao4).toMatch(/\*\*Cloudflare\*\*/)
+      expect(secao4).toMatch(/\*\*Vercel\*\*/)
+      expect(secao4).toMatch(/servidor próprio[^.\n]*Brasil/)
+    })
+
+    it('não promete prazo fixo de retenção de logs (até 90 dias removido)', () => {
+      expect(politica).not.toMatch(/90 dias/)
+      const secao23 = politica.slice(politica.indexOf('### 2.3'), politica.indexOf('## 3.'))
+      expect(secao23).toMatch(/pelo tempo necessário à operação e à segurança, sem prazo fixo/)
+    })
+  })
+
   it('NÃO afirma criptografia em repouso (só "em trânsito" e hash de senha)', () => {
     expect(politica).not.toMatch(/em repouso/i)
     expect(politica).not.toMatch(/at rest/i)
