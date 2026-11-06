@@ -74,9 +74,11 @@ describe('LandingPage — página pública de apresentação (ADR-039)', () => {
         expect(screen.getByText('Política de Privacidade')).toHaveAttribute('href', '/privacidade')
     })
 
-    it('mostra as 6 features', () => {
+    // 5 e não 6: o card "Orçamento a dois" está escondido por COMPARTILHAMENTO_HABILITADO=false
+    // (src/config/features.js) até o convite funcionar. Ao ligar a flag, este número volta a 6.
+    it('mostra as 5 features (Orçamento a dois escondido)', () => {
         renderLanding()
-        expect(screen.getAllByTestId('landing-feature-card')).toHaveLength(6)
+        expect(screen.getAllByTestId('landing-feature-card')).toHaveLength(5)
     })
 
     it('oferece o alternador de tema no header público da landing', () => {
@@ -105,7 +107,7 @@ describe('LandingPage — página pública de apresentação (ADR-039)', () => {
         // sem mock de api: se algum fetch/api fosse chamado, o import real de axios
         // dispararia rede no jsdom e o teste falharia por unhandled rejection
         renderLanding()
-        expect(screen.getAllByTestId('landing-feature-card')).toHaveLength(6)
+        expect(screen.getAllByTestId('landing-feature-card')).toHaveLength(5)
     })
 })
 
