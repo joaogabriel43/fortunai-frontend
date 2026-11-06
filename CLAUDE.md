@@ -135,6 +135,16 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **Como travar**: teste que conta ocorrências (`getAllByText(/Lei Geral de Proteção de Dados \(LGPD\)/)` com `toHaveLength(1)`) e `queryByText(/100% em conformidade/i)` ausente. Cuidado: asserção `/100%/` solta casa com "100% virtuais" da seção de segurança.
 **Onde**: [LandingPage.jsx](src/pages/LandingPage.jsx), PR #4.
 
+### [2026-11-06] Padrão: ícones provisórios do Pondero são gerados por código
+**O que é**: favicon (`public/favicon.svg`), ícones do PWA e `apple-touch-icon` são o "P" do Pondero gerado por [generate-icons.js](scripts/generate-icons.js) (path SVG com as cores do tema escuro, rasterizado com `sharp`; o "P" é path, não `<text>`, para não depender de fonte instalada).
+**Regra**: para mudar o ícone, editar o script e rodar `node scripts/generate-icons.js` — nunca trocar os PNGs à mão. O ícone de 512 é `maskable`: o "P" tem de ficar dentro da zona segura. Quando houver logo oficial, é o script (ou os arquivos) que sai.
+**Travado por**: `identidadeVisual.test.js`.
+
+### [2026-11-06] Padrão: feature flag em `src/config/features.js`
+**O que é**: funcionalidade escondida até ficar pronta tem uma constante em [features.js](src/config/features.js) (hoje `COMPARTILHAMENTO_HABILITADO = false`), com o passo de reversão em comentário no próprio arquivo.
+**Como testar**: a landing monta a lista de cards no carregamento do módulo, então o teste do estado oposto usa `vi.resetModules()` + `vi.doMock('../config/features', ...)` + `import()` dinâmico do componente. Trocar a flag não reexecuta o módulo já importado.
+**Travado por**: `compartilhamentoOculto.test.jsx`.
+
 ### [2026-10-29] Padrão: SEO por rota em SPA sem prerender (`data-seo-default`)
 **O que é**: o `<Seo>` ([Seo.jsx](src/components/Seo.jsx)) emite `<title>`, description, og/twitter e canonical por rota com as tags nativas do React 19. As tags padrão do `index.html` levam `data-seo-default`; o `<Seo>` as remove do `<head>` enquanto há algum montado (contador de módulo) e as devolve quando o último desmonta. Rotas sem `<Seo>` (área logada) mantêm o título/description padrão.
 **Regra**: canonical e `og:url` NÃO vão no `index.html`. A Vercel serve o mesmo HTML para toda rota, então um canonical "/" no HTML bruto contradiz o de `/privacidade` etc. Páginas `noindex` omitem canonical e `og:url`.
@@ -186,6 +196,15 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 ### [2026-09-18] Erro: guard de "sem script inline" reprova o JSON-LD
 **O que aconteceu**: o `cspConfig.test.js` reprova qualquer `<script>` sem `src`, e o JSON-LD exigido para SEO é justamente um script inline.
 **Como prevenir**: o guard ignora só `type="application/ld+json"`, que é dado e não executa. Qualquer outro script inline continua barrado, e o CSP não ganha `unsafe-inline`. Regra geral: ao adicionar tag nova em `index.html`, rodar `cspConfig.test.js` antes de commitar.
+
+### [2026-11-06] Erro: arquivo estático em `public/` não lê a feature flag
+**O que aconteceu**: ao esconder o "Orçamento a dois", a flag tirou o card da landing, mas `public/llms.txt` — estático — continuaria anunciando a função a crawlers e a assistentes de IA.
+**Como prevenir**: esconder funcionalidade = editar a flag **e** varrer `public/` (`llms.txt`, sitemap, textos legais) atrás da menção. O comentário de [features.js](src/config/features.js) lista a linha a recolocar na reversão; `compartilhamentoOculto.test.jsx` lê o `llms.txt` com `?raw` e falha se a menção voltar.
+
+### [2026-11-06] Erro: política de privacidade descrevendo infraestrutura que já não existe
+**O que aconteceu**: o rascunho listava Render e Neon como operadores e prometia "logs por até 90 dias". Render/Neon estão desativados desde 10/09/2026; o 90 dias nunca foi definido.
+**Infraestrutura real**: backend e PostgreSQL em servidor próprio do controlador, no Brasil; tráfego pela Cloudflare (proxy/túnel); site na Vercel. Retenção de logs técnicos **sem prazo prometido** até o responsável definir.
+**Como prevenir**: ao tocar `public/politica-de-privacidade.md`, conferir cada operador citado contra a infraestrutura de "Estado Atual" e não prometer prazo/garantia que o código não implementa (criptografia em repouso, retenção). Travado por `politicaPrivacidadeConteudo.test.js`. Pendente de revisão jurídica: transferência internacional (LGPD art. 33) por Cloudflare/Vercel/Google e nova versão/consentimento.
 
 ## Configurações do Ambiente
 
@@ -247,3 +266,4 @@ O apex `pondero.com.br` responde 308 para `www`. Canonical, `og:*`, JSON-LD, sit
 - 2026-10-15: auditoria da estratégia de testes — registrados o "Protocolo de Correção de Bug" em "Padrões do Projeto", as Faixas 1 e 2 em "Próximos passos pendentes" (lint em arquivos alterados, Dependabot com limite e grupos, gitleaks com baseline, Schemathesis na Faixa 2 por causa do springdoc) e, em "Configurações do Ambiente", as notas do `gitleaks-action@v3` e do peer do `@fast-check/vitest`.
 - 2026-10-29: PR #14 (SEO por rota) — registrados o padrão data-seo-default com canonical/og:url fora do index.html, --pool=forks no Vitest e o cuidado com BOM em mensagem de commit.
 - 2026-11-06: identidade visual provisória — favicon, ícones do PWA e apple-touch-icon agora são o "P" do Pondero gerado por `scripts/generate-icons.js` (tokens de `theme.js`); `vite.svg` removido; travado por `identidadeVisual.test.js`.
+- 2026-11-06: rodada branding/privacidade (PRs #18–#21) — registrados em "Padrões do Projeto" os ícones gerados por `scripts/generate-icons.js` e a feature flag de `features.js` (como testar com `vi.resetModules` + `vi.doMock`), e em "Erros Conhecidos" o arquivo estático que não lê a flag (`llms.txt`) e a política de privacidade com infraestrutura desatualizada.
