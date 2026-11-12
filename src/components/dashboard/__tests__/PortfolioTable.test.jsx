@@ -108,3 +108,25 @@ describe('PortfolioTable — ações por linha', () => {
     expect(precoMedio).toHaveStyle({ fontFamily: theme.typography.fontFamilyMono });
   });
 });
+
+describe('PortfolioTable — quantidade fracionária (V16, numeric 38,8)', () => {
+  it('exibe 0,25 / 1,5 / 0,00012345 / 100 em pt-BR, sem arredondar para 0', async () => {
+    api.get.mockResolvedValue({
+      data: [
+        { ticker: 'TESOURO', tipoAtivo: 'RENDA_FIXA', quantidade: 0.25, precoMedio: 100, totalAtual: 25, lucroPrejuizo: 0 },
+        { ticker: 'BEN', tipoAtivo: 'ACAO', quantidade: 1.5, precoMedio: 10, totalAtual: 15, lucroPrejuizo: 0 },
+        { ticker: 'BTC', tipoAtivo: 'CRIPTOMOEDA', quantidade: 0.00012345, precoMedio: 1, totalAtual: 1, lucroPrejuizo: 0 },
+        { ticker: 'PETR4', tipoAtivo: 'ACAO', quantidade: 100, precoMedio: 1, totalAtual: 100, lucroPrejuizo: 0 },
+      ],
+    });
+    renderTable();
+
+    const celulaQtd = async (t) =>
+      (await screen.findByTestId(`portfolio-row-${t}`)).querySelectorAll('td')[2].textContent;
+
+    expect(await celulaQtd('TESOURO')).toBe('0,25');
+    expect(await celulaQtd('BEN')).toBe('1,5');
+    expect(await celulaQtd('BTC')).toBe('0,00012345');
+    expect(await celulaQtd('PETR4')).toBe('100');
+  });
+});

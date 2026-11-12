@@ -19,7 +19,7 @@ import { useTheme } from '@mui/material/styles';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import SellIcon from '@mui/icons-material/Sell';
-import { formatBRL } from '../ui';
+import { formatBRL, formatQuantidade } from '../ui';
 import { logErroSeguro } from '../../utils/apiErrorUtils';
 
 const PortfolioTable = ({
@@ -124,7 +124,7 @@ const PortfolioTable = ({
                             >
                                 <TableCell sx={{ fontWeight: 600 }}>{ativo.ticker}</TableCell>
                                 <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>{ativo.tipoAtivo || '—'}</TableCell>
-                                <TableCell align="right">{ativo.quantidade}</TableCell>
+                                <TableCell align="right">{formatQuantidade(ativo.quantidade)}</TableCell>
                                 <TableCell align="right" sx={monoSx}>{formatBRL(ativo.precoMedio)}</TableCell>
                                 <TableCell align="right" sx={monoSx}>{formatBRL(ativo.totalAtual)}</TableCell>
                                 <TableCell
