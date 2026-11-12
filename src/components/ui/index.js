@@ -32,3 +32,12 @@ export const formatBRLShort = (value) =>
     notation: 'compact',
     maximumFractionDigits: 1,
   }).format(value ?? 0);
+
+/**
+ * Quantidade de ativo em pt-BR: até 8 casas (coluna numeric(38,8), V16),
+ * sem zeros à direita (0,25 / 1,5 / 0,00012345 / 100).
+ * @param {number|string|null|undefined} value
+ * @returns {string}
+ */
+export const formatQuantidade = (value) =>
+  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 8 }).format(Number(value ?? 0));
