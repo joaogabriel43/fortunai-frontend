@@ -28,18 +28,19 @@ Canal de privacidade (contato do Encarregado de Dados): privacidade@pondero.com.
 - Transações de receitas e despesas inseridas pelo usuário
 - Ativos de investimento (tickers, quantidades, preços)
 - Metas financeiras configuradas
-- Dados do histórico de chat com o assistente
+- Mensagens enviadas ao assistente e o histórico do chat
+- Imagens de comprovantes (por exemplo, notas e recibos) enviadas por você para extração de dados
 
 ### 2.3 Dados Técnicos
-- Endereço IP (coletado no momento do consentimento, para auditoria)
-- Logs de acesso (por até 90 dias)
+- Endereço IP, registrado (i) no momento do consentimento, para auditoria, e (ii) nas requisições ao serviço, para segurança e para o limite de uso (controle de excesso de requisições)
+- Logs técnicos de acesso e de segurança, mantidos pelo tempo necessário à operação e à segurança, sem prazo fixo prometido (a retenção será definida e informada aqui)
 - Preferências de interface
 
 ## 3. Finalidade do Tratamento
 
 Seus dados são utilizados para:
 - **Prestação do serviço**: funcionar o assistente financeiro pessoal
-- **Segurança**: autenticação e prevenção de fraudes
+- **Segurança**: autenticação, prevenção de fraudes e limite de uso (registro do endereço IP)
 - **Melhoria do produto**: análise agregada e anônima de uso
 - **Comunicação**: envio de digest semanal (se habilitado)
 - **Conformidade legal**: cumprimento de obrigações regulatórias
@@ -49,11 +50,13 @@ Seus dados são utilizados para:
 ## 4. Compartilhamento de Dados
 
 Seus dados **não são vendidos** a terceiros. Compartilhamos apenas com:
-- **Google Gemini**: mensagens do chat para processamento de linguagem natural (sem dados sensíveis)
+- **Google Gemini (Google LLC)**: as mensagens que você envia ao chat e as imagens de comprovantes que você envia são transmitidas ao Google Gemini para que sejam interpretadas (entendimento da mensagem e extração de dados do comprovante). Esse conteúdo pode incluir informações financeiras e pessoais que você mesmo digitar ou que constem na imagem; evite enviar o que não deseja compartilhar com esse fornecedor. O tratamento pelo Google pode ocorrer fora do Brasil (LGPD, art. 33)
 - **Alpha Vantage/BRAPI**: busca de cotações (sem dados do usuário)
 - **Cloudinary**: armazenamento de foto de perfil
-- **Render**: infraestrutura de hospedagem do backend
-- **Neon**: banco de dados PostgreSQL gerenciado
+- **Cloudflare**: operador de rede — o tráfego entre você e o serviço passa pela Cloudflare (proxy/túnel)
+- **Vercel**: operador de hospedagem do site (interface web)
+
+O backend e o banco de dados rodam em servidor próprio do controlador, no Brasil.
 
 ## 5. Seus Direitos (LGPD Art. 18)
 
@@ -78,7 +81,7 @@ Adotamos medidas técnicas para proteção dos dados:
 
 - Dados de conta: mantidos enquanto a conta existir
 - Após exclusão da conta: removidos imediatamente via DELETE CASCADE
-- Logs de acesso: retidos conforme a política padrão da infraestrutura de hospedagem, sem prazo fixo definido no código da aplicação.
+- Logs técnicos: mantidos pelo tempo necessário à operação e à segurança, sem prazo fixo prometido até a definição da retenção.
 
 ## 8. Cookies e Rastreamento
 
