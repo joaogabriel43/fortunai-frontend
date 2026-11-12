@@ -27,6 +27,7 @@ import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 import { MesOrcamentoProvider, useMesOrcamento } from '../contexts/MesOrcamentoContext';
 import { formatarDataLocal } from '../utils/dateUtils';
+import { pageContainerSx } from '../constants/layout';
 
 // Exporta o mês de referência da página (MesOrcamentoContext): um único
 // seletor de mês no Orçamento, sem estado de período próprio aqui.
@@ -159,7 +160,7 @@ const Orcamento = () => {
 
     return (
         <MesOrcamentoProvider>
-        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
+        <Box sx={pageContainerSx}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1 }}>
                 <Typography variant="h5" sx={{ fontWeight: 700 }}>
                     Painel de Orçamento

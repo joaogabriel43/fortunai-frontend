@@ -6,6 +6,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete'
 import { useMetas } from '../hooks/useMetas'
 import { formatarDataLocal } from '../utils/dateUtils'
+import { pageContainerSx } from '../constants/layout'
 
 const formatBRL = (v) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v ?? 0)
@@ -87,7 +88,7 @@ const Metas = () => {
   }
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
+    <Box sx={pageContainerSx}>
       <Typography variant="h5" sx={{ mb: 3, fontWeight: 700 }}>
         Metas Financeiras
       </Typography>

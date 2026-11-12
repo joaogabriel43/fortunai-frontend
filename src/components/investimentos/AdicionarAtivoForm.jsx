@@ -103,7 +103,7 @@ const AdicionarAtivoForm = ({ onAtivoAdicionado }) => {
     return (
         <Box component="form" onSubmit={handleSubmit} noValidate data-testid="adicionar-ativo-form">
             <Grid container spacing={2}>
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3, xl: 2 }}>
                     <TextField
                         label="Ticker"
                         size="small"
@@ -116,7 +116,7 @@ const AdicionarAtivoForm = ({ onAtivoAdicionado }) => {
                     />
                 </Grid>
 
-                <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+                <Grid size={{ xs: 12, sm: 6, md: 3, xl: 3 }}>
                     <FormControl size="small" fullWidth>
                         <InputLabel id="tipo-ativo-label">Tipo</InputLabel>
                         <Select
@@ -151,7 +151,7 @@ const AdicionarAtivoForm = ({ onAtivoAdicionado }) => {
                     />
                 </Grid>
 
-                <Grid size={{ xs: 12, sm: 4, md: 2 }}>
+                <Grid size={{ xs: 12, sm: 4, md: 2, xl: 3 }}>
                     <TextField
                         label="Preço de compra (R$)"
                         type="number"
