@@ -25,6 +25,7 @@ import { useExportacao } from '../hooks/useExportacao';
 import api from '../services/api';
 import { mesclarOrdem, moverCard } from '../utils/ordemCards';
 import { logErroSeguro } from '../utils/apiErrorUtils';
+import { pageContainerSx } from '../constants/layout';
 import {
     Box,
     Button,
@@ -79,11 +80,11 @@ const ABAS = [
  */
 const CARDS = [
     {
-        id: 'alocacao-ativos', aba: 'carteira', titulo: 'Alocação por Tipo de Ativo', md: 5,
+        id: 'alocacao-ativos', aba: 'carteira', titulo: 'Alocação por Tipo de Ativo', xl: 4,
         render: (ctx) => <AlocacaoAtivosChart refreshKey={ctx.refreshKey} />,
     },
     {
-        id: 'portfolio', aba: 'carteira', titulo: 'Meu Portfólio', md: 7,
+        id: 'portfolio', aba: 'carteira', titulo: 'Meu Portfólio', xl: 8,
         render: (ctx) => (
             <PortfolioTable
                 onSellRequest={ctx.handleOpenSellModal}
@@ -339,7 +340,7 @@ const Investimentos = () => {
     };
 
     return (
-        <Box sx={{ width: '100%', maxWidth: 1200, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
+        <Box sx={pageContainerSx}>
 
             {/* LINHA 1 — Header */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
@@ -455,7 +456,7 @@ const Investimentos = () => {
             {/* Cards da aba ativa, na ordem do usuário */}
             <Grid container spacing={3}>
                 {cardsDaAba.map((card, posNaAba) => (
-                    <Grid key={card.id} size={{ xs: 12, md: card.md ?? 12 }}>
+                    <Grid key={card.id} size={{ xs: 12, xl: card.xl ?? 12 }}>
                         <Paper sx={cardStyle} id={card.domId} data-testid={`card-${card.id}`}>
                             {(editLayout || TITULO_NO_PAPER.has(card.id)) && (
                                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>

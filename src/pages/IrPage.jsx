@@ -21,6 +21,7 @@ import { useAuth } from '../contexts/AuthContext';
 import usePlano from '../hooks/usePlano';
 import useIr from '../hooks/useIr';
 import { hojeLocal } from '../utils/dateUtils';
+import { pageContainerSx } from '../constants/layout';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
@@ -519,7 +520,7 @@ const IrPage = () => {
   };
 
   return (
-    <Box sx={{ width: '100%', maxWidth: 1100, mx: 'auto', px: { xs: 1.5, md: 3 }, py: 2 }}>
+    <Box sx={pageContainerSx}>
 
       {/* Header */}
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between',
