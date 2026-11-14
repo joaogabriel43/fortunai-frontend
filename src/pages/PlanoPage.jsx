@@ -1,16 +1,19 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   Box, Typography, Card, CardContent, Chip, Button, Divider,
   List, ListItem, ListItemIcon, ListItemText, Accordion,
-  AccordionSummary, AccordionDetails,
+  AccordionSummary, AccordionDetails, Alert, CircularProgress,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import StarIcon from '@mui/icons-material/Star'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { useNavigate } from 'react-router-dom'
 import usePlano from '../hooks/usePlano'
+import { PAGAMENTOS_HABILITADOS } from '../config/features'
+import {
+  assinaturaService, CICLOS, isCheckoutUrlConfiavel, motivoErroAssinatura,
+} from '../services/assinaturaService'
 
 const FEATURES_FREE = [
   { texto: 'Orçamento ilimitado', incluido: true },
@@ -41,11 +44,93 @@ const FAQ = [
   },
 ]
 
+// Com PAGAMENTOS_HABILITADOS (ADR-073): o upgrade passa pelo Mercado Pago.
+const FAQ_PAGAMENTO = [
+  {
+    q: 'Como faço upgrade?',
+    a: 'Escolha o plano mensal (cartão de crédito) ou o anual (Pix ou cartão). Você conclui o pagamento no Mercado Pago, e o Premium é liberado assim que o pagamento for confirmado.',
+  },
+  {
+    q: 'Posso cancelar?',
+    a: 'Sim, em Configurações > Conta. No plano mensal, o acesso continua até o fim do período já pago. Até 7 dias depois do primeiro pagamento, você pode desistir e receber o valor de volta (direito de arrependimento).',
+  },
+  {
+    q: 'Meus dados de cartão ficam com a Pondero?',
+    a: 'Não. O pagamento é feito no ambiente do Mercado Pago; a Pondero não recebe nem guarda dados de cartão.',
+  },
+  FAQ[2],
+]
+
+const MENSAGEM_ERRO_ASSINATURA = {
+  desabilitado: 'A assinatura está indisponível no momento. Tente novamente mais tarde.',
+  conflito: 'Você já tem uma assinatura em vigor. Veja os detalhes em Configurações > Conta.',
+  limite: 'Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.',
+  erro: 'Não foi possível abrir o pagamento agora. Tente novamente.',
+}
+
+const estiloBotao = { borderRadius: '10px', textTransform: 'none', fontWeight: 700, py: 1.2 }
+
+/** Botões de checkout: pedem o link ao backend e saem para o Mercado Pago. */
+function BotoesAssinatura({ isPremium }) {
+  const [iniciando, setIniciando] = useState(null)
+  const [erro, setErro] = useState('')
+
+  const assinar = async (ciclo) => {
+    setErro('')
+    setIniciando(ciclo)
+    try {
+      const { checkoutUrl } = await assinaturaService.iniciar(ciclo)
+      if (!isCheckoutUrlConfiavel(checkoutUrl)) throw new Error('checkoutUrl fora do Mercado Pago')
+      // Fica em "iniciando" de propósito: a página está saindo para o checkout.
+      window.location.assign(checkoutUrl)
+    } catch (error) {
+      setErro(MENSAGEM_ERRO_ASSINATURA[motivoErroAssinatura(error)] ?? MENSAGEM_ERRO_ASSINATURA.erro)
+      setIniciando(null)
+    }
+  }
+
+  if (isPremium) {
+    return (
+      <Button variant="contained" fullWidth disabled startIcon={<StarIcon />} sx={{ mt: 3, ...estiloBotao }}>
+        Plano ativo
+      </Button>
+    )
+  }
+
+  const icone = (ciclo, padrao) => (iniciando === ciclo ? <CircularProgress size={16} color="inherit" /> : padrao)
+
+  return (
+    <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+      <Button
+        variant="contained"
+        fullWidth
+        disabled={iniciando !== null}
+        startIcon={icone(CICLOS.MENSAL, <StarIcon />)}
+        onClick={() => assinar(CICLOS.MENSAL)}
+        sx={estiloBotao}
+      >
+        Assinar mensal R$ 19,90 (cartão)
+      </Button>
+      <Button
+        variant="outlined"
+        fullWidth
+        disabled={iniciando !== null}
+        startIcon={icone(CICLOS.ANUAL, null)}
+        onClick={() => assinar(CICLOS.ANUAL)}
+        sx={estiloBotao}
+      >
+        Assinar anual R$ 199 (Pix ou cartão)
+      </Button>
+      <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+        Pagamento processado pelo Mercado Pago. O Premium é liberado após a confirmação.
+      </Typography>
+      {erro && <Alert severity="error" role="alert">{erro}</Alert>}
+    </Box>
+  )
+}
+
 const PlanoPage = () => {
   const { plano, isPremium, loading } = usePlano()
-  // useNavigate kept for potential future use (back button, etc.)
-  // eslint-disable-next-line no-unused-vars
-  const navigate = useNavigate()
 
   return (
     <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 2, md: 4 }, py: 4 }}>
@@ -139,7 +224,11 @@ const PlanoPage = () => {
               </Box>
             </Box>
             <Typography variant="h3" fontWeight={900} sx={{ color: 'text.primary', mb: 0.5 }}>R$ 19,90</Typography>
-            <Typography variant="caption" color="text.secondary">por mês · cancele quando quiser</Typography>
+            <Typography variant="caption" color="text.secondary">
+              {PAGAMENTOS_HABILITADOS
+                ? 'por mês · ou R$ 199 por ano · cancele quando quiser'
+                : 'por mês · cancele quando quiser'}
+            </Typography>
             <Divider sx={{ my: 2 }} />
             <List dense disablePadding>
               {FEATURES_PREMIUM.map((f, i) => (
@@ -154,23 +243,24 @@ const PlanoPage = () => {
                 </ListItem>
               ))}
             </List>
-            <Button
-              variant="contained"
-              fullWidth
-              disabled={isPremium}
-              startIcon={<StarIcon />}
-              onClick={() => {
-                if (!isPremium) {
-                  window.location.href = 'mailto:contato@pondero.com.br?subject=Upgrade Premium Pondero'
-                }
-              }}
-              sx={{
-                mt: 3,
-                borderRadius: '10px', textTransform: 'none', fontWeight: 700, py: 1.2,
-              }}
-            >
-              {isPremium ? 'Plano ativo' : 'Começar Premium'}
-            </Button>
+            {PAGAMENTOS_HABILITADOS ? (
+              <BotoesAssinatura isPremium={isPremium} />
+            ) : (
+              <Button
+                variant="contained"
+                fullWidth
+                disabled={isPremium}
+                startIcon={<StarIcon />}
+                onClick={() => {
+                  if (!isPremium) {
+                    window.location.href = 'mailto:contato@pondero.com.br?subject=Upgrade Premium Pondero'
+                  }
+                }}
+                sx={{ mt: 3, ...estiloBotao }}
+              >
+                {isPremium ? 'Plano ativo' : 'Começar Premium'}
+              </Button>
+            )}
           </CardContent>
         </Card>
       </Box>
@@ -179,7 +269,7 @@ const PlanoPage = () => {
       <Typography variant="h6" fontWeight={600} sx={{ color: 'text.primary', mb: 2 }}>
         Perguntas frequentes
       </Typography>
-      {FAQ.map((item, i) => (
+      {(PAGAMENTOS_HABILITADOS ? FAQ_PAGAMENTO : FAQ).map((item, i) => (
         <Accordion
           key={i}
           sx={{
