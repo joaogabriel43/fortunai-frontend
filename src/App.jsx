@@ -11,6 +11,7 @@ import PWAInstallBanner from './components/pwa/PWAInstallBanner';
 import CookieConsentBanner from './components/consent/CookieConsentBanner';
 import OfflinePage from './components/pwa/OfflinePage';
 import api from './services/api';
+import { PAGAMENTOS_HABILITADOS } from './config/features';
 
 const LandingPage             = lazy(() => import('./pages/LandingPage'));
 const LoginPage               = lazy(() => import('./pages/LoginPage'));
@@ -27,6 +28,7 @@ const CalculadorasPage        = lazy(() => import('./pages/CalculadorasPage'));
 const StatusPage              = lazy(() => import('./pages/StatusPage'));
 const NotFound                = lazy(() => import('./pages/NotFound'));
 const PlanoPage               = lazy(() => import('./pages/PlanoPage'));
+const CheckoutRetorno         = lazy(() => import('./pages/CheckoutRetorno'));
 const IrPage                  = lazy(() => import('./pages/IrPage'));
 const ResumoInteligente       = lazy(() => import('./pages/ResumoInteligente'));
 const TermosUsoPage           = lazy(() => import('./pages/TermosUsoPage'));
@@ -116,6 +118,9 @@ function App() {
                             <Route path="/configuracoes" element={<Configuracoes />} />
                             <Route path="/calculadoras" element={<CalculadorasPage />} />
                             <Route path="/plano" element={<PlanoPage />} />
+                            {PAGAMENTOS_HABILITADOS && (
+                                <Route path="/plano/retorno" element={<CheckoutRetorno />} />
+                            )}
                             <Route path="/ir" element={<IrPage />} />
                             <Route path="/resumo" element={<ResumoInteligente />} />
                         </Route>
