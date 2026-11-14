@@ -7,8 +7,9 @@
 export const COMPARTILHAMENTO_HABILITADO = false
 
 // PAGAMENTOS_HABILITADOS: cobrança Premium pelo Mercado Pago (ADR-073, Fase C).
-// Desligada: /plano mantém o upgrade por e-mail e Configurações não mostra a assinatura.
-// Para ligar: trocar para `true` só depois que o backend publicar os endpoints do B5 e a
-// flag do backend estiver ligada no mesmo ambiente, e depois de resolver os `TODO(ADR-073 B5)`
-// de src/services/assinaturaService.js. Para esconder de novo: voltar para `false`.
-export const PAGAMENTOS_HABILITADOS = false
+// Quem decide é o backend: a tela de planos com checkout, a rota /plano/retorno e a
+// assinatura em Configurações só aparecem se `GET /api/features` trouxer
+// `pagamentos: true` para o usuário (flag global + allowlist). Com a consulta falhando, nada aparece.
+// Esta constante é o kill switch do frontend: `false` esconde tudo sem nem consultar o backend
+// (/plano volta ao upgrade por e-mail). Ver src/hooks/usePagamentosHabilitados.js.
+export const PAGAMENTOS_HABILITADOS = true

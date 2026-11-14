@@ -16,8 +16,8 @@ const ROTULO_STATUS = {
   [STATUS.REEMBOLSADA]: { texto: 'Reembolsada', cor: 'default' },
 }
 
-// TODO(ADR-073 B5): confirmar se as datas chegam como LocalDate ("YYYY-MM-DD") ou com hora;
-// o corte em 10 caracteres cobre os dois formatos ISO.
+// Datas chegam como LocalDateTime ISO sem offset, já em horário de Brasília (fortunai#66):
+// os 10 primeiros caracteres são o dia em Brasília.
 const dia = (valor) => (valor ? String(valor).slice(0, 10) : null)
 const formatar = (valor) => formatarDataLocal(dia(valor), { day: '2-digit', month: 'long', year: 'numeric' })
 
@@ -114,7 +114,7 @@ export default function AssinaturaStatus({ onSuccess }) {
         {acessoAte && <Linha rotulo="Acesso até" valor={formatar(acessoAte)} />}
       </Box>
 
-      {/* TODO(ADR-073 B5): confirmar o nome do campo de reembolso pendente. */}
+      {/* `reembolsoEmProcessamento`: nome confirmado em fortunai#66. */}
       {assinatura.reembolsoEmProcessamento && (
         <Alert severity="info" sx={{ mt: '12px' }}>
           Reembolso em processamento. O valor volta pelo mesmo meio de pagamento.

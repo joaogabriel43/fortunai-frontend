@@ -34,7 +34,14 @@ describe('isCheckoutUrlConfiavel', () => {
 describe('motivoErroAssinatura', () => {
   it('503 com PAGAMENTOS_DESABILITADOS vira desabilitado', () => {
     expect(motivoErroAssinatura(erroHttp(503, { erro: 'PAGAMENTOS_DESABILITADOS' }))).toBe('desabilitado')
-    expect(motivoErroAssinatura(erroHttp(503, { codigo: 'PAGAMENTOS_DESABILITADOS' }))).toBe('desabilitado')
+  })
+
+  it('só lê o código no campo `erro` (contrato do fortunai#66)', () => {
+    expect(motivoErroAssinatura(erroHttp(503, { codigo: 'PAGAMENTOS_DESABILITADOS' }))).toBe('erro')
+  })
+
+  it('502 é o gateway do Mercado Pago fora do ar', () => {
+    expect(motivoErroAssinatura(erroHttp(502, { erro: 'GATEWAY_INDISPONIVEL' }))).toBe('gateway')
   })
 
   it('503 sem o código é erro genérico', () => {
@@ -50,6 +57,24 @@ describe('motivoErroAssinatura', () => {
 })
 
 describe('assinaturaService', () => {
+  it.each([
+    [{ compartilhamento: false, pagamentos: true }, true],
+    [{ compartilhamento: true, pagamentos: false }, false],
+    [{ compartilhamento: true }, false],
+    [undefined, false],
+  ])('pagamentosLiberados lê /features (%#)', async (data, esperado) => {
+    api.get.mockResolvedValue({ data })
+    await expect(assinaturaService.pagamentosLiberados()).resolves.toBe(esperado)
+    expect(api.get).toHaveBeenCalledWith('/features')
+  })
+
+  it('ofertas devolve o corpo de /plano/assinatura/ofertas', async () => {
+    const corpo = { pagamentosHabilitados: true, ofertas: [{ ciclo: 'MENSAL', valor: 19.9 }] }
+    api.get.mockResolvedValue({ data: corpo })
+    await expect(assinaturaService.ofertas()).resolves.toEqual(corpo)
+    expect(api.get).toHaveBeenCalledWith('/plano/assinatura/ofertas')
+  })
+
   it('iniciar envia o ciclo e devolve o corpo', async () => {
     api.post.mockResolvedValue({ data: { assinaturaId: 7, checkoutUrl: 'https://www.mercadopago.com.br/x' } })
     await expect(assinaturaService.iniciar(CICLOS.ANUAL))

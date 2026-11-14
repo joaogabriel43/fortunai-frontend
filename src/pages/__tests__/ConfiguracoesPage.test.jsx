@@ -39,10 +39,18 @@ vi.mock('../../services/api', () => ({
   default: { delete: vi.fn().mockResolvedValue({ data: null }) },
 }))
 
+// A seção de assinatura tem teste próprio (AssinaturaStatus.test.jsx); aqui só o gate.
+const mockPagamentos = vi.hoisted(() => vi.fn(() => false))
+vi.mock('../../hooks/usePagamentosHabilitados', () => ({ default: mockPagamentos }))
+vi.mock('../../components/assinatura/AssinaturaStatus', () => ({
+  default: () => <div data-testid="assinatura-status" />,
+}))
+
 // ── Setup ──────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mockPagamentos.mockReturnValue(false)
   mockService.getPreferencias.mockResolvedValue({
     temaEscuro: true,
     notificacaoEmailAtiva: true,
@@ -207,6 +215,17 @@ describe('Configuracoes — pagina de configuracoes', () => {
     // Nova LGPD: "Zona de Perigo" + botão "Excluir minha conta"
     expect(screen.getByText(/zona de perigo/i)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /excluir minha conta/i })).toBeInTheDocument()
+  })
+
+  it.each([
+    [false, false],
+    [null, false],
+    [true, true],
+  ])('aba Conta: seção Assinatura com pagamentos = %s → visível %s', (valor, visivel) => {
+    mockPagamentos.mockReturnValue(valor)
+    render(<Configuracoes />)
+    fireEvent.click(screen.getByRole('tab', { name: 'Conta' }))
+    expect(screen.queryByTestId('assinatura-status') !== null).toBe(visivel)
   })
 
   it('aba Conta: clicar em "Excluir minha conta" abre ExclusaoContaModal', () => {

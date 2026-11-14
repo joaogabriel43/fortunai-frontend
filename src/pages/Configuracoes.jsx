@@ -10,7 +10,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { configuracaoService } from '../services/configuracaoService'
 import ExclusaoContaModal from '../components/ExclusaoContaModal'
 import { extrairMensagemErroApi } from '../utils/apiErrorUtils'
-import { PAGAMENTOS_HABILITADOS } from '../config/features'
+import usePagamentosHabilitados from '../hooks/usePagamentosHabilitados'
 import AssinaturaStatus from '../components/assinatura/AssinaturaStatus'
 
 // ── Primitivos visuais da pagina (linguagem Pondero / D4 "Bento Refinado") ───
@@ -400,10 +400,11 @@ function TabNotificacoes({ onSuccess }) {
 
 function TabConta({ onSuccess }) {
   const [exclusaoModalOpen, setExclusaoModalOpen] = useState(false)
+  const pagamentosLiberados = usePagamentosHabilitados() === true
 
   return (
     <>
-      {PAGAMENTOS_HABILITADOS && (
+      {pagamentosLiberados && (
         <Box sx={{ mb: '24px' }}>
           <SecaoCard titulo="Assinatura" descricao="Seu plano Premium, cobranças e cancelamento.">
             <AssinaturaStatus onSuccess={onSuccess} />

@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box, Typography, Card, CardContent, Chip, Button, Divider,
   List, ListItem, ListItemIcon, ListItemText, Accordion,
-  AccordionSummary, AccordionDetails, Alert, CircularProgress,
+  AccordionSummary, AccordionDetails, Alert, CircularProgress, Skeleton,
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import CheckIcon from '@mui/icons-material/Check'
@@ -10,7 +10,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import StarIcon from '@mui/icons-material/Star'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import usePlano from '../hooks/usePlano'
-import { PAGAMENTOS_HABILITADOS } from '../config/features'
+import usePagamentosHabilitados from '../hooks/usePagamentosHabilitados'
+import { formatBRL } from '../components/ui'
 import {
   assinaturaService, CICLOS, isCheckoutUrlConfiavel, motivoErroAssinatura,
 } from '../services/assinaturaService'
@@ -44,7 +45,7 @@ const FAQ = [
   },
 ]
 
-// Com PAGAMENTOS_HABILITADOS (ADR-073): o upgrade passa pelo Mercado Pago.
+// Com os pagamentos liberados (ADR-073): o upgrade passa pelo Mercado Pago.
 const FAQ_PAGAMENTO = [
   {
     q: 'Como faço upgrade?',
@@ -63,6 +64,7 @@ const FAQ_PAGAMENTO = [
 
 const MENSAGEM_ERRO_ASSINATURA = {
   desabilitado: 'A assinatura está indisponível no momento. Tente novamente mais tarde.',
+  gateway: 'O Mercado Pago não respondeu agora. Tente novamente em instantes.',
   conflito: 'Você já tem uma assinatura em vigor. Veja os detalhes em Configurações > Conta.',
   limite: 'Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.',
   erro: 'Não foi possível abrir o pagamento agora. Tente novamente.',
@@ -70,8 +72,21 @@ const MENSAGEM_ERRO_ASSINATURA = {
 
 const estiloBotao = { borderRadius: '10px', textTransform: 'none', fontWeight: 700, py: 1.2 }
 
-/** Botões de checkout: pedem o link ao backend e saem para o Mercado Pago. */
-function BotoesAssinatura({ isPremium }) {
+// Só para exibir quando GET /plano/assinatura/ofertas falha; nunca habilita o botão.
+const PRECO_EXIBICAO = { [CICLOS.MENSAL]: 19.9, [CICLOS.ANUAL]: 199 }
+
+/** Valor da oferta do ciclo, ou `undefined` se o backend não a trouxe. */
+const valorOferta = (ofertas, ciclo) => {
+  const valor = ofertas?.ofertas?.find((o) => o.ciclo === ciclo)?.valor
+  return typeof valor === 'number' ? valor : undefined
+}
+const precoDe = (ofertas, ciclo) => formatBRL(valorOferta(ofertas, ciclo) ?? PRECO_EXIBICAO[ciclo])
+
+/**
+ * Botões de checkout: pedem o link ao backend e saem para o Mercado Pago.
+ * `ofertas`: undefined carregando, null quando a consulta falhou, ou a resposta do backend.
+ */
+function BotoesAssinatura({ isPremium, ofertas }) {
   const [iniciando, setIniciando] = useState(null)
   const [erro, setErro] = useState('')
 
@@ -97,33 +112,42 @@ function BotoesAssinatura({ isPremium }) {
     )
   }
 
+  if (ofertas === undefined) {
+    return <Skeleton variant="rounded" height={104} sx={{ mt: 3, borderRadius: '10px' }} aria-label="Carregando planos" />
+  }
+
   const icone = (ciclo, padrao) => (iniciando === ciclo ? <CircularProgress size={16} color="inherit" /> : padrao)
+  const disponivel = (ciclo) => ofertas?.pagamentosHabilitados === true && valorOferta(ofertas, ciclo) !== undefined
+  const aviso = ofertas === null
+    ? 'Não foi possível carregar os preços agora. Recarregue a página para assinar.'
+    : (!disponivel(CICLOS.MENSAL) && !disponivel(CICLOS.ANUAL) ? MENSAGEM_ERRO_ASSINATURA.desabilitado : '')
 
   return (
     <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <Button
         variant="contained"
         fullWidth
-        disabled={iniciando !== null}
+        disabled={iniciando !== null || !disponivel(CICLOS.MENSAL)}
         startIcon={icone(CICLOS.MENSAL, <StarIcon />)}
         onClick={() => assinar(CICLOS.MENSAL)}
         sx={estiloBotao}
       >
-        Assinar mensal R$ 19,90 (cartão)
+        Assinar mensal {precoDe(ofertas, CICLOS.MENSAL)} (cartão)
       </Button>
       <Button
         variant="outlined"
         fullWidth
-        disabled={iniciando !== null}
+        disabled={iniciando !== null || !disponivel(CICLOS.ANUAL)}
         startIcon={icone(CICLOS.ANUAL, null)}
         onClick={() => assinar(CICLOS.ANUAL)}
         sx={estiloBotao}
       >
-        Assinar anual R$ 199 (Pix ou cartão)
+        Assinar anual {precoDe(ofertas, CICLOS.ANUAL)} (Pix ou cartão)
       </Button>
       <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
         Pagamento processado pelo Mercado Pago. O Premium é liberado após a confirmação.
       </Typography>
+      {aviso && <Alert severity="info">{aviso}</Alert>}
       {erro && <Alert severity="error" role="alert">{erro}</Alert>}
     </Box>
   )
@@ -131,6 +155,18 @@ function BotoesAssinatura({ isPremium }) {
 
 const PlanoPage = () => {
   const { plano, isPremium, loading } = usePlano()
+  const pagamentos = usePagamentosHabilitados()
+  const liberado = pagamentos === true
+  const [ofertas, setOfertas] = useState(undefined)
+
+  useEffect(() => {
+    if (!liberado) return undefined
+    let ativo = true
+    assinaturaService.ofertas()
+      .then((r) => { if (ativo) setOfertas(r ?? null) })
+      .catch(() => { if (ativo) setOfertas(null) })
+    return () => { ativo = false }
+  }, [liberado])
 
   return (
     <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 2, md: 4 }, py: 4 }}>
@@ -223,10 +259,12 @@ const PlanoPage = () => {
                 )}
               </Box>
             </Box>
-            <Typography variant="h3" fontWeight={900} sx={{ color: 'text.primary', mb: 0.5 }}>R$ 19,90</Typography>
+            <Typography variant="h3" fontWeight={900} sx={{ color: 'text.primary', mb: 0.5 }}>
+              {liberado ? precoDe(ofertas, CICLOS.MENSAL) : 'R$ 19,90'}
+            </Typography>
             <Typography variant="caption" color="text.secondary">
-              {PAGAMENTOS_HABILITADOS
-                ? 'por mês · ou R$ 199 por ano · cancele quando quiser'
+              {liberado
+                ? `por mês · ou ${precoDe(ofertas, CICLOS.ANUAL)} por ano · cancele quando quiser`
                 : 'por mês · cancele quando quiser'}
             </Typography>
             <Divider sx={{ my: 2 }} />
@@ -243,9 +281,11 @@ const PlanoPage = () => {
                 </ListItem>
               ))}
             </List>
-            {PAGAMENTOS_HABILITADOS ? (
-              <BotoesAssinatura isPremium={isPremium} />
-            ) : (
+            {pagamentos === null && (
+              <Skeleton variant="rounded" height={44} sx={{ mt: 3, borderRadius: '10px' }} aria-label="Carregando planos" />
+            )}
+            {liberado && <BotoesAssinatura isPremium={isPremium} ofertas={ofertas} />}
+            {pagamentos === false && (
               <Button
                 variant="contained"
                 fullWidth
@@ -269,7 +309,7 @@ const PlanoPage = () => {
       <Typography variant="h6" fontWeight={600} sx={{ color: 'text.primary', mb: 2 }}>
         Perguntas frequentes
       </Typography>
-      {(PAGAMENTOS_HABILITADOS ? FAQ_PAGAMENTO : FAQ).map((item, i) => (
+      {(liberado ? FAQ_PAGAMENTO : FAQ).map((item, i) => (
         <Accordion
           key={i}
           sx={{

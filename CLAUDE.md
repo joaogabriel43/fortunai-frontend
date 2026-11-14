@@ -151,6 +151,15 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **Limite**: sem prerender, crawlers sem JS veem só os metadados da home em qualquer rota. Só o prerender resolve.
 **Travado por**: `seoPorRota.test.jsx` e `seoEstatico.test.js`.
 **Logo no JSON-LD**: `Organization` fica sem `logo` enquanto não houver logo oficial da Pondero (`/icons/pwa-512x512.png` é o ícone provisório "P" do Pondero, gerado por `scripts/generate-icons.js` — não é logo oficial).
+
+### [2026-11-14] Padrão: prints de PR via Playwright + harness local, publicados em branch órfã
+**O que é**: telas que dependem de backend (checkout, retorno do pagamento, assinatura) são fotografadas com um script Playwright contra um harness local (`preview-*.html` + `src/preview*.jsx`) que mocka a API por cenário (`?cenario=...&ir=...`), em 390/1366/1920 px.
+**Regra**: o harness **nunca** é commitado — é recriado quando precisa e apagado depois. Os PNGs vão para uma branch órfã `pr-assets/<tema>` (fora do histórico do `main`) e o corpo do PR os referencia por `raw.githubusercontent.com/<owner>/<repo>/pr-assets/<tema>/<arquivo>.png`. Reenviar prints = commit novo na mesma branch órfã; as URLs não mudam.
+
+### [2026-11-14] Padrão: funcionalidade com chave dupla (constante do frontend + flag do backend)
+**O que é**: os pagamentos (ADR-073) só aparecem com `PAGAMENTOS_HABILITADOS === true` em [features.js](src/config/features.js) **e** `GET /api/features` → `pagamentos === true` (flag global + allowlist por usuário). [usePagamentosHabilitados.js](src/hooks/usePagamentosHabilitados.js) devolve `null` enquanto consulta, e falha na consulta conta como `false`. A constante é o kill switch: `false` esconde tudo sem nem chamar o backend.
+**Regra**: tela, rota e seção usam o mesmo hook. Rota protegida por gate fica **dentro** da `ProtectedRoute` (o `/features` exige sessão) e mostra loader enquanto `null`. Preço de oferta vem do backend (`/plano/assinatura/ofertas`); o valor fixo do frontend é só fallback de exibição, com o botão desabilitado.
+**Travado por**: `usePagamentosHabilitados.test.js`, `PlanoPagePagamentos.test.jsx`, `ConfiguracoesPage.test.jsx`.
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)
@@ -206,7 +215,16 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **Infraestrutura real**: backend e PostgreSQL em servidor próprio do controlador, no Brasil; tráfego pela Cloudflare (proxy/túnel); site na Vercel. Retenção de logs técnicos **sem prazo prometido** até o responsável definir.
 **Como prevenir**: ao tocar `public/politica-de-privacidade.md`, conferir cada operador citado contra a infraestrutura de "Estado Atual" e não prometer prazo/garantia que o código não implementa (criptografia em repouso, retenção). Travado por `politicaPrivacidadeConteudo.test.js`. Pendente de revisão jurídica: transferência internacional (LGPD art. 33) por Cloudflare/Vercel/Google e nova versão/consentimento.
 
+### [2026-11-14] Erro: teste de polling com fake timers avança só um intervalo
+**O que aconteceu**: o `CheckoutRetorno` relê o status da assinatura em intervalos até sair de `PENDENTE`. O teste com `vi.useFakeTimers()` avançava o relógio de várias tentativas de uma vez e a tela só via a primeira; e o efeito, sem `tentativas` nas dependências, não reagendava a próxima leitura.
+**Por que**: cada leitura resolve uma promise e dispara um novo render, que é quem agenda o próximo `setTimeout`. Avançar N intervalos num único passo não dá ao React a chance de agendar os timers seguintes.
+**Como prevenir**: no teste, um `await act(() => vi.advanceTimersByTimeAsync(INTERVALO))` **por intervalo**. No componente, o efeito de polling depende do contador (`tentativas`) para reagendar a cada rodada, e o limite de tentativas é asserido com valor exato.
+
 ## Configurações do Ambiente
+
+### [2026-11-14] Suíte completa: `--maxWorkers=1 --pool=forks`, sem mexer em nada durante a execução
+Com 16 GB, a suíte cheia em paralelo arrisca falta de memória e falso vermelho. Rodar pelo Bash em background com `npx vitest run --maxWorkers=1 --pool=forks --exclude 'finassistant-frontend/**' --exclude '.claude/**'` (~19 min). Se `compartilhamentoOculto.test.jsx` estourar o tempo sob carga, rodá-lo sozinho (usa `vi.resetModules` + import dinâmico, sensível a lentidão).
+**Regra**: nunca alterar flag (`features.js`) ou arquivo de código enquanto a suíte roda — os arquivos que ainda não executaram pegam o estado novo e o resultado mistura duas versões do código.
 
 ### Vitest no Windows: timeout de forks com suíte completa
 `npx vitest run` rodando a suíte inteira pode falhar em ~11 arquivos com "[vitest-pool]: Failed to start forks worker" / "Timeout waiting for worker to respond", por pressão de recursos ao subir muitos workers em paralelo. Os testes em si não têm relação com o erro — reexecutar os arquivos afetados com `--maxWorkers=1` resolve. Considerar fixar `test.maxWorkers` (ou `poolOptions.forks.maxForks`) no `vitest.config` se o problema persistir.
@@ -267,3 +285,4 @@ O apex `pondero.com.br` responde 308 para `www`. Canonical, `og:*`, JSON-LD, sit
 - 2026-10-29: PR #14 (SEO por rota) — registrados o padrão data-seo-default com canonical/og:url fora do index.html, --pool=forks no Vitest e o cuidado com BOM em mensagem de commit.
 - 2026-11-06: identidade visual provisória — favicon, ícones do PWA e apple-touch-icon agora são o "P" do Pondero gerado por `scripts/generate-icons.js` (tokens de `theme.js`); `vite.svg` removido; travado por `identidadeVisual.test.js`.
 - 2026-11-06: rodada branding/privacidade (PRs #18–#21) — registrados em "Padrões do Projeto" os ícones gerados por `scripts/generate-icons.js` e a feature flag de `features.js` (como testar com `vi.resetModules` + `vi.doMock`), e em "Erros Conhecidos" o arquivo estático que não lê a flag (`llms.txt`) e a política de privacidade com infraestrutura desatualizada.
+- 2026-11-14: cobrança Premium (ADR-073 Fase C, PR #25, contrato do fortunai#66) — registrados em "Padrões do Projeto" os prints de PR via harness local + branch órfã `pr-assets/<tema>` e a chave dupla (constante + `/api/features`) dos pagamentos; em "Erros Conhecidos" o polling com fake timers (um `act` por intervalo, `tentativas` nas dependências); em "Configurações do Ambiente" a suíte completa com `--maxWorkers=1 --pool=forks` sem mexer em código durante a execução.

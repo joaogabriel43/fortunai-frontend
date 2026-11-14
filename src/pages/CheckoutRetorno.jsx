@@ -9,7 +9,7 @@ import { assinaturaService, STATUS } from '../services/assinaturaService'
 // Retorno do Mercado Pago (back_url). Os query params que o MP anexa à URL
 // (`status`, `collection_status`...) são ignorados de propósito: qualquer um pode
 // digitá-los. Quem diz se o pagamento entrou é o backend (ADR-073).
-// TODO(ADR-073 B5): confirmar o caminho do back_url configurado no backend (aqui /plano/retorno).
+// back_url do backend: https://www.pondero.com.br/plano/retorno (fortunai#66), igual à rota do App.
 
 export const INTERVALO_CONSULTA_MS = 5000
 export const MAX_CONSULTAS_AUTOMATICAS = 6

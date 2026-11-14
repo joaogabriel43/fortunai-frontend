@@ -12,6 +12,10 @@ vi.mock('../../hooks/usePlano', () => ({
   default: vi.fn(),
 }))
 
+// Modo padrão: backend sem pagamentos para o usuário (upgrade por e-mail).
+// Os pagamentos liberados ficam em PlanoPagePagamentos.test.jsx.
+vi.mock('../../hooks/usePagamentosHabilitados', () => ({ default: () => false }))
+
 const mockFreeUser = () => usePlano.mockReturnValue({
   plano: 'FREE',
   isPremium: false,
