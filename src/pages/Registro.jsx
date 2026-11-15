@@ -12,9 +12,7 @@ import PasswordField from '../components/PasswordField';
 import AuthPageLayout from '../components/public/AuthPageLayout';
 import Seo from '../components/Seo';
 import { PAGINAS } from '../seo/paginas';
-
-const VERSAO_TERMOS = '1.0';
-const VERSAO_PRIVACIDADE = '1.0';
+import { VERSAO_TERMOS, VERSAO_PRIVACIDADE } from '../config/documentosLegais';
 
 const Registro = () => {
     const [email, setEmail] = useState('');

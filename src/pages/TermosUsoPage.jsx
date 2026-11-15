@@ -32,10 +32,12 @@ const TermosUsoPage = () => {
   }
 
   return (
-    /* Wrapper com overflow próprio — garante scroll mesmo sem Layout pai */
+    /* height (não minHeight): #root/body/html têm overflow:hidden (index.css),
+       então só uma caixa travada em 100vh abre o scroll interno — mesmo fix
+       da PoliticaPrivacidadePage (8eef398). */
     <Box
       sx={{
-        minHeight: '100vh',
+        height: '100vh',
         overflowY: 'auto',
         bgcolor: 'background.default',
       }}

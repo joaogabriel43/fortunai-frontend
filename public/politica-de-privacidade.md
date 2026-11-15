@@ -2,7 +2,7 @@
 
 > **RASCUNHO — pendente de revisão jurídica antes de publicação final.**
 
-**Versão 1.0 — Rascunho para revisão jurídica**
+**Versão 2.0 — vigente a partir de [DATA DE VIGÊNCIA]**
 
 Em conformidade com a **Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018)**.
 
@@ -36,6 +36,17 @@ Canal de privacidade (contato do Encarregado de Dados): privacidade@pondero.com.
 - Logs técnicos de acesso e de segurança, mantidos pelo tempo necessário à operação e à segurança, sem prazo fixo prometido (a retenção será definida e informada aqui)
 - Preferências de interface
 
+### 2.4 Dados da Assinatura Premium
+Se você assinar o Premium, guardamos:
+- Plano e ciclo escolhidos (mensal ou anual) e o valor cobrado
+- Situação da assinatura (por exemplo: pendente, ativa, em atraso, cancelada, expirada, reembolsada)
+- Datas da assinatura: aprovação do pagamento, início, fim do acesso, próxima cobrança, cancelamento e reembolso, quando houver
+- Motivo do cancelamento ou do reembolso, quando houver
+- Identificadores gerados pelo Mercado Pago (da assinatura e dos pagamentos), usados para conferir cada cobrança
+- Registro dos avisos automáticos que o Mercado Pago envia sobre cada pagamento (identificador, tipo, situação e data), sem guardar o conteúdo completo da mensagem
+
+**Não guardamos dados de cartão.** O número do cartão, a validade, o código de segurança e o CPF do pagador são digitados diretamente no ambiente do Mercado Pago e não passam pelos servidores da Pondero.
+
 ## 3. Finalidade do Tratamento
 
 Seus dados são utilizados para:
@@ -44,8 +55,9 @@ Seus dados são utilizados para:
 - **Melhoria do produto**: análise agregada e anônima de uso
 - **Comunicação**: envio de digest semanal (se habilitado)
 - **Conformidade legal**: cumprimento de obrigações regulatórias
+- **Assinatura Premium**: cobrar, liberar e encerrar o Premium, tratar cancelamentos e reembolsos e conferir os pagamentos
 
-**Base legal (LGPD):** consentimento (Art. 7°, I) e execução de contrato (Art. 7°, V).
+**Base legal (LGPD):** consentimento (Art. 7°, I) e execução de contrato (Art. 7°, V). Os dados da assinatura são tratados para a execução do contrato do Premium (Art. 7°, V).
 
 ## 4. Compartilhamento de Dados
 
@@ -55,6 +67,7 @@ Seus dados **não são vendidos** a terceiros. Compartilhamos apenas com:
 - **Cloudinary**: armazenamento de foto de perfil
 - **Cloudflare**: operador de rede — o tráfego entre você e o serviço passa pela Cloudflare (proxy/túnel)
 - **Vercel**: operador de hospedagem do site (interface web)
+- **Mercado Pago**: operador do pagamento do Premium. Ele recebe e processa os dados de pagamento que você digita no ambiente dele (como cartão e CPF). A Pondero envia ao Mercado Pago o valor, o plano e uma referência interna da compra e, no plano mensal, o seu e-mail para criar a assinatura. De volta, recebemos apenas os identificadores, a situação, o valor e a data de aprovação de cada pagamento. O que o Mercado Pago faz com os dados que coleta diretamente segue também a política de privacidade dele
 
 O backend e o banco de dados rodam em servidor próprio do controlador, no Brasil.
 
@@ -80,7 +93,8 @@ Adotamos medidas técnicas para proteção dos dados:
 ## 7. Retenção de Dados
 
 - Dados de conta: mantidos enquanto a conta existir
-- Após exclusão da conta: removidos imediatamente via DELETE CASCADE
+- Dados da assinatura Premium (seção 2.4): mantidos enquanto a conta existir, inclusive depois de cancelada a assinatura, para o histórico de cobranças e reembolsos
+- Após exclusão da conta: removidos imediatamente via DELETE CASCADE, inclusive os dados da assinatura. Os registros que o próprio Mercado Pago mantém sobre o pagamento não são apagados pela Pondero
 - Logs técnicos: mantidos pelo tempo necessário à operação e à segurança, sem prazo fixo prometido até a definição da retenção.
 
 ## 8. Cookies e Rastreamento
@@ -108,4 +122,4 @@ Para comunicações gerais sobre a plataforma:
 
 ---
 
-*Última atualização: agosto de 2026 — Versão 1.0 — Rascunho*
+*Última atualização: [DATA DE VIGÊNCIA] — Versão 2.0 — Rascunho*

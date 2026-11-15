@@ -46,6 +46,36 @@ describe('política de privacidade (rascunho): transparência sobre Gemini e IP'
     })
   })
 
+  describe('versão 2.0: assinatura Premium e Mercado Pago', () => {
+    const secao4 = politica.slice(politica.indexOf('## 4. Compartilhamento'), politica.indexOf('## 5.'))
+    const secao24 = politica.slice(politica.indexOf('### 2.4'), politica.indexOf('## 3.'))
+    const secao7 = politica.slice(politica.indexOf('## 7. Retenção'), politica.indexOf('## 8.'))
+
+    it('está na versão 2.0 com data de vigência a preencher', () => {
+      expect(politica).toContain('**Versão 2.0 — vigente a partir de [DATA DE VIGÊNCIA]**')
+    })
+
+    it('lista o Mercado Pago como operador do pagamento', () => {
+      expect(secao4).toMatch(/\*\*Mercado Pago\*\*: operador do pagamento do Premium/)
+    })
+
+    it('diz que não guarda dados de cartão', () => {
+      expect(secao24).toContain('**Não guardamos dados de cartão.**')
+      expect(secao24).toMatch(/não passam pelos servidores da Pondero/)
+    })
+
+    it('descreve o que guarda da assinatura: situação, datas e identificadores do gateway', () => {
+      expect(secao24).toMatch(/Situação da assinatura/)
+      expect(secao24).toMatch(/Datas da assinatura/)
+      expect(secao24).toMatch(/Identificadores gerados pelo Mercado Pago/)
+    })
+
+    it('informa por quanto tempo guarda os dados da assinatura', () => {
+      expect(secao7).toMatch(/Dados da assinatura Premium[^\n]*enquanto a conta existir/)
+      expect(secao7).toMatch(/inclusive os dados da assinatura/)
+    })
+  })
+
   it('NÃO afirma criptografia em repouso (só "em trânsito" e hash de senha)', () => {
     expect(politica).not.toMatch(/em repouso/i)
     expect(politica).not.toMatch(/at rest/i)
