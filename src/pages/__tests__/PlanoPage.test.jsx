@@ -12,6 +12,10 @@ vi.mock('../../hooks/usePlano', () => ({
   default: vi.fn(),
 }))
 
+// Modo padrão: backend sem pagamentos para o usuário (upgrade por e-mail).
+// Os pagamentos liberados ficam em PlanoPagePagamentos.test.jsx.
+vi.mock('../../hooks/usePagamentosHabilitados', () => ({ default: () => false }))
+
 const mockFreeUser = () => usePlano.mockReturnValue({
   plano: 'FREE',
   isPremium: false,
@@ -52,7 +56,15 @@ describe('PlanoPage', () => {
   it('mostra tabela Free vs Premium com dois cards', () => {
     renderPage()
     expect(screen.getByText(/Gratuito/i)).toBeInTheDocument()
-    expect(screen.getByText(/R\$ 19/i)).toBeInTheDocument()
+    expect(screen.getByText('Premium')).toBeInTheDocument()
+  })
+
+  describe('regressão: preço fixo no frontend', () => {
+    it('sem pagamentos liberados não mostra preço (o preço só vem de /ofertas)', () => {
+      renderPage()
+      expect(screen.queryByText(/R\$/)).not.toBeInTheDocument()
+      expect(screen.getByText('cancele quando quiser')).toBeInTheDocument()
+    })
   })
 
   it('usuário FREE vê botão "Começar Premium"', () => {

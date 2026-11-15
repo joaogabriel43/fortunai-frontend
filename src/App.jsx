@@ -11,6 +11,7 @@ import PWAInstallBanner from './components/pwa/PWAInstallBanner';
 import CookieConsentBanner from './components/consent/CookieConsentBanner';
 import OfflinePage from './components/pwa/OfflinePage';
 import api from './services/api';
+import usePagamentosHabilitados from './hooks/usePagamentosHabilitados';
 
 const LandingPage             = lazy(() => import('./pages/LandingPage'));
 const LoginPage               = lazy(() => import('./pages/LoginPage'));
@@ -27,6 +28,7 @@ const CalculadorasPage        = lazy(() => import('./pages/CalculadorasPage'));
 const StatusPage              = lazy(() => import('./pages/StatusPage'));
 const NotFound                = lazy(() => import('./pages/NotFound'));
 const PlanoPage               = lazy(() => import('./pages/PlanoPage'));
+const CheckoutRetorno         = lazy(() => import('./pages/CheckoutRetorno'));
 const IrPage                  = lazy(() => import('./pages/IrPage'));
 const ResumoInteligente       = lazy(() => import('./pages/ResumoInteligente'));
 const TermosUsoPage           = lazy(() => import('./pages/TermosUsoPage'));
@@ -38,6 +40,13 @@ const PoliticaPrivacidadePage = lazy(() => import('./pages/PoliticaPrivacidadePa
  * - Páginas públicas de auth (sem sessão ativa ainda)
  */
 const ROTAS_SEM_MODAL = ['/termos', '/privacidade', '/login', '/registrar', '/status'];
+
+/** Rota que só existe com os pagamentos liberados (constante + /api/features, ADR-073). */
+function SoComPagamentos({ children }) {
+    const liberado = usePagamentosHabilitados();
+    if (liberado === null) return <PageLoader />;
+    return liberado ? children : <NotFound />;
+}
 
 /**
  * Wrapper interno (dentro de AuthProvider + Router) — controla os overlays globais:
@@ -116,6 +125,7 @@ function App() {
                             <Route path="/configuracoes" element={<Configuracoes />} />
                             <Route path="/calculadoras" element={<CalculadorasPage />} />
                             <Route path="/plano" element={<PlanoPage />} />
+                            <Route path="/plano/retorno" element={<SoComPagamentos><CheckoutRetorno /></SoComPagamentos>} />
                             <Route path="/ir" element={<IrPage />} />
                             <Route path="/resumo" element={<ResumoInteligente />} />
                         </Route>

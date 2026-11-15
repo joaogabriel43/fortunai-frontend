@@ -10,6 +10,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { configuracaoService } from '../services/configuracaoService'
 import ExclusaoContaModal from '../components/ExclusaoContaModal'
 import { extrairMensagemErroApi } from '../utils/apiErrorUtils'
+import usePagamentosHabilitados from '../hooks/usePagamentosHabilitados'
+import AssinaturaStatus from '../components/assinatura/AssinaturaStatus'
 
 // ── Primitivos visuais da pagina (linguagem Pondero / D4 "Bento Refinado") ───
 //
@@ -396,11 +398,20 @@ function TabNotificacoes({ onSuccess }) {
 
 // ── Aba Conta — Zona de Perigo (LGPD Art. 18) ───────────────────────────────
 
-function TabConta() {
+function TabConta({ onSuccess }) {
   const [exclusaoModalOpen, setExclusaoModalOpen] = useState(false)
+  const pagamentosLiberados = usePagamentosHabilitados() === true
 
   return (
     <>
+      {pagamentosLiberados && (
+        <Box sx={{ mb: '24px' }}>
+          <SecaoCard titulo="Assinatura" descricao="Seu plano Premium, cobranças e cancelamento.">
+            <AssinaturaStatus onSuccess={onSuccess} />
+          </SecaoCard>
+        </Box>
+      )}
+
       <SecaoCard
         titulo="Zona de Perigo"
         tone="danger"
