@@ -158,8 +158,9 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 
 ### [2026-11-14] Padrão: funcionalidade com chave dupla (constante do frontend + flag do backend)
 **O que é**: os pagamentos (ADR-073) só aparecem com `PAGAMENTOS_HABILITADOS === true` em [features.js](src/config/features.js) **e** `GET /api/features` → `pagamentos === true` (flag global + allowlist por usuário). [usePagamentosHabilitados.js](src/hooks/usePagamentosHabilitados.js) devolve `null` enquanto consulta, e falha na consulta conta como `false`. A constante é o kill switch: `false` esconde tudo sem nem chamar o backend.
-**Regra**: tela, rota e seção usam o mesmo hook. Rota protegida por gate fica **dentro** da `ProtectedRoute` (o `/features` exige sessão) e mostra loader enquanto `null`. Preço de oferta vem do backend (`/plano/assinatura/ofertas`); o valor fixo do frontend é só fallback de exibição, com o botão desabilitado.
-**Travado por**: `usePagamentosHabilitados.test.js`, `PlanoPagePagamentos.test.jsx`, `ConfiguracoesPage.test.jsx`.
+**Regra**: tela, rota e seção usam o mesmo hook. Rota protegida por gate fica **dentro** da `ProtectedRoute` (o `/features` exige sessão) e mostra loader enquanto `null`. Preço só vem do backend (`/plano/assinatura/ofertas`): não há valor fixo no frontend. Com as ofertas falhando, carregando ou no modo e-mail, os planos aparecem sem preço e sem botão ativo.
+**Cancelamento (fortunai#67)**: `POST /plano/assinatura/cancelar {solicitarReembolso}` devolve 200 com o mesmo DTO do GET (usar a resposta, sem reler). 404 fecha o diálogo e relê; 409 `REEMBOLSO_INDISPONIVEL` tira o reembolso e deixa só o cancelamento simples; 502 mantém o diálogo ("nada foi alterado"); `CANCELADA` + `reembolsoEmProcessamento` = "reembolso em processamento".
+**Travado por**: `usePagamentosHabilitados.test.js`, `PlanoPagePagamentos.test.jsx`, `ConfiguracoesPage.test.jsx`, `AssinaturaStatus.test.jsx`.
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)

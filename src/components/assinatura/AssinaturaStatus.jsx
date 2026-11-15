@@ -4,7 +4,7 @@ import {
   DialogContent, DialogTitle, FormControlLabel, Skeleton, Typography,
 } from '@mui/material'
 import { Link as RouterLink } from 'react-router-dom'
-import { assinaturaService, CICLOS, STATUS } from '../../services/assinaturaService'
+import { assinaturaService, CICLOS, motivoErroAssinatura, STATUS } from '../../services/assinaturaService'
 import { formatarDataLocal, hojeLocal } from '../../utils/dateUtils'
 
 const ROTULO_STATUS = {
@@ -20,6 +20,19 @@ const ROTULO_STATUS = {
 // os 10 primeiros caracteres são o dia em Brasília.
 const dia = (valor) => (valor ? String(valor).slice(0, 10) : null)
 const formatar = (valor) => formatarDataLocal(dia(valor), { day: '2-digit', month: 'long', year: 'numeric' })
+
+const MENSAGEM_ERRO_CANCELAR = {
+  gateway: 'O Mercado Pago não respondeu. Tente de novo em instantes; nada foi alterado.',
+  desabilitado: 'O cancelamento está indisponível no momento. Tente mais tarde.',
+  erro: 'Não foi possível cancelar agora. Tente novamente.',
+}
+
+/** Mensagem do 200: REEMBOLSADA = estorno feito; reembolsoEmProcessamento = estorno pendente no gateway. */
+const mensagemCancelada = (assinatura) => {
+  if (assinatura?.status === STATUS.REEMBOLSADA) return 'Assinatura cancelada e reembolso concluído.'
+  if (assinatura?.reembolsoEmProcessamento) return 'Assinatura cancelada. Reembolso em processamento.'
+  return 'Assinatura cancelada.'
+}
 
 function Linha({ rotulo, valor }) {
   return (
@@ -38,6 +51,8 @@ export default function AssinaturaStatus({ onSuccess }) {
   const [reembolso, setReembolso] = useState(false)
   const [cancelando, setCancelando] = useState(false)
   const [erroCancelar, setErroCancelar] = useState(null)
+  // 409 REEMBOLSO_INDISPONIVEL: o prazo venceu entre abrir a tela e confirmar.
+  const [reembolsoIndisponivel, setReembolsoIndisponivel] = useState(false)
 
   const carregar = useCallback(async () => {
     setErro(false)
@@ -77,12 +92,14 @@ export default function AssinaturaStatus({ onSuccess }) {
 
   const { status, ciclo, acessoAte, proximaCobrancaEm, reembolsoDisponivelAte, cancelavel } = assinatura
   const rotulo = ROTULO_STATUS[status] ?? { texto: status, cor: 'default' }
-  const podeReembolsar = Boolean(dia(reembolsoDisponivelAte)) && dia(reembolsoDisponivelAte) >= hojeLocal()
+  const podeReembolsar = !reembolsoIndisponivel
+    && Boolean(dia(reembolsoDisponivelAte)) && dia(reembolsoDisponivelAte) >= hojeLocal()
   const mensal = ciclo === CICLOS.MENSAL
 
   const abrirDialog = () => {
     setReembolso(false)
     setErroCancelar(null)
+    setReembolsoIndisponivel(false)
     setDialogAberto(true)
   }
 
@@ -90,13 +107,25 @@ export default function AssinaturaStatus({ onSuccess }) {
     setCancelando(true)
     setErroCancelar(null)
     try {
-      const comReembolso = podeReembolsar && reembolso
-      await assinaturaService.cancelar(comReembolso)
+      const atualizada = await assinaturaService.cancelar(podeReembolsar && reembolso)
       setDialogAberto(false)
-      onSuccess?.(comReembolso ?'Assinatura cancelada. O reembolso foi solicitado.' : 'Assinatura cancelada.')
-      await carregar()
-    } catch {
-      setErroCancelar('Não foi possível cancelar agora. Tente novamente.')
+      onSuccess?.(mensagemCancelada(atualizada))
+      // O 200 traz o mesmo DTO do GET; sem corpo, relê.
+      if (atualizada?.status) setAssinatura(atualizada)
+      else await carregar()
+    } catch (error) {
+      const motivo = motivoErroAssinatura(error)
+      if (motivo === 'sem-assinatura') {
+        setDialogAberto(false)
+        onSuccess?.('Não há assinatura para cancelar.')
+        await carregar()
+      } else if (motivo === 'reembolso-indisponivel') {
+        setReembolso(false)
+        setReembolsoIndisponivel(true)
+        setErroCancelar('O prazo de 7 dias para reembolso terminou. Você ainda pode cancelar sem reembolso.')
+      } else {
+        setErroCancelar(MENSAGEM_ERRO_CANCELAR[motivo] ?? MENSAGEM_ERRO_CANCELAR.erro)
+      }
     } finally {
       setCancelando(false)
     }

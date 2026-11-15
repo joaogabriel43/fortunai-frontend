@@ -86,13 +86,86 @@ describe('AssinaturaStatus', () => {
   it('dentro dos 7 dias oferece o reembolso e envia true quando marcado', async () => {
     const onSuccess = vi.fn()
     assinaturaService.status.mockResolvedValue(mensalAtiva)
-    assinaturaService.cancelar.mockResolvedValue({})
+    assinaturaService.cancelar.mockResolvedValue({ ...mensalAtiva, status: 'REEMBOLSADA', cancelavel: false })
     renderStatus(onSuccess)
     await userEvent.click(await screen.findByRole('button', { name: 'Cancelar assinatura' }))
     await userEvent.click(screen.getByRole('checkbox', { name: /direito de arrependimento/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Confirmar cancelamento' }))
     await waitFor(() => expect(assinaturaService.cancelar).toHaveBeenCalledWith(true))
-    expect(onSuccess).toHaveBeenCalledWith('Assinatura cancelada. O reembolso foi solicitado.')
+    expect(onSuccess).toHaveBeenCalledWith('Assinatura cancelada e reembolso concluído.')
+  })
+
+  describe('regressão: respostas do cancelamento (fortunai#67)', () => {
+    const erroHttp = (status, data) => Object.assign(new Error('http'), { response: { status, data } })
+    const abrirEConfirmar = async () => {
+      await userEvent.click(await screen.findByRole('button', { name: 'Cancelar assinatura' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmar cancelamento' }))
+    }
+
+    it('200 com o DTO: usa a resposta sem reler o status', async () => {
+      assinaturaService.status.mockResolvedValue(mensalAtiva)
+      assinaturaService.cancelar.mockResolvedValue({ ...mensalAtiva, status: 'CANCELADA', cancelavel: false, proximaCobrancaEm: null })
+      renderStatus()
+      await abrirEConfirmar()
+      expect(await screen.findByText('Cancelada')).toBeInTheDocument()
+      expect(assinaturaService.status).toHaveBeenCalledTimes(1)
+      expect(screen.queryByRole('button', { name: 'Cancelar assinatura' })).not.toBeInTheDocument()
+    })
+
+    it('200 com reembolsoEmProcessamento: avisa que o reembolso está em processamento', async () => {
+      const onSuccess = vi.fn()
+      assinaturaService.status.mockResolvedValue(mensalAtiva)
+      assinaturaService.cancelar.mockResolvedValue({ ...mensalAtiva, status: 'CANCELADA', reembolsoEmProcessamento: true, cancelavel: false })
+      renderStatus(onSuccess)
+      await abrirEConfirmar()
+      await waitFor(() => expect(onSuccess).toHaveBeenCalledWith('Assinatura cancelada. Reembolso em processamento.'))
+      expect(screen.getByText('Reembolso em processamento. O valor volta pelo mesmo meio de pagamento.')).toBeInTheDocument()
+    })
+
+    it('404: fecha o diálogo, avisa e relê o status', async () => {
+      const onSuccess = vi.fn()
+      assinaturaService.status.mockResolvedValueOnce(mensalAtiva).mockResolvedValueOnce(null)
+      assinaturaService.cancelar.mockRejectedValue(erroHttp(404, { erro: 'ASSINATURA_NAO_ENCONTRADA' }))
+      renderStatus(onSuccess)
+      await abrirEConfirmar()
+      await waitFor(() => expect(onSuccess).toHaveBeenCalledWith('Não há assinatura para cancelar.'))
+      expect(await screen.findByRole('link', { name: 'Ver planos' })).toBeInTheDocument()
+      expect(assinaturaService.status).toHaveBeenCalledTimes(2)
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+
+    it('409 REEMBOLSO_INDISPONIVEL: tira o reembolso e oferece só o cancelamento simples', async () => {
+      assinaturaService.status.mockResolvedValue(mensalAtiva)
+      assinaturaService.cancelar
+        .mockRejectedValueOnce(erroHttp(409, { erro: 'REEMBOLSO_INDISPONIVEL' }))
+        .mockResolvedValueOnce({ ...mensalAtiva, status: 'CANCELADA', cancelavel: false })
+      renderStatus()
+      await userEvent.click(await screen.findByRole('button', { name: 'Cancelar assinatura' }))
+      await userEvent.click(screen.getByRole('checkbox', { name: /direito de arrependimento/ }))
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmar cancelamento' }))
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'O prazo de 7 dias para reembolso terminou. Você ainda pode cancelar sem reembolso.',
+      )
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument()
+      expect(assinaturaService.cancelar).toHaveBeenNthCalledWith(1, true)
+
+      await userEvent.click(screen.getByRole('button', { name: 'Confirmar cancelamento' }))
+      await waitFor(() => expect(assinaturaService.cancelar).toHaveBeenNthCalledWith(2, false))
+    })
+
+    it('502: Mercado Pago fora, nada mudou, diálogo continua aberto', async () => {
+      assinaturaService.status.mockResolvedValue(mensalAtiva)
+      assinaturaService.cancelar.mockRejectedValue(erroHttp(502, { erro: 'GATEWAY_INDISPONIVEL' }))
+      renderStatus()
+      await abrirEConfirmar()
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'O Mercado Pago não respondeu. Tente de novo em instantes; nada foi alterado.',
+      )
+      expect(screen.getByRole('dialog')).toBeInTheDocument()
+      expect(assinaturaService.status).toHaveBeenCalledTimes(1)
+    })
   })
 
   it('fora dos 7 dias não oferece o reembolso', async () => {

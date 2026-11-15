@@ -72,15 +72,20 @@ const MENSAGEM_ERRO_ASSINATURA = {
 
 const estiloBotao = { borderRadius: '10px', textTransform: 'none', fontWeight: 700, py: 1.2 }
 
-// Só para exibir quando GET /plano/assinatura/ofertas falha; nunca habilita o botão.
-const PRECO_EXIBICAO = { [CICLOS.MENSAL]: 19.9, [CICLOS.ANUAL]: 199 }
+// Preço só vem de GET /plano/assinatura/ofertas: sem oferta, a tela não mostra preço.
 
 /** Valor da oferta do ciclo, ou `undefined` se o backend não a trouxe. */
 const valorOferta = (ofertas, ciclo) => {
   const valor = ofertas?.ofertas?.find((o) => o.ciclo === ciclo)?.valor
   return typeof valor === 'number' ? valor : undefined
 }
-const precoDe = (ofertas, ciclo) => formatBRL(valorOferta(ofertas, ciclo) ?? PRECO_EXIBICAO[ciclo])
+/** Preço formatado da oferta, ou `undefined` sem oferta. */
+const precoDe = (ofertas, ciclo) => {
+  const valor = valorOferta(ofertas, ciclo)
+  return valor === undefined ? undefined : formatBRL(valor)
+}
+/** "Assinar mensal R$ 19,90 (cartão)" ou, sem preço, "Assinar mensal (cartão)". */
+const rotuloAssinar = (nome, preco, meio) => `Assinar ${nome}${preco ? ` ${preco}` : ''} (${meio})`
 
 /**
  * Botões de checkout: pedem o link ao backend e saem para o Mercado Pago.
@@ -132,7 +137,7 @@ function BotoesAssinatura({ isPremium, ofertas }) {
         onClick={() => assinar(CICLOS.MENSAL)}
         sx={estiloBotao}
       >
-        Assinar mensal {precoDe(ofertas, CICLOS.MENSAL)} (cartão)
+        {rotuloAssinar('mensal', precoDe(ofertas, CICLOS.MENSAL), 'cartão')}
       </Button>
       <Button
         variant="outlined"
@@ -142,7 +147,7 @@ function BotoesAssinatura({ isPremium, ofertas }) {
         onClick={() => assinar(CICLOS.ANUAL)}
         sx={estiloBotao}
       >
-        Assinar anual {precoDe(ofertas, CICLOS.ANUAL)} (Pix ou cartão)
+        {rotuloAssinar('anual', precoDe(ofertas, CICLOS.ANUAL), 'Pix ou cartão')}
       </Button>
       <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
         Pagamento processado pelo Mercado Pago. O Premium é liberado após a confirmação.
@@ -167,6 +172,9 @@ const PlanoPage = () => {
       .catch(() => { if (ativo) setOfertas(null) })
     return () => { ativo = false }
   }, [liberado])
+
+  const precoMensal = liberado ? precoDe(ofertas, CICLOS.MENSAL) : undefined
+  const precoAnual = liberado ? precoDe(ofertas, CICLOS.ANUAL) : undefined
 
   return (
     <Box sx={{ width: '100%', maxWidth: 900, mx: 'auto', px: { xs: 2, md: 4 }, py: 4 }}>
@@ -259,13 +267,17 @@ const PlanoPage = () => {
                 )}
               </Box>
             </Box>
-            <Typography variant="h3" fontWeight={900} sx={{ color: 'text.primary', mb: 0.5 }}>
-              {liberado ? precoDe(ofertas, CICLOS.MENSAL) : 'R$ 19,90'}
-            </Typography>
+            {precoMensal && (
+              <Typography variant="h3" fontWeight={900} sx={{ color: 'text.primary', mb: 0.5 }}>
+                {precoMensal}
+              </Typography>
+            )}
             <Typography variant="caption" color="text.secondary">
-              {liberado
-                ? `por mês · ou ${precoDe(ofertas, CICLOS.ANUAL)} por ano · cancele quando quiser`
-                : 'por mês · cancele quando quiser'}
+              {[
+                precoMensal && 'por mês',
+                precoAnual && `${precoMensal ? 'ou ' : ''}${precoAnual} por ano`,
+                'cancele quando quiser',
+              ].filter(Boolean).join(' · ')}
             </Typography>
             <Divider sx={{ my: 2 }} />
             <List dense disablePadding>

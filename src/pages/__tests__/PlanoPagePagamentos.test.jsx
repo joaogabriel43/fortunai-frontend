@@ -51,6 +51,8 @@ const renderPage = () => render(
 // formatBRL usa espaço não separável depois do "R$".
 const MENSAL = /^Assinar mensal R\$\s19,90 \(cartão\)$/
 const ANUAL = /^Assinar anual R\$\s199,00 \(Pix ou cartão\)$/
+const MENSAL_SEM_PRECO = /^Assinar mensal \(cartão\)$/
+const ANUAL_SEM_PRECO = /^Assinar anual \(Pix ou cartão\)$/
 
 /** Espera as ofertas chegarem e o botão habilitar. */
 const botaoPronto = async (nome) => {
@@ -79,12 +81,16 @@ describe('PlanoPage com pagamentos liberados', () => {
     expect(screen.getByText(/por mês · ou R\$\s249,00 por ano/)).toBeInTheDocument()
   })
 
-  it('ofertas falhando: mostra os preços de exibição com os botões desabilitados', async () => {
-    assinaturaService.ofertas.mockRejectedValue(erroHttp(500))
-    renderPage()
-    expect(await screen.findByText(/Não foi possível carregar os preços agora/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: MENSAL })).toBeDisabled()
-    expect(screen.getByRole('button', { name: ANUAL })).toBeDisabled()
+  describe('regressão: preço fixo no frontend', () => {
+    it('ofertas falhando: planos sem preço e sem botão ativo', async () => {
+      assinaturaService.ofertas.mockRejectedValue(erroHttp(500))
+      renderPage()
+      expect(await screen.findByText(/Não foi possível carregar os preços agora/)).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: MENSAL_SEM_PRECO })).toBeDisabled()
+      expect(screen.getByRole('button', { name: ANUAL_SEM_PRECO })).toBeDisabled()
+      expect(screen.queryByText(/R\$/)).not.toBeInTheDocument()
+      expect(screen.getByText('cancele quando quiser')).toBeInTheDocument()
+    })
   })
 
   it('pagamentosHabilitados false em /ofertas: botões desabilitados com aviso', async () => {
@@ -99,7 +105,8 @@ describe('PlanoPage com pagamentos liberados', () => {
     assinaturaService.ofertas.mockResolvedValue({ pagamentosHabilitados: true, ofertas: [{ ciclo: 'ANUAL', valor: 199 }] })
     renderPage()
     expect(await botaoPronto(ANUAL)).toBeEnabled()
-    expect(screen.getByRole('button', { name: MENSAL })).toBeDisabled()
+    expect(screen.getByRole('button', { name: MENSAL_SEM_PRECO })).toBeDisabled()
+    expect(screen.getByText(/^R\$\s199,00 por ano · cancele quando quiser$/)).toBeInTheDocument()
   })
 
   it('anual: pede o checkout com ciclo ANUAL e redireciona para a URL do backend', async () => {

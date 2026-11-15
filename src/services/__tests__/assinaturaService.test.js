@@ -49,6 +49,7 @@ describe('motivoErroAssinatura', () => {
   })
 
   it('classifica 409, 429, 404 e falha de rede', () => {
+    expect(motivoErroAssinatura(erroHttp(409, { erro: 'REEMBOLSO_INDISPONIVEL' }))).toBe('reembolso-indisponivel')
     expect(motivoErroAssinatura(erroHttp(409))).toBe('conflito')
     expect(motivoErroAssinatura(erroHttp(429))).toBe('limite')
     expect(motivoErroAssinatura(erroHttp(404))).toBe('sem-assinatura')
