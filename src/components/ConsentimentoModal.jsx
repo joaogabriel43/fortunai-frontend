@@ -6,9 +6,7 @@ import {
 import GavelIcon from '@mui/icons-material/Gavel'
 import api from '../services/api'
 import { alpha } from '@mui/material/styles'
-
-const VERSAO_TERMOS = '1.0'
-const VERSAO_PRIVACIDADE = '1.0'
+import { VERSAO_TERMOS, VERSAO_PRIVACIDADE } from '../config/documentosLegais'
 
 /**
  * Modal obrigatório de consentimento LGPD (Art. 8°).

@@ -81,6 +81,24 @@ describe('ConsentimentoModal', () => {
     })
   })
 
+  // Versão 2.0 = Termos/Política do plano pago (ADR-073). Tem de bater com o backend.
+  it('envia e exibe a versão 2.0 dos documentos', async () => {
+    render(<ConsentimentoModal open={true} onAceitar={onAceitar} />)
+
+    expect(screen.getByText(/Termos de Uso — versão 2\.0/)).toBeInTheDocument()
+    expect(screen.getByText(/Política de Privacidade — versão 2\.0/)).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('checkbox'))
+    fireEvent.click(screen.getByRole('button', { name: /aceitar/i }))
+
+    await waitFor(() => {
+      expect(api.post).toHaveBeenCalledWith('/conta/consentimento', {
+        versaoTermos: '2.0',
+        versaoPrivacidade: '2.0',
+      })
+    })
+  })
+
   // 5. Após aceitar → callback onAceitar é chamado
   it('após POST bem-sucedido chama callback onAceitar', async () => {
     render(<ConsentimentoModal open={true} onAceitar={onAceitar} />)
