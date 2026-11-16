@@ -151,6 +151,13 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **Limite**: sem prerender, crawlers sem JS veem só os metadados da home em qualquer rota. Só o prerender resolve.
 **Travado por**: `seoPorRota.test.jsx` e `seoEstatico.test.js`.
 **Logo no JSON-LD**: `Organization` fica sem `logo` enquanto não houver logo oficial da Pondero (`/icons/pwa-512x512.png` é o ícone provisório "P" do Pondero, gerado por `scripts/generate-icons.js` — não é logo oficial).
+
+### [2026-11-15] Padrão: versão dos documentos legais em `src/config/documentosLegais.js`
+**O que é**: `VERSAO_TERMOS` / `VERSAO_PRIVACIDADE` saem só desse arquivo, usado pelo `ConsentimentoModal` e pelo `Registro`. Nenhum componente crava a versão.
+**Regra**: a versão tem de bater com a do `ConsentimentoService` do backend (repo `finassistant`). Subir no frontend antes do backend joga todo usuário no modal de consentimento — e o segundo aceite expõe o bug do `findLatestByUsuarioId` (ver "Erros Conhecidos"). O backend sobe primeiro; o frontend acompanha.
+**Regra de negócio (B6)**: versão desatualizada **não bloqueia** o plano Gratuito (o modal pede o novo aceite sem travar); assinar o Premium exige a versão vigente — o checkout responde **409** sem ela.
+**Travado por**: `termosUsoConteudo.test.js` e `ConsentimentoModal.test.jsx` (POST com a versão exata).
+
 ## Erros Conhecidos e Como Evitá-los
 
 ### [2026-07-19] Erro: heading aninhado em DialogTitle (React 19)
@@ -205,6 +212,11 @@ Todo componente sob `pages/Orcamento.jsx` que exibe dado mensal consome `useMesO
 **O que aconteceu**: o rascunho listava Render e Neon como operadores e prometia "logs por até 90 dias". Render/Neon estão desativados desde 10/09/2026; o 90 dias nunca foi definido.
 **Infraestrutura real**: backend e PostgreSQL em servidor próprio do controlador, no Brasil; tráfego pela Cloudflare (proxy/túnel); site na Vercel. Retenção de logs técnicos **sem prazo prometido** até o responsável definir.
 **Como prevenir**: ao tocar `public/politica-de-privacidade.md`, conferir cada operador citado contra a infraestrutura de "Estado Atual" e não prometer prazo/garantia que o código não implementa (criptografia em repouso, retenção). Travado por `politicaPrivacidadeConteudo.test.js`. Pendente de revisão jurídica: transferência internacional (LGPD art. 33) por Cloudflare/Vercel/Google e nova versão/consentimento.
+
+### [2026-11-15] Bug no backend: `findLatestByUsuarioId` quebra com dois ou mais consentimentos
+**O que acontece**: a consulta é `@Query ... ORDER BY consentidoEm DESC` devolvendo `Optional`, sem `LIMIT`. Com 2+ linhas de consentimento para o mesmo usuário, o Spring Data lança `IncorrectResultSizeDataAccessException` e `/conta/consentimento/status` responde 500 — que o frontend engole em silêncio (o modal simplesmente não decide nada).
+**Quando aparece**: no primeiro novo aceite, ou seja, em qualquer troca de versão dos documentos legais.
+**Como prevenir**: trocar por `findFirstByUsuarioIdOrderByConsentidoEmDesc` (ou `LIMIT 1`) **antes** de qualquer bump de versão — entra no B6 do backend. Regra geral: consulta que devolve `Optional` sobre relação 1:N precisa de `findFirst`/`LIMIT`, não só de `ORDER BY`.
 
 ## Configurações do Ambiente
 
@@ -267,3 +279,4 @@ O apex `pondero.com.br` responde 308 para `www`. Canonical, `og:*`, JSON-LD, sit
 - 2026-10-29: PR #14 (SEO por rota) — registrados o padrão data-seo-default com canonical/og:url fora do index.html, --pool=forks no Vitest e o cuidado com BOM em mensagem de commit.
 - 2026-11-06: identidade visual provisória — favicon, ícones do PWA e apple-touch-icon agora são o "P" do Pondero gerado por `scripts/generate-icons.js` (tokens de `theme.js`); `vite.svg` removido; travado por `identidadeVisual.test.js`.
 - 2026-11-06: rodada branding/privacidade (PRs #18–#21) — registrados em "Padrões do Projeto" os ícones gerados por `scripts/generate-icons.js` e a feature flag de `features.js` (como testar com `vi.resetModules` + `vi.doMock`), e em "Erros Conhecidos" o arquivo estático que não lê a flag (`llms.txt`) e a política de privacidade com infraestrutura desatualizada.
+- 2026-11-15: PR #26 (termos e política v2.0) — registrados em "Padrões do Projeto" a versão dos documentos legais em `documentosLegais.js` (backend sobe primeiro; regra B6: Gratuito não bloqueia, Premium exige a versão vigente com 409 no checkout) e em "Erros Conhecidos" o `findLatestByUsuarioId` que quebra com 2+ consentimentos.
