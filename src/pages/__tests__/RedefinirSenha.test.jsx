@@ -194,5 +194,39 @@ describe('RedefinirSenha', () => {
       expect(screen.getByLabelText(/^nova senha/i)).toBeInTheDocument();
       expect(screen.queryByText(MENSAGEM_POLITICA)).toBeNull();
     });
+
+    it('após 500, reenviar posta de novo exatamente o mesmo corpo (mesmo token e mesma senha)', async () => {
+      api.post.mockRejectedValue(erroHttp(500, {}));
+      renderPagina(`/redefinir-senha#token=${TOKEN}`);
+
+      preencher('novaSenha1');
+      enviar();
+      await screen.findByText('Não foi possível redefinir a senha agora. Tente novamente em instantes.');
+
+      enviar();
+      await vi.waitFor(() => expect(api.post).toHaveBeenCalledTimes(2));
+
+      expect(api.post).toHaveBeenNthCalledWith(2, '/auth/senha/redefinir', {
+        token: TOKEN,
+        novaSenha: 'novaSenha1',
+      });
+    });
+  });
+
+  describe('logs sem o token', () => {
+    it('500 → nenhum console.error/log/warn contém o token', async () => {
+      const spies = ['error', 'log', 'warn'].map((nome) => vi.spyOn(console, nome).mockImplementation(() => {}));
+      api.post.mockRejectedValue(erroHttp(500, {}));
+      renderPagina(`/redefinir-senha#token=${TOKEN}`);
+
+      preencher('novaSenha1');
+      enviar();
+      await screen.findByText('Não foi possível redefinir a senha agora. Tente novamente em instantes.');
+
+      expect(console.error).toHaveBeenCalled();
+      const comToken = spies.flatMap((spy) => spy.mock.calls).filter((args) => JSON.stringify(args).includes(TOKEN));
+      spies.forEach((spy) => spy.mockRestore());
+      expect(comToken).toEqual([]);
+    });
   });
 });

@@ -61,4 +61,16 @@ describe('EsqueciSenha — mensagem que não revela se a conta existe', () => {
     expect((await screen.findByRole('status')).textContent).toBe(MENSAGEM);
     expect(screen.queryByRole('alert')).toBeNull();
   });
+
+  it.each([400, 404, 429])('%i do backend → mostra a MESMA mensagem do sucesso', async (status) => {
+    const erro = new Error(`Request failed with status code ${status}`);
+    erro.response = { status, data: {} };
+    api.post.mockRejectedValue(erro);
+    renderPagina();
+
+    enviar();
+
+    expect((await screen.findByRole('status')).textContent).toBe(MENSAGEM);
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
 });
