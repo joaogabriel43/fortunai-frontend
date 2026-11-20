@@ -26,6 +26,14 @@ describe('Login — integração com a navegação pública', () => {
   });
 });
 
+describe('Login — recuperação de senha', () => {
+  it('link "Esqueci minha senha" aponta para /esqueci-senha', () => {
+    renderLogin();
+
+    expect(screen.getByRole('link', { name: 'Esqueci minha senha' })).toHaveAttribute('href', '/esqueci-senha');
+  });
+});
+
 describe('Login — mostrar/ocultar senha', () => {
   it('campo de senha começa oculto (type="password") com botão "Mostrar senha"', () => {
     renderLogin();

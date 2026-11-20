@@ -1,28 +1,13 @@
 import React, { useState } from 'react';
 import { Box, Paper, Typography, TextField, Button, Alert, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { logErroSeguro } from '../utils/apiErrorUtils';
 import PasswordField from './PasswordField';
 import AuthPageLayout from './public/AuthPageLayout';
+import { cardSx, inputSx } from './public/authFormSx';
 import Seo from './Seo';
 import { PAGINAS } from '../seo/paginas';
-
-const inputSx = (theme) => ({
-  '& .MuiOutlinedInput-root': {
-    backgroundColor: 'background.paper',
-    '& fieldset': { borderColor: 'divider' },
-    '&:hover fieldset': { borderColor: 'text.disabled' },
-    '&.Mui-focused fieldset': { borderColor: 'primary.main' },
-  },
-  '& .MuiInputBase-input': { color: 'text.primary' },
-  '& .MuiInputBase-input:-webkit-autofill': {
-    WebkitBoxShadow: `0 0 0 1000px ${theme.palette.background.paper} inset`,
-    WebkitTextFillColor: theme.palette.text.primary,
-    caretColor: theme.palette.text.primary,
-  },
-  '& .MuiInputLabel-root': { color: 'text.secondary' },
-  '& .MuiInputLabel-root.Mui-focused': { color: 'primary.main' },
-});
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -60,18 +45,7 @@ const Login = () => {
   return (
     <AuthPageLayout>
       <Seo {...PAGINAS.login} />
-      <Paper
-        sx={{
-          p: 4,
-          width: '100%',
-          maxWidth: 420,
-          borderRadius: '16px',
-          border: '1px solid',
-          borderColor: 'divider',
-          backdropFilter: 'blur(12px)',
-          bgcolor: 'background.paper',
-        }}
-      >
+      <Paper sx={cardSx}>
         <Typography variant="h5" fontWeight={700} sx={{ color: 'primary.main', mb: 0.5, textAlign: 'center' }}>
           Pondero
         </Typography>
@@ -109,6 +83,17 @@ const Login = () => {
             InputLabelProps={{ shrink: true }}
             sx={inputSx}
           />
+          <Box sx={{ textAlign: 'right', mt: '4px' }}>
+            <Link
+              component={RouterLink}
+              to="/esqueci-senha"
+              underline="hover"
+              variant="body2"
+              sx={{ color: 'primary.main', fontWeight: 600 }}
+            >
+              Esqueci minha senha
+            </Link>
+          </Box>
 
           {error && (
             <Alert severity="error" sx={{ width: '100%', mt: 2 }}>

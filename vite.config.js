@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { fileURLToPath, URL } from 'node:url'
 import { apiRuntimeCaching } from './src/pwa/apiRuntimeCaching.js'
+import { navigateFallbackDenylist } from './src/pwa/navigateFallbackDenylist.js'
 
 // Vite configuration with explicit proxy to Spring Boot backend on port 3333
 export default defineConfig({
@@ -44,10 +45,10 @@ export default defineConfig({
         // F-01: allowlist positiva. Nada sob /api/** e cacheado por padrao;
         // ver src/pwa/apiRuntimeCaching.js para o criterio de classificacao.
         runtimeCaching: apiRuntimeCaching,
-        // robots.txt, sitemap.xml e llms.txt sao arquivos estaticos para crawlers:
-        // sem a denylist, um navegador com o SW ativo cairia no navigateFallback
-        // (index.html) ao abrir essas URLs diretamente.
-        navigateFallbackDenylist: [/^\/robots\.txt$/, /^\/sitemap\.xml$/, /^\/llms\.txt$/]
+        // Rotas que nunca caem no navigateFallback (index.html do precache):
+        // arquivos estaticos de SEO e as paginas de recuperacao de senha.
+        // Lista e motivos em src/pwa/navigateFallbackDenylist.js.
+        navigateFallbackDenylist
       }
     })
   ],

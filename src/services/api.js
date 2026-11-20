@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { deveTentarRefresh, renovarSessao } from './tokenRefresh';
+import { deveTentarRefresh, ehRotaDeRecuperacaoDeSenha, renovarSessao } from './tokenRefresh';
 import { API_BASE_URL } from '../config/apiUrl';
 
 const api = axios.create({
@@ -13,7 +13,8 @@ api.defaults.headers.post['Content-Type'] = 'application/json';
 // Interceptor para adicionar o token JWT ao header de autorização
 api.interceptors.request.use(async config => {
     const token = localStorage.getItem('authToken');
-    if (token) {
+    // Recuperação de senha é pública: nunca leva o JWT de uma sessão antiga.
+    if (token && !ehRotaDeRecuperacaoDeSenha(config.url)) {
         config.headers.Authorization = `Bearer ${token}`;
     }
     // SEC-03: nada de log de diagnóstico aqui — este interceptor roda em TODA

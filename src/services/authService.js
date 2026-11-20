@@ -92,6 +92,16 @@ export async function registrar(email, senha) {
   return response.data;
 }
 
+// "Esqueci minha senha": o backend responde 202 exista ou não a conta.
+export async function solicitarRedefinicaoSenha(email) {
+  await api.post('/auth/senha/esqueci', { email });
+}
+
+// O token do link só viaja aqui, no corpo do POST — nunca em URL, storage ou log.
+export async function redefinirSenha(token, novaSenha) {
+  await api.post('/auth/senha/redefinir', { token, novaSenha });
+}
+
 /**
  * Limpa a sessão local e revoga os refresh tokens no backend (best-effort).
  *
@@ -128,4 +138,6 @@ export function getToken() {
 }
 
 // Export default para permitir import authService como objeto
-export default { login, registrar, logout, getToken, limparCachesDoPwa };
+export default {
+  login, registrar, solicitarRedefinicaoSenha, redefinirSenha, logout, getToken, limparCachesDoPwa,
+};

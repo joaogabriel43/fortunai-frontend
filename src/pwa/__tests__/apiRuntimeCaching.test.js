@@ -289,6 +289,13 @@ describe('F-01 — classificação das rotas GET de /api/**', () => {
     expect(podeSerCacheada(`${API_ORIGIN_PRODUCAO}${rota}`)).toBe(false)
   })
 
+  it.each(['/api/auth/senha/esqueci', '/api/auth/senha/redefinir'])(
+    'não cacheia a rota de recuperação de senha %s',
+    (rota) => {
+      expect(podeSerCacheada(`${API_ORIGIN_PRODUCAO}${rota}`)).toBe(false)
+    },
+  )
+
   it('mantém /api/status cacheado — rota pública, sem custo de segurança', () => {
     expect(podeSerCacheada(`${API_ORIGIN_PRODUCAO}/api/status`)).toBe(true)
     expect(podeSerCacheada(`${API_ORIGIN_PRODUCAO}/api/status/`)).toBe(true)

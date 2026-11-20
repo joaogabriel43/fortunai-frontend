@@ -11,6 +11,13 @@
 let refreshEmAndamento = null;
 
 /**
+ * Recuperação de senha (`/auth/senha/esqueci` e `/auth/senha/redefinir`): chamadas
+ * públicas, feitas por quem NÃO tem sessão. Não levam `Authorization` nem disparam
+ * refresh — um token velho no storage não pode interferir nelas.
+ */
+export const ehRotaDeRecuperacaoDeSenha = (url = '') => url.includes('/auth/senha/');
+
+/**
  * Decide se um erro de resposta merece tentativa de refresh:
  * 401 ou 403, fora dos endpoints de auth, sem retry anterior e com refresh token salvo.
  * O Spring (sem entry point configurado) devolve 403 sem corpo para JWT ausente/expirado,
@@ -22,7 +29,10 @@ export const deveTentarRefresh = (error) => {
   if (status !== 401 && status !== 403) return false;
   if (error?.config?._retry) return false;
   const url = error?.config?.url || '';
-  if (url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/registrar')) {
+  if (
+    url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/registrar') ||
+    ehRotaDeRecuperacaoDeSenha(url)
+  ) {
     return false;
   }
   return Boolean(localStorage.getItem('refreshToken'));

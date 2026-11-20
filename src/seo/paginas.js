@@ -44,4 +44,14 @@ export const PAGINAS = {
     title: 'Página não encontrada — Pondero',
     description: 'A página que você procura não existe ou foi movida.',
   },
+  esqueciSenha: {
+    noindex: true,
+    title: 'Esqueci minha senha — Pondero',
+    description: 'Peça um link para redefinir a senha da sua conta Pondero.',
+  },
+  redefinirSenha: {
+    noindex: true,
+    title: 'Redefinir senha — Pondero',
+    description: 'Crie uma nova senha para a sua conta Pondero.',
+  },
 }

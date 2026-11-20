@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { deveTentarRefresh, renovarSessao, __resetParaTestes } from '../tokenRefresh';
+import {
+  deveTentarRefresh,
+  ehRotaDeRecuperacaoDeSenha,
+  renovarSessao,
+  __resetParaTestes,
+} from '../tokenRefresh';
 
 const erro = ({ status = 401, url = '/investimentos/portfolio', retry = false } = {}) => ({
   response: { status },
@@ -60,6 +65,26 @@ describe('tokenRefresh (ADR-029)', () => {
     it.each(['/auth/login', '/auth/refresh', '/auth/registrar'])('403 em %s → false', (url) => {
       localStorage.setItem('refreshToken', 'rt-1');
       expect(deveTentarRefresh(erro({ status: 403, url }))).toBe(false);
+    });
+  });
+
+  describe('recuperação de senha (/auth/senha/*) nunca dispara refresh', () => {
+    it.each([
+      [401, '/auth/senha/esqueci'],
+      [403, '/auth/senha/esqueci'],
+      [401, '/auth/senha/redefinir'],
+      [403, '/auth/senha/redefinir'],
+    ])('%i em %s → false', (status, url) => {
+      localStorage.setItem('refreshToken', 'rt-1');
+      expect(deveTentarRefresh(erro({ status, url }))).toBe(false);
+    });
+
+    it('ehRotaDeRecuperacaoDeSenha reconhece só /auth/senha/*', () => {
+      expect(ehRotaDeRecuperacaoDeSenha('/auth/senha/esqueci')).toBe(true);
+      expect(ehRotaDeRecuperacaoDeSenha('/auth/senha/redefinir')).toBe(true);
+      expect(ehRotaDeRecuperacaoDeSenha('/auth/me')).toBe(false);
+      expect(ehRotaDeRecuperacaoDeSenha('/usuario/senha')).toBe(false);
+      expect(ehRotaDeRecuperacaoDeSenha(undefined)).toBe(false);
     });
   });
 

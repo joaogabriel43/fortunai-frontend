@@ -123,4 +123,31 @@ describe('api interceptor — sessão expirada (403 do entry point do Spring)', 
       expect(assign).toHaveBeenCalledWith('/login');
     });
   });
+
+  describe('recuperação de senha (/auth/senha/*)', () => {
+    it.each([
+      ['/auth/senha/esqueci', 401],
+      ['/auth/senha/esqueci', 403],
+      ['/auth/senha/redefinir', 401],
+      ['/auth/senha/redefinir', 403],
+    ])('%s com %i → sem Authorization, sem refresh, erro intacto, sem logout', async (url, status) => {
+      usarAdapter((config) => rejeita(config, status));
+
+      await expect(api.post(url, {})).rejects.toMatchObject({ response: { status } });
+
+      expect(chamadas).toEqual([{ url, authorization: undefined }]);
+      expect(refreshCalls()).toHaveLength(0);
+      expect(localStorage.getItem('authToken')).toBe('jwt-velho');
+      expect(localStorage.getItem('refreshToken')).toBe('rt-velho');
+      expect(assign).not.toHaveBeenCalled();
+    });
+
+    it('rota autenticada comum continua levando o Bearer (controle)', async () => {
+      usarAdapter((config) => Promise.resolve(resposta(config, 200)));
+
+      await api.get('/investimentos/portfolio');
+
+      expect(chamadas).toEqual([{ url: '/investimentos/portfolio', authorization: 'Bearer jwt-velho' }]);
+    });
+  });
 });

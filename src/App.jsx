@@ -15,6 +15,8 @@ import api from './services/api';
 const LandingPage             = lazy(() => import('./pages/LandingPage'));
 const LoginPage               = lazy(() => import('./pages/LoginPage'));
 const Registro                = lazy(() => import('./pages/Registro'));
+const EsqueciSenha            = lazy(() => import('./pages/EsqueciSenha'));
+const RedefinirSenha          = lazy(() => import('./pages/RedefinirSenha'));
 const Dashboard               = lazy(() => import('./pages/Dashboard'));
 const Chat                    = lazy(() => import('./pages/Chat'));
 const Orcamento               = lazy(() => import('./pages/Orcamento'));
@@ -37,7 +39,9 @@ const PoliticaPrivacidadePage = lazy(() => import('./pages/PoliticaPrivacidadePa
  * - Páginas legais (usuário precisa conseguir LER antes de aceitar)
  * - Páginas públicas de auth (sem sessão ativa ainda)
  */
-const ROTAS_SEM_MODAL = ['/termos', '/privacidade', '/login', '/registrar', '/status'];
+const ROTAS_SEM_MODAL = [
+    '/termos', '/privacidade', '/login', '/registrar', '/esqueci-senha', '/redefinir-senha', '/status',
+];
 
 /**
  * Wrapper interno (dentro de AuthProvider + Router) — controla os overlays globais:
@@ -98,6 +102,8 @@ function App() {
                         <Route path="/" element={<HomeRoute landing={<LandingPage />} />} />
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/registrar" element={<Registro />} />
+                        <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+                        <Route path="/redefinir-senha" element={<RedefinirSenha />} />
                         <Route path="/status" element={<StatusPage />} />
                         <Route path="/termos" element={<TermosUsoPage />} />
                         <Route path="/privacidade" element={<PoliticaPrivacidadePage />} />
